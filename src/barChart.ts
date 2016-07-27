@@ -23,6 +23,51 @@ module powerbi.extensibility.visual {
         category: string;
     };
 
+    /**
+     * Function that converts queried data into a view model that will be used by the visual
+     *
+     * @function
+     * @param {VisualUpdateOptions} options - Contains references to the size of the container
+     *                                        and the dataView which contains all the data
+     *                                        the visual had queried.
+     * @param {IVisualHost} host            - Contains references to the host which contains services
+     */
+    function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
+        let dataViews = options.dataViews;
+        let viewModel: BarChartViewModel = {
+            dataPoints: [],
+            dataMax: 0
+        };
+
+        if (!dataViews
+            || !dataViews[0]
+            || !dataViews[0].categorical
+            || !dataViews[0].categorical.categories
+            || !dataViews[0].categorical.categories[0].source
+            || !dataViews[0].categorical.values)
+            return viewModel;
+
+        let categorical = dataViews[0].categorical;
+        let category = categorical.categories[0];
+        let dataValue = categorical.values[0];
+
+        let barChartDataPoints: BarChartDataPoint[] = [];
+        let dataMax: number;
+
+        for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
+            barChartDataPoints.push({
+                category: category.values[i],
+                value: dataValue.values[i]
+            });
+        }
+        dataMax = <number>dataValue.maxLocal;
+
+        return {
+            dataPoints: barChartDataPoints,
+            dataMax: dataMax
+        };
+    }
+
     export class BarChart implements IVisual {
         private svg: d3.Selection<SVGElement>;
         private host: IVisualHost;
@@ -61,33 +106,7 @@ module powerbi.extensibility.visual {
          *                                        the visual had queried.
          */
         public update(options: VisualUpdateOptions) {
-            let testData: BarChartDataPoint[] = [
-                {
-                    value: 10,
-                    category: 'a'
-                },
-                {
-                    value: 20,
-                    category: 'b'
-                },
-                {
-                    value: 1,
-                    category: 'c'
-                },
-                {
-                    value: 100,
-                    category: 'd'
-                },
-                {
-                    value: 500,
-                    category: 'e'
-                }];
-
-            let viewModel: BarChartViewModel = {
-                dataPoints: testData,
-                dataMax: d3.max(testData.map((dataPoint) => dataPoint.value))
-            };
-
+            let viewModel: BarChartViewModel = visualTransform(options, this.host);
             let width = options.viewport.width;
             let height = options.viewport.height;
 
@@ -108,6 +127,7 @@ module powerbi.extensibility.visual {
             bars.enter()
                 .append('rect')
                 .classed('bar', true);
+
             bars.attr({
                 width: xScale.rangeBand(),
                 height: d => height - yScale(d.value),
