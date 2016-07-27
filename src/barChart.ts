@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual {
-    export class Visual implements IVisual {
+    export class BarChart implements IVisual {
         private target: HTMLElement;
         private updateCount: number;
 
