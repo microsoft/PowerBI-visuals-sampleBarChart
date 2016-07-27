@@ -9,6 +9,7 @@
     },
     "files": [
         ".api/v1.1.0/PowerBI-visuals.d.ts",
-        "src/visual.ts"
+        "src/visual.ts",
+        "typings/index.d.ts"
     ]
 }
