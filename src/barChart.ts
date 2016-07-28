@@ -16,15 +16,17 @@ module powerbi.extensibility.visual {
      *
      * @interface
      * @property {number} value    - Data value for point.
-     * @property {string} category - Coresponding category of data value.
+     * @property {string} category - Corresponding category of data value.
+     * @property {string} color    - Color corresponding to data point.
      */
     interface BarChartDataPoint {
         value: number;
         category: string;
+        color: string;
     };
 
     /**
-     * Function that converts queried data into a view model that will be used by the visual
+     * Function that converts queried data into a view model that will be used by the visual.
      *
      * @function
      * @param {VisualUpdateOptions} options - Contains references to the size of the container
@@ -54,10 +56,12 @@ module powerbi.extensibility.visual {
         let barChartDataPoints: BarChartDataPoint[] = [];
         let dataMax: number;
 
+        let colorPalette: IColorPalette = createColorPalette(host.colors).reset();
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
             barChartDataPoints.push({
                 category: category.values[i],
-                value: dataValue.values[i]
+                value: dataValue.values[i],
+                color: colorPalette.getColor(category.values[i]).value
             });
         }
         dataMax = <number>dataValue.maxLocal;
@@ -132,7 +136,8 @@ module powerbi.extensibility.visual {
                 width: xScale.rangeBand(),
                 height: d => height - yScale(d.value),
                 y: d => yScale(d.value),
-                x: d => xScale(d.category)
+                x: d => xScale(d.category),
+                fill: d => d.color,
             });
 
             bars.exit()
