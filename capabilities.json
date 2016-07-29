@@ -40,5 +40,16 @@
                 }
             }
         }
-    ]
+    ],
+    "objects": {
+        "enableAxis": {
+            "displayName": "Enable Axis",
+            "properties": {
+                "show": {
+                    "displayName": "Enable Axis",
+                    "type": { "bool": true }
+                }
+            }
+        }
+    }
 }

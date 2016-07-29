@@ -9,6 +9,7 @@ module powerbi.extensibility.visual {
     interface BarChartViewModel {
         dataPoints: BarChartDataPoint[];
         dataMax: number;
+        settings: BarChartSettings;
     };
 
     /**
@@ -29,6 +30,18 @@ module powerbi.extensibility.visual {
     };
 
     /**
+     * Interface for BarChart settings.
+     *
+     * @interface
+     * @property {{show:boolean}} enableAxis - Object property that allows axis to be enabled.
+     */
+    interface BarChartSettings {
+        enableAxis: {
+            show: boolean;
+        };
+    }
+
+    /**
      * Function that converts queried data into a view model that will be used by the visual.
      *
      * @function
@@ -39,9 +52,15 @@ module powerbi.extensibility.visual {
      */
     function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
         let dataViews = options.dataViews;
+        let defaultSettings: BarChartSettings = {
+            enableAxis: {
+                show: false,
+            }
+        };
         let viewModel: BarChartViewModel = {
             dataPoints: [],
-            dataMax: 0
+            dataMax: 0,
+            settings: defaultSettings
         };
 
         if (!dataViews
@@ -60,6 +79,12 @@ module powerbi.extensibility.visual {
         let dataMax: number;
 
         let colorPalette: IColorPalette = createColorPalette(host.colors).reset();
+        let objects = dataViews[0].metadata.objects;
+        let barChartSettings: BarChartSettings = {
+            enableAxis: {
+                show: getValue<boolean>(objects, 'enableAxis', 'show', defaultSettings.enableAxis.show),
+            }
+        }
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
             barChartDataPoints.push({
                 category: category.values[i],
@@ -74,7 +99,8 @@ module powerbi.extensibility.visual {
 
         return {
             dataPoints: barChartDataPoints,
-            dataMax: dataMax
+            dataMax: dataMax,
+            settings: barChartSettings,
         };
     }
 
@@ -84,12 +110,21 @@ module powerbi.extensibility.visual {
         private selectionManager: ISelectionManager;
         private barChartContainer: d3.Selection<SVGElement>;
         private barContainer: d3.Selection<SVGElement>;
+        private xAxis: d3.Selection<SVGElement>;
         private bars: d3.Selection<SVGElement>;
+        private barChartSettings: BarChartSettings;
 
         static Config = {
             xScalePadding: 0.1,
             solidOpacity: 1,
             transparentOpacity: 0.5,
+            margins: {
+                top: 0,
+                right: 0,
+                bottom: 25,
+                left: 30,
+            },
+            xAxisFontMultiplier: 0.04,
         };
 
         /**
@@ -109,6 +144,9 @@ module powerbi.extensibility.visual {
 
             this.barContainer = svg.append('g')
                 .classed('barContainer', true);
+
+            this.xAxis = svg.append('g')
+                .classed('xAxis', true);
         }
 
         /**
@@ -121,6 +159,8 @@ module powerbi.extensibility.visual {
          */
         public update(options: VisualUpdateOptions) {
             let viewModel: BarChartViewModel = visualTransform(options, this.host);
+            let settings = this.barChartSettings = viewModel.settings;
+
             let width = options.viewport.width;
             let height = options.viewport.height;
 
@@ -129,13 +169,29 @@ module powerbi.extensibility.visual {
                 height: height
             });
 
+            if(settings.enableAxis.show) {
+                let margins = BarChart.Config.margins;
+                height -= margins.bottom;
+            }
+
+            this.xAxis.style({
+                'font-size': d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier,
+            });
+
             let yScale = d3.scale.linear()
                 .domain([0, viewModel.dataMax])
                 .range([height, 0]);
 
             let xScale = d3.scale.ordinal()
                 .domain(viewModel.dataPoints.map(d => d.category))
-                .rangeRoundBands([0, width], BarChart.Config.xScalePadding);
+                .rangeRoundBands([0, width], BarChart.Config.xScalePadding, 0.2);
+
+            let xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient('bottom');
+
+            this.xAxis.attr('transform', 'translate(0, ' + height + ')')
+                .call(xAxis);
 
             let bars = this.barContainer.selectAll('.bar').data(viewModel.dataPoints);
             bars.enter()
@@ -171,6 +227,30 @@ module powerbi.extensibility.visual {
 
             bars.exit()
                .remove();
+        }
+
+        /**
+         * Enumerates through the objects defined in the capabilities and adds the properties to the format pane
+         *
+         * @function
+         * @param {EnumerateVisualObjectInstancesOptions} options - Map of defined objects
+         */
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+            let objectName = options.objectName;
+            let objectEnumeration: VisualObjectInstance[] = [];
+
+            switch(objectName) {
+                case 'enableAxis':
+                    objectEnumeration.push({
+                        objectName: objectName,
+                        properties: {
+                            show: this.barChartSettings.enableAxis.show,
+                        },
+                        selector: null
+                    });
+            };
+
+            return objectEnumeration;
         }
 
         /**

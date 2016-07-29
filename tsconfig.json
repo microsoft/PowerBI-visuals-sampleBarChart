@@ -11,6 +11,7 @@
         ".api/v1.1.0/PowerBI-visuals.d.ts",
         "src/colorPalette.ts",
         "src/barChart.ts",
+        "src/objectEnumerationUtility.ts",
         "typings/index.d.ts"
     ]
 }
