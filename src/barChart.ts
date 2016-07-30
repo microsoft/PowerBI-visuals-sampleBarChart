@@ -60,7 +60,7 @@ module powerbi.extensibility.visual {
         let viewModel: BarChartViewModel = {
             dataPoints: [],
             dataMax: 0,
-            settings: defaultSettings
+            settings: <BarChartSettings>{}
         };
 
         if (!dataViews
@@ -86,10 +86,16 @@ module powerbi.extensibility.visual {
             }
         }
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
+            let defaultColor: Fill = {
+                solid: {
+                    color: colorPalette.getColor(category.values[i]).value
+                }
+            }
+
             barChartDataPoints.push({
                 category: category.values[i],
                 value: dataValue.values[i],
-                color: colorPalette.getColor(category.values[i]).value,
+                color: getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
                 selectionId: host.createSelectionIdBuilder()
                     .withCategory(category, i)
                     .createSelectionId()
@@ -111,7 +117,7 @@ module powerbi.extensibility.visual {
         private barChartContainer: d3.Selection<SVGElement>;
         private barContainer: d3.Selection<SVGElement>;
         private xAxis: d3.Selection<SVGElement>;
-        private bars: d3.Selection<SVGElement>;
+        private barDataPoints: BarChartDataPoint[];
         private barChartSettings: BarChartSettings;
 
         static Config = {
@@ -160,6 +166,7 @@ module powerbi.extensibility.visual {
         public update(options: VisualUpdateOptions) {
             let viewModel: BarChartViewModel = visualTransform(options, this.host);
             let settings = this.barChartSettings = viewModel.settings;
+            this.barDataPoints = viewModel.dataPoints;
 
             let width = options.viewport.width;
             let height = options.viewport.height;
@@ -248,6 +255,23 @@ module powerbi.extensibility.visual {
                         },
                         selector: null
                     });
+                    break;
+                case 'colorSelector':
+                    for(let barDataPoint of this.barDataPoints) {
+                        objectEnumeration.push({
+                            objectName: objectName,
+                            displayName: barDataPoint.category,
+                            properties: {
+                                fill: {
+                                    solid: {
+                                        color: barDataPoint.color
+                                    }
+                                }
+                            },
+                            selector: barDataPoint.selectionId.getSelector()
+                        });
+                    }
+                    break;
             };
 
             return objectEnumeration;
