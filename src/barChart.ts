@@ -229,7 +229,7 @@ module powerbi.extensibility.visual {
                     });
                 });
 
-                (<Event>d3.event).stopPropagation
+                (<Event>d3.event).stopPropagation();
             });
 
             bars.exit()
