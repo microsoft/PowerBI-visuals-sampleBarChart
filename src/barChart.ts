@@ -23,7 +23,7 @@ module powerbi.extensibility.visual {
      *                                        and visual interaction.
      */
     interface BarChartDataPoint {
-        value: number;
+        value: PrimitiveValue;
         category: string;
         color: string;
         selectionId: ISelectionId;
@@ -78,7 +78,7 @@ module powerbi.extensibility.visual {
         let barChartDataPoints: BarChartDataPoint[] = [];
         let dataMax: number;
 
-        let colorPalette: IColorPalette = createColorPalette(host.colors).reset();
+        let colorPalette: IColorPalette = host.colorPalette;
         let objects = dataViews[0].metadata.objects;
         let barChartSettings: BarChartSettings = {
             enableAxis: {
@@ -88,12 +88,12 @@ module powerbi.extensibility.visual {
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
             let defaultColor: Fill = {
                 solid: {
-                    color: colorPalette.getColor(category.values[i]).value
+                    color: colorPalette.getColor(category.values[i] + '').value
                 }
             }
 
             barChartDataPoints.push({
-                category: category.values[i],
+                category: category.values[i] + '',
                 value: dataValue.values[i],
                 color: getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
                 selectionId: host.createSelectionIdBuilder()
@@ -207,8 +207,8 @@ module powerbi.extensibility.visual {
 
             bars.attr({
                 width: xScale.rangeBand(),
-                height: d => height - yScale(d.value),
-                y: d => yScale(d.value),
+                height: d => height - yScale(<number>d.value),
+                y: d => yScale(<number>d.value),
                 x: d => xScale(d.category),
                 fill: d => d.color,
                 'fill-opacity': BarChart.Config.solidOpacity,
@@ -268,7 +268,7 @@ module powerbi.extensibility.visual {
                                     }
                                 }
                             },
-                            selector: barDataPoint.selectionId.getSelector()
+                            selector: barDataPoint.selectionId
                         });
                     }
                     break;
