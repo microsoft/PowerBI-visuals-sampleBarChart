@@ -119,6 +119,7 @@ module powerbi.extensibility.visual {
         private xAxis: d3.Selection<SVGElement>;
         private barDataPoints: BarChartDataPoint[];
         private barChartSettings: BarChartSettings;
+        private tooltipServiceWrapper: ITooltipServiceWrapper;
 
         static Config = {
             xScalePadding: 0.1,
@@ -144,6 +145,7 @@ module powerbi.extensibility.visual {
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
             this.selectionManager = options.host.createSelectionManager();
+            this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
             let svg = this.svg = d3.select(options.element)
                 .append('svg')
                 .classed('barChart', true);
@@ -213,6 +215,10 @@ module powerbi.extensibility.visual {
                 fill: d => d.color,
                 'fill-opacity': BarChart.Config.solidOpacity,
             });
+
+            this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'), 
+                (tooltipEvent: TooltipEventArgs<number>) => BarChart.getTooltipData(tooltipEvent.data),
+                (tooltipEvent: TooltipEventArgs<number>) => null);
 
             let selectionManager = this.selectionManager;
 
@@ -285,6 +291,14 @@ module powerbi.extensibility.visual {
          */
         public destroy(): void {
             //Perform any cleanup tasks here
+        }
+
+        private static getTooltipData(value: any): VisualTooltipDataItem[] {
+            return [{
+                displayName: value.category,
+                value: value.value.toString(),
+                color: value.color
+            }];
         }
     }
 }
