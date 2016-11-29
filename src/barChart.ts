@@ -39,6 +39,10 @@ module powerbi.extensibility.visual {
         enableAxis: {
             show: boolean;
         };
+        
+        generalView: {
+            opacity: number;
+        };
     }
 
     /**
@@ -55,6 +59,9 @@ module powerbi.extensibility.visual {
         let defaultSettings: BarChartSettings = {
             enableAxis: {
                 show: false,
+            },
+            generalView: {
+                opacity: 100
             }
         };
         let viewModel: BarChartViewModel = {
@@ -83,6 +90,9 @@ module powerbi.extensibility.visual {
         let barChartSettings: BarChartSettings = {
             enableAxis: {
                 show: getValue<boolean>(objects, 'enableAxis', 'show', defaultSettings.enableAxis.show),
+            },
+            generalView: {
+                opacity: getValue<number>(objects, 'generalView', 'opacity', defaultSettings.generalView.opacity),
             }
         }
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
@@ -213,7 +223,7 @@ module powerbi.extensibility.visual {
                 y: d => yScale(<number>d.value),
                 x: d => xScale(d.category),
                 fill: d => d.color,
-                'fill-opacity': BarChart.Config.solidOpacity,
+                'fill-opacity': viewModel.settings.generalView.opacity / 100
             });
 
             this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'), 
@@ -277,6 +287,23 @@ module powerbi.extensibility.visual {
                             selector: barDataPoint.selectionId
                         });
                     }
+                    break;
+                case 'generalView': 
+                    objectEnumeration.push({
+                        objectName: objectName,
+                        properties: {
+                            opacity: this.barChartSettings.generalView.opacity,
+                        },
+                        validValues: {
+                            opacity: {
+                                numberRange: {
+                                    min: 10,
+                                    max: 100
+                                }
+                            }
+                        },
+                        selector: null
+                    });
                     break;
             };
 
