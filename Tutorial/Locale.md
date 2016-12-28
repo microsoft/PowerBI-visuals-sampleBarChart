@@ -12,7 +12,7 @@ In the sample we display the current locale in the tooltip.
 
 ![Sample BarChart with Locale](./images/LocaleInSampleBarChart.png)
 
-Each of these bar charts was created under different locale (English, Basque and Hindi), and it is displayed in the tooltip.
+Each of these bar charts was created under different locale (English, Basque and Hindi).
 
 The BarChart contructor now has a `locale` member which is instantiated in the constructor with the host `locale` instance.
 
@@ -22,20 +22,8 @@ The BarChart contructor now has a `locale` member which is instantiated in the c
     this.locale = options.host.locale;
 ```
 
-A 'Localization' interface was added, which helps in localizing strings. It defines the required string for each locale, and also the 'defaultValue', which will be displayed if the visual wansn't adapted to this locale.
-
-```typescript
-    /**
-     * Returns the localized string in the locale transfared using the key that was given to serch the resources
-     * 
-     * @param {string} locale - the locale in which PowerBI is currently running
-     * @param {object} key - specify a key for the string you want localized in your visual
-     */   
-    export function getLocalizedString(locale: string, key: string): string {
-        return myResources && key && myResources[key] && (((myResources[key]).localization[locale])|| (myResources[key]).defaultValue);
-   }
-```
-`myResources` holds the actual strings:
+A `LocalizaionResources` interface was added, which helps in localizing strings. It defines the required string for each locale, and also the 'defaultValue', which will be displayed if the visual wansn't adapted to this locale.<br>
+`myResources` is an instance of this interface, which holds the localized strings:
 
 ```typescript
 module powerbi.extensibility.visual {
@@ -52,5 +40,31 @@ module powerbi.extensibility.visual {
         }
     };
 
+}
+```
+Getting a localized string is easy using `getLocalizedString`.
+```typescript
+    /**
+     * Returns the localized string in the locale transfared using the key that was given to serch the resources
+     * 
+     * @param {string} locale - the locale in which PowerBI is currently running
+     * @param {object} key - specify a key for the string you want localized in your visual
+     */   
+    export function getLocalizedString(locale: string, key: string): string {
+        return myResources && key && myResources[key] && (((myResources[key]).localization[locale])|| (myResources[key]).defaultValue);
+   }
+```
+
+The data for the tooltip is than derived from the current `locale`:
+
+```typescript
+private getTooltipData(value: any): VisualTooltipDataItem[] {
+    let language = getLocalizedString(this.locale,"LanguageKey");
+    return [{
+        displayName: value.category,
+        value: value.value.toString(),
+        color: value.color,
+        header: language && "displayed language " + language
+    }];
 }
 ```
