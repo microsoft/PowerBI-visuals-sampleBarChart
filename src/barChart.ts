@@ -130,6 +130,7 @@ module powerbi.extensibility.visual {
         private barDataPoints: BarChartDataPoint[];
         private barChartSettings: BarChartSettings;
         private tooltipServiceWrapper: ITooltipServiceWrapper;
+        private locale: string;
 
         static Config = {
             xScalePadding: 0.1,
@@ -159,6 +160,8 @@ module powerbi.extensibility.visual {
             let svg = this.svg = d3.select(options.element)
                 .append('svg')
                 .classed('barChart', true);
+            
+            this.locale = options.host.locale;
 
             this.barContainer = svg.append('g')
                 .classed('barContainer', true);
@@ -227,7 +230,7 @@ module powerbi.extensibility.visual {
             });
 
             this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'), 
-                (tooltipEvent: TooltipEventArgs<number>) => BarChart.getTooltipData(tooltipEvent.data),
+                (tooltipEvent: TooltipEventArgs<number>) => this.getTooltipData(tooltipEvent.data),
                 (tooltipEvent: TooltipEventArgs<number>) => null);
 
             let selectionManager = this.selectionManager;
@@ -320,11 +323,13 @@ module powerbi.extensibility.visual {
             //Perform any cleanup tasks here
         }
 
-        private static getTooltipData(value: any): VisualTooltipDataItem[] {
+        private getTooltipData(value: any): VisualTooltipDataItem[] {
+            let language = getLocalizedString(this.locale,"LanguageKey");
             return [{
                 displayName: value.category,
                 value: value.value.toString(),
-                color: value.color
+                color: value.color,
+                header: language && "displayed language " + language
             }];
         }
     }
