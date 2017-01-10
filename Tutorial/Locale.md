@@ -4,7 +4,7 @@ Visuals can now know PowerBI's locale, so they can display localized information
 (read more about [Supported languages and countries/regions for Power BI](https://powerbi.microsoft.com/en-us/documentation/powerbi-supported-languages/)).<br>
 The `locale` string is passed on `IVisualHost`.
 
-See [commit - UPDATE THIS!!!](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/a521bc6b9930f630861dc08e27330030766ae057) for what was added at this step.
+See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/388670c71a873bf7412e771164ea3cbb8522a63e) for what was added at this step.
 
 ## Localizing the tooltips
 
