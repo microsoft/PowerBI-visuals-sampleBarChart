@@ -239,6 +239,7 @@ module powerbi.extensibility.visual {
             //This must be an anonymous function instead of a lambda because
             //d3 uses 'this' as the reference to the element that was clicked.
             bars.on('click', function(d) {
+				// Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
                 if (allowInteractions) {
                     selectionManager.select(d.selectionId).then((ids: ISelectionId[]) => {
                         bars.attr({
