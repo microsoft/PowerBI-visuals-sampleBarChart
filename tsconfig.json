@@ -10,7 +10,6 @@
   "files": [
     "typings/index.d.ts",
     ".api/v1.4.0/PowerBI-visuals.d.ts",
-    "node_modules/d3/d3.js",
     "src/tooltipServiceWrapper.ts",
     "src/barChart.ts",
     "src/objectEnumerationUtility.ts",
