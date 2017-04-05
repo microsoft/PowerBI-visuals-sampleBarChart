@@ -234,21 +234,25 @@ module powerbi.extensibility.visual {
                 (tooltipEvent: TooltipEventArgs<number>) => null);
 
             let selectionManager = this.selectionManager;
+            let allowInteractions = this.host.allowInteractions;
 
             //This must be an anonymous function instead of a lambda because
             //d3 uses 'this' as the reference to the element that was clicked.
             bars.on('click', function(d) {
-                selectionManager.select(d.selectionId).then((ids: ISelectionId[]) => {
-                    bars.attr({
-                        'fill-opacity': ids.length > 0 ? BarChart.Config.transparentOpacity : BarChart.Config.solidOpacity
+				// Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+                if (allowInteractions) {
+                    selectionManager.select(d.selectionId).then((ids: ISelectionId[]) => {
+                        bars.attr({
+                            'fill-opacity': ids.length > 0 ? BarChart.Config.transparentOpacity : BarChart.Config.solidOpacity
+                        });
+
+                        d3.select(this).attr({
+                            'fill-opacity': BarChart.Config.solidOpacity
+                        });
                     });
 
-                    d3.select(this).attr({
-                        'fill-opacity': BarChart.Config.solidOpacity
-                    });
-                });
-
-                (<Event>d3.event).stopPropagation();
+                    (<Event>d3.event).stopPropagation();
+                }
             });
 
             bars.exit()
