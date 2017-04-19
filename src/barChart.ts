@@ -39,7 +39,7 @@ module powerbi.extensibility.visual {
         enableAxis: {
             show: boolean;
         };
-        
+
         generalView: {
             opacity: number;
         };
@@ -94,13 +94,13 @@ module powerbi.extensibility.visual {
             generalView: {
                 opacity: getValue<number>(objects, 'generalView', 'opacity', defaultSettings.generalView.opacity),
             }
-        }
+        };
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
             let defaultColor: Fill = {
                 solid: {
                     color: colorPalette.getColor(category.values[i] + '').value
                 }
-            }
+            };
 
             barChartDataPoints.push({
                 category: category.values[i] + '',
@@ -160,7 +160,7 @@ module powerbi.extensibility.visual {
             let svg = this.svg = d3.select(options.element)
                 .append('svg')
                 .classed('barChart', true);
-            
+
             this.locale = options.host.locale;
 
             this.barContainer = svg.append('g')
@@ -191,7 +191,7 @@ module powerbi.extensibility.visual {
                 height: height
             });
 
-            if(settings.enableAxis.show) {
+            if (settings.enableAxis.show) {
                 let margins = BarChart.Config.margins;
                 height -= margins.bottom;
             }
@@ -229,15 +229,15 @@ module powerbi.extensibility.visual {
                 'fill-opacity': viewModel.settings.generalView.opacity / 100
             });
 
-            this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'), 
+            this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
                 (tooltipEvent: TooltipEventArgs<number>) => this.getTooltipData(tooltipEvent.data),
                 (tooltipEvent: TooltipEventArgs<number>) => null);
 
             let selectionManager = this.selectionManager;
             let allowInteractions = this.host.allowInteractions;
 
-            //This must be an anonymous function instead of a lambda because
-            //d3 uses 'this' as the reference to the element that was clicked.
+            // This must be an anonymous function instead of a lambda because
+            // d3 uses 'this' as the reference to the element that was clicked.
             bars.on('click', function(d) {
 				// Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
                 if (allowInteractions) {
@@ -269,7 +269,7 @@ module powerbi.extensibility.visual {
             let objectName = options.objectName;
             let objectEnumeration: VisualObjectInstance[] = [];
 
-            switch(objectName) {
+            switch (objectName) {
                 case 'enableAxis':
                     objectEnumeration.push({
                         objectName: objectName,
@@ -280,7 +280,7 @@ module powerbi.extensibility.visual {
                     });
                     break;
                 case 'colorSelector':
-                    for(let barDataPoint of this.barDataPoints) {
+                    for (let barDataPoint of this.barDataPoints) {
                         objectEnumeration.push({
                             objectName: objectName,
                             displayName: barDataPoint.category,
@@ -295,7 +295,7 @@ module powerbi.extensibility.visual {
                         });
                     }
                     break;
-                case 'generalView': 
+                case 'generalView':
                     objectEnumeration.push({
                         objectName: objectName,
                         properties: {
@@ -324,11 +324,11 @@ module powerbi.extensibility.visual {
          * @function
          */
         public destroy(): void {
-            //Perform any cleanup tasks here
+            // Perform any cleanup tasks here
         }
 
         private getTooltipData(value: any): VisualTooltipDataItem[] {
-            let language = getLocalizedString(this.locale,"LanguageKey");
+            let language = getLocalizedString(this.locale, "LanguageKey");
             return [{
                 displayName: value.category,
                 value: value.value.toString(),

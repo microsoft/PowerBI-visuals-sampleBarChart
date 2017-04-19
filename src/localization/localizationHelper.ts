@@ -53,17 +53,17 @@ module powerbi.extensibility.visual {
     }
 
     export interface Resources {
-        [key: string]: LocalizaionResources; 
+        [key: string]: LocalizaionResources;
     }
 
     /**
      * Returns the localized string in the locale transfared using the key that was given to serch the resources
-     * 
+     *
      * @param {string} locale - the locale in which PowerBI is currently running
      * @param {object} key - specify a key for the string you want localized in your visual
-     */   
+     */
     export function getLocalizedString(locale: string, key: string): string {
-        return myResources && key && myResources[key] && (((myResources[key]).localization[locale])|| (myResources[key]).defaultValue);
+        return myResources && key && myResources[key] && (((myResources[key]).localization[locale]) || (myResources[key]).defaultValue);
    }
 
 }

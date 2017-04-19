@@ -22,29 +22,29 @@ module powerbi.extensibility.visual {
     export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: Element, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
         return new TooltipServiceWrapper(tooltipService, rootElement, handleTouchDelay);
     }
-    
+
     class TooltipServiceWrapper implements ITooltipServiceWrapper {
         private handleTouchTimeoutId: number;
         private visualHostTooltipService: ITooltipService;
         private rootElement: Element;
         private handleTouchDelay: number;
-        
+
         constructor(tooltipService: ITooltipService, rootElement: Element, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
             this.rootElement = rootElement;
         }
-        
+
         public addTooltip<T>(
             selection: d3.Selection<Element>,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
             reloadTooltipDataOnMouseMove?: boolean): void {
-            
+
             if (!selection || !this.visualHostTooltipService.enabled()) {
                 return;
             }
-            
+
             let rootNode = this.rootElement;
 
             // Mouse events
@@ -56,13 +56,13 @@ module powerbi.extensibility.visual {
                 let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
                 if (!tooltipEventArgs)
                     return;
-                
+
                 let tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
                 if (tooltipInfo == null)
                     return;
-                    
+
                 let selectionId = getDataPointIdentity(tooltipEventArgs);
-                
+
                 this.visualHostTooltipService.show({
                     coordinates: tooltipEventArgs.coordinates,
                     isTouchEvent: false,
@@ -86,16 +86,16 @@ module powerbi.extensibility.visual {
                 let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
                 if (!tooltipEventArgs)
                     return;
-                
+
                 let tooltipInfo: VisualTooltipDataItem[];
                 if (reloadTooltipDataOnMouseMove) {
                     tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
                     if (tooltipInfo == null)
                         return;
                 }
-                
+
                 let selectionId = getDataPointIdentity(tooltipEventArgs);
-                
+
                 this.visualHostTooltipService.move({
                     coordinates: tooltipEventArgs.coordinates,
                     isTouchEvent: false,
@@ -119,10 +119,10 @@ module powerbi.extensibility.visual {
                 let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, isPointerEvent, true);
                 if (!tooltipEventArgs)
                     return;
-                
+
                 let tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
                 let selectionId = getDataPointIdentity(tooltipEventArgs);
-                
+
                 this.visualHostTooltipService.show({
                     coordinates: tooltipEventArgs.coordinates,
                     isTouchEvent: true,
@@ -177,10 +177,10 @@ module powerbi.extensibility.visual {
                 let hasMouseButtonPressed = mouseEvent.buttons !== 0;
                 canDisplay = !hasMouseButtonPressed;
             }
-            
+
             // Make sure we are not ignoring mouse events immediately after touch end.
             canDisplay = canDisplay && (this.handleTouchTimeoutId == null);
-            
+
             return canDisplay;
         }
 
@@ -188,11 +188,6 @@ module powerbi.extensibility.visual {
             let coordinates: number[];
 
             if (isPointerEvent) {
-                // DO NOT USE - WebKit bug in getScreenCTM with nested SVG results in slight negative coordinate shift
-                // Also, IE will incorporate transform scale but WebKit does not, forcing us to detect browser and adjust appropriately.
-                // Just use non-scaled coordinates for all browsers, and adjust for the transform scale later (see lineChart.findIndex)
-                //coordinates = d3.mouse(rootNode);
-
                 // copied from d3_eventSource (which is not exposed)
                 let e = <any>d3.event, s;
                 while (s = e.sourceEvent) e = s;
@@ -241,7 +236,7 @@ module powerbi.extensibility.visual {
 
             return eventName;
         }
-        
+
         private static usePointerEvents(): boolean {
             let eventName = TooltipServiceWrapper.touchStartEventName();
             return eventName === "pointerdown" || eventName === "MSPointerDown";
