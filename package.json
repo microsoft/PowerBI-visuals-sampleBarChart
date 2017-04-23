@@ -12,6 +12,7 @@
     "devDependencies": {
       "typings": "2.1.0",
       "d3": "3.5.5",
+      "powerbi-visuals-tools": "^1.5.0",      
       "tslint": "^4.4.2",
       "tslint-microsoft-contrib": "^4.0.0"
     }
