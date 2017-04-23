@@ -8,6 +8,7 @@
         "typings":"node node_modules/typings/dist/bin.js i",
         "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
+
     },
     "devDependencies": {
       "typings": "2.1.0",
