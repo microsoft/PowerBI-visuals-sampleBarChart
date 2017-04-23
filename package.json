@@ -1,17 +1,19 @@
 {
-  "name": "visual",
-    "scripts":
-    {
-    "postinstall":"npm run typings",
-    "pbiviz": "pbiviz",
-    "start": "pbiviz start",
-    "typings":"node node_modules/typings/dist/bin.js i",
-    "lint": "node node_modules/tslint/bin/tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
-    "test": "pbiviz package --resources --no-minify --no-pbiviz"
+    "name": "visual",
+    "version": "1.2.0",
+    "scripts": {
+        "postinstall": "typings install && pbiviz update 1.5.0",
+        "pbiviz": "pbiviz",
+        "start": "pbiviz start",
+        "typings":"node node_modules/typings/dist/bin.js i",
+        "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
+        "test": "pbiviz package --resources --no-minify --no-pbiviz"
+
     },
     "devDependencies": {
       "typings": "2.1.0",
       "d3": "3.5.5",
+      "powerbi-visuals-tools": "^1.5.0",      
       "tslint": "^4.4.2",
       "tslint-microsoft-contrib": "^4.0.0"
     }
