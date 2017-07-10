@@ -26,7 +26,7 @@ module powerbi.extensibility.visual {
         value: PrimitiveValue;
         category: string;
         color: string;
-        selectionId: ISelectionId;
+        selectionId: powerbi.visuals.ISelectionId;
     };
 
     /**
@@ -291,7 +291,7 @@ module powerbi.extensibility.visual {
                                     }
                                 }
                             },
-                            selector: barDataPoint.selectionId
+                            selector: barDataPoint.selectionId.getSelector()
                         });
                     }
                     break;
