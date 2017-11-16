@@ -13,7 +13,7 @@ this.host.launchUrl('http://some.link.net');
 ```
 
 ## Restrictions
-* Use only absolute paths, not relative ones. 'http://some.link.net/subfolder/page.html' is fine, '/page.html' won't be opened.
+* Use only absolute paths, not relative ones. `http://some.link.net/subfolder/page.html` is fine, `/page.html` won't be opened.
 * Currently only 'http' and 'https' protocols are supported. Avoid 'ftp', 'mailto' etc.
 
 ## Best practices
