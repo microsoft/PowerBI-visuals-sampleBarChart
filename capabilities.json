@@ -76,7 +76,7 @@
                     }
                 },
                 "showHelpLink": {
-                    "displayName": "Enable Help Button",
+                    "displayName": "Show Help Button",
                     "type": { 
                         "bool": true 
                     }

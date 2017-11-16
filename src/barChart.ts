@@ -35,7 +35,7 @@ module powerbi.extensibility.visual {
      * @interface
      * @property {{show:boolean}} enableAxis - Object property that allows axis to be enabled.
      * @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
-     * @property {{generalView.showHelpLink:boolean}} Enable Help Button - When TRUE, the plot displays a button launching a link to documentation.
+     * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
      */
     interface BarChartSettings {
         enableAxis: {
