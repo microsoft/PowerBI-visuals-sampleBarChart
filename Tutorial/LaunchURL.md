@@ -2,8 +2,8 @@
 Launch URL allows opening a new browser tab (or window), by delegating the actual work to Power BI.
 
 See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/2ecc5cf74b9bc6fbf5c03f84c3ab24841b489d4e) for what was added at this step.
- 
-Note: custom visuals are hosted in Power BI inside sandboxed iframes, this prevents opening a new browser tab (or window) in "the usual way", e.g. using `window.open('http://some.link.net','_blank').
+
+Note: custom visuals are hosted in Power BI inside sandboxed iframes, this prevents opening a new browser tab (or window) in "the usual way", e.g. using `window.open('http://some.link.net','_blank')`.
 
 ## Usage
 Use the `host.launchUrl()` API call, passing your destenation URL as a string argument:
@@ -13,8 +13,8 @@ this.host.launchUrl('http://some.link.net');
 ```
 
 ## Restrictions
- *. Use only absolute paths, not relative ones. 'http://some.link.net/subfolder/page.html' is fine, '/page.html' won't be opened.
- *. Currently only 'http' and 'https' protocols are supported. Avoid 'ftp', 'mailto' etc.
+* Use only absolute paths, not relative ones. 'http://some.link.net/subfolder/page.html' is fine, '/page.html' won't be opened.
+* Currently only 'http' and 'https' protocols are supported. Avoid 'ftp', 'mailto' etc.
 
 ## Best practices
 1. For most cases, it is best to only open a link as a response to a dedicated user's action. Make it easy for the user to understand that clicking the link or button will result in opening a new tab. Triggering a `launchUrl()` call without a user's action, or as a side effect of a different action can be confusing or frustrating for the user.
