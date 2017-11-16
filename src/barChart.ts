@@ -34,6 +34,8 @@ module powerbi.extensibility.visual {
      *
      * @interface
      * @property {{show:boolean}} enableAxis - Object property that allows axis to be enabled.
+     * @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
+     * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
      */
     interface BarChartSettings {
         enableAxis: {
@@ -42,6 +44,7 @@ module powerbi.extensibility.visual {
 
         generalView: {
             opacity: number;
+            showHelpLink: boolean;
         };
     }
 
@@ -61,7 +64,8 @@ module powerbi.extensibility.visual {
                 show: false,
             },
             generalView: {
-                opacity: 100
+                opacity: 100,
+                showHelpLink: false
             }
         };
         let viewModel: BarChartViewModel = {
@@ -93,6 +97,7 @@ module powerbi.extensibility.visual {
             },
             generalView: {
                 opacity: getValue<number>(objects, 'generalView', 'opacity', defaultSettings.generalView.opacity),
+                showHelpLink: getValue<boolean>(objects, 'generalView', 'showHelpLink', defaultSettings.generalView.showHelpLink),
             }
         };
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
@@ -131,6 +136,7 @@ module powerbi.extensibility.visual {
         private barChartSettings: BarChartSettings;
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private locale: string;
+        private helpLinkElement: Element;
 
         static Config = {
             xScalePadding: 0.1,
@@ -168,6 +174,9 @@ module powerbi.extensibility.visual {
 
             this.xAxis = svg.append('g')
                 .classed('xAxis', true);
+
+            this.helpLinkElement = this.createHelpLinkElement();
+            options.element.appendChild(this.helpLinkElement);
         }
 
         /**
@@ -194,6 +203,12 @@ module powerbi.extensibility.visual {
             if (settings.enableAxis.show) {
                 let margins = BarChart.Config.margins;
                 height -= margins.bottom;
+            }
+
+            if (settings.generalView.showHelpLink) {
+                this.helpLinkElement.classList.remove("hidden");
+            } else {
+                this.helpLinkElement.classList.add("hidden");
             }
 
             this.xAxis.style({
@@ -300,6 +315,7 @@ module powerbi.extensibility.visual {
                         objectName: objectName,
                         properties: {
                             opacity: this.barChartSettings.generalView.opacity,
+                            showHelpLink: this.barChartSettings.generalView.showHelpLink
                         },
                         validValues: {
                             opacity: {
@@ -336,5 +352,16 @@ module powerbi.extensibility.visual {
                 header: language && "displayed language " + language
             }];
         }
+
+        private createHelpLinkElement(): Element {
+            let linkElement = document.createElement("a");
+            linkElement.textContent = "?";
+            linkElement.setAttribute("title", "Open documentation");
+            linkElement.setAttribute("class", "helpLink");
+            linkElement.addEventListener("click", () => {
+                this.host.launchUrl("https://github.com/Microsoft/PowerBI-visuals/blob/master/Readme.md#developing-your-first-powerbi-visual");
+            });
+            return linkElement;
+        };
     }
 }

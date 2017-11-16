@@ -74,6 +74,12 @@
                     "type": {
                         "integer": true
                     }
+                },
+                "showHelpLink": {
+                    "displayName": "Show Help Button",
+                    "type": { 
+                        "bool": true 
+                    }
                 }
             }
         }
