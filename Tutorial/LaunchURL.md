@@ -1,7 +1,8 @@
 # Opening a URL in a new tab/window
 Launch URL allows opening a new browser tab (or window), by delegating the actual work to Power BI.
 
-See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/2ecc5cf74b9bc6fbf5c03f84c3ab24841b489d4e) for what was added at this step. 
+See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/2ecc5cf74b9bc6fbf5c03f84c3ab24841b489d4e) for what was added at this step.
+ 
 Note: custom visuals are hosted in Power BI inside sandboxed iframes, this prevents opening a new browser tab (or window) in "the usual way", e.g. using `window.open('http://some.link.net','_blank').
 
 ## Usage
