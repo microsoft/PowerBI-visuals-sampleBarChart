@@ -174,7 +174,7 @@ module powerbi.extensibility.visual {
 
             this.xAxis = svg.append('g')
                 .classed('xAxis', true);
-            
+
             this.helpLinkElement = this.createHelpLinkElement();
             options.element.appendChild(this.helpLinkElement);
         }
@@ -353,11 +353,11 @@ module powerbi.extensibility.visual {
             }];
         }
 
-        private createHelpLinkElement():Element {
+        private createHelpLinkElement(): Element {
             let linkElement = document.createElement("a");
-            linkElement.textContent= "?";
-            linkElement.setAttribute("title","Open documentation");
-            linkElement.setAttribute("class","helpLink");
+            linkElement.textContent = "?";
+            linkElement.setAttribute("title", "Open documentation");
+            linkElement.setAttribute("class", "helpLink");
             linkElement.addEventListener("click", () => {
                 this.host.launchUrl("https://github.com/Microsoft/PowerBI-visuals/blob/master/Readme.md#developing-your-first-powerbi-visual");
             });
