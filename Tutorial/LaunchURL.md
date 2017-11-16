@@ -62,7 +62,7 @@ A `showHelpLink` boolean static object was added to `capabilities.json` objects 
     }
 ```
 
-![](images\launchURLtoggle.png)
+![](images/launchURLtoggle.png)
 
 And, in the visual's `update` function, the following lines were added:
 ```typescript

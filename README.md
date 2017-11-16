@@ -30,5 +30,6 @@ pbiviz start
 5. [Adding Static Objects to Property Pane](Tutorial/StaticObjects.md)
 6. [Adding Databound Objects to Property Pane](Tutorial/DataBoundObjects.md)
 7. [Adding Powerbi Extensibility Utils](Tutorial/ExtensibilityUtils.md)
-8. [Finally Package for Distribution ... Done](https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/usage.md#packaging-your-visual-for-distribution)
+8. [Adding URL Launcher element to the Bar Chart](Tutorial/LaunchURL.md)
+9. [Finally Package for Distribution ... Done](https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/usage.md#packaging-your-visual-for-distribution)
 
