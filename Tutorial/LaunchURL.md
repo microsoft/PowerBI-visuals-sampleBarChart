@@ -43,7 +43,7 @@ private createHelpLinkElement(): Element {
 ```
 Finally, an entry in the visual.less file defines the style for the link element ([see here](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/2ecc5cf74b9bc6fbf5c03f84c3ab24841b489d4e#diff-96b5545ad582c6d540c60ebff2c9f806))
 
-### Adding a toggleing mechanism
+### Adding a toggling mechanism
 This requires adding a static object (see [static object tutorial](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/blob/master/Tutorial/StaticObjects.md)), so that the report's author can toggle the visibility of the link element (default is set to hidden).
 A `showHelpLink` boolean static object was added to `capabilities.json` objects entry:
 
