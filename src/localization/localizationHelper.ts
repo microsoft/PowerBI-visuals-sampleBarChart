@@ -11,7 +11,7 @@ module powerbi.extensibility.visual {
             "en-US": string;
             "es-ES": string;
             "et-EE": string;
-            "eU-ES": string;
+            "eu-ES": string;
             "fi-FI": string;
             "fr-FR": string;
             "gl-ES": string;
