@@ -171,7 +171,7 @@ module powerbi.extensibility.visual {
             this.selectionManager = options.host.createSelectionManager();
 
             (this.selectionManager).registerOnSelectCallback(() => {
-                this.syncSelectionState(this.barSelection, this.selectionManager.getSelectionIds() as ISelectionId[]); 
+                this.syncSelectionState(this.barSelection, this.selectionManager.getSelectionIds() as ISelectionId[]);
             });
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
