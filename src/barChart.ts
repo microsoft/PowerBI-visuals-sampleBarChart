@@ -169,6 +169,11 @@ module powerbi.extensibility.visual {
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
             this.selectionManager = options.host.createSelectionManager();
+
+            (this.selectionManager).registerOnSelectCallback(() => {
+                this.syncSelectionState(this.barSelection, this.selectionManager.getSelectionIds() as ISelectionId[]); 
+            });
+
             this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
 
             this.svg = d3.select(options.element)
