@@ -1,8 +1,8 @@
 {
     "name": "visual",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "scripts": {
-        "postinstall": "pbiviz update 1.9.0",
+        "postinstall": "pbiviz update 1.11.0",
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
         "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
@@ -12,7 +12,7 @@
     "devDependencies": {
       "@types/d3": "3.5.36",
       "d3": "3.5.5",
-      "powerbi-visuals-tools": "^1.9.0",      
+      "powerbi-visuals-tools": "^1.11.0",      
       "tslint": "^4.4.2",
       "tslint-microsoft-contrib": "^4.0.0"
     }
