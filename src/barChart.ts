@@ -170,7 +170,7 @@ module powerbi.extensibility.visual {
             this.host = options.host;
             this.selectionManager = options.host.createSelectionManager();
 
-            (this.selectionManager).registerOnSelectCallback(() => {
+            this.selectionManager.registerOnSelectCallback(() => {
                 this.syncSelectionState(this.barSelection, this.selectionManager.getSelectionIds() as ISelectionId[]);
             });
 
