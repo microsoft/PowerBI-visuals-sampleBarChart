@@ -265,8 +265,8 @@ module powerbi.extensibility.visual {
                 .style('fill-opacity', viewModel.settings.generalView.opacity / 100);
 
             this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
-                (tooltipEvent: TooltipEventArgs<number>) => this.getTooltipData(tooltipEvent.data),
-                (tooltipEvent: TooltipEventArgs<number>) => null
+                (tooltipEvent: TooltipEventArgs<BarChartDataPoint> ) => this.getTooltipData(tooltipEvent.data),
+                (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => tooltipEvent.data.selectionId
             );
 
             this.syncSelectionState(
