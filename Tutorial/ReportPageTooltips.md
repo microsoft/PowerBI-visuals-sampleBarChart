@@ -4,12 +4,12 @@ See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/
 
 To add report page tooltips support, most changes will be located in `capabilities.json`. A sample schema is already in place for you.
 
-Report page tooltips definition can be done on the field well.
+Report page tooltips definition can be done on the Format pane.
 
 ![](images/ReportPageTooltip.png)
 
 ## Support Canvas Tooltips
-To support displaying report page tooltips, add "tooltips" capability to capabilities.json as follows
+To support displaying report page tooltips, add "tooltips" definition to capabilities.json as follows
 
 ```json
 "tooltips": {
@@ -23,17 +23,18 @@ To support displaying report page tooltips, add "tooltips" capability to capabil
 }
 ```
 
-`supportedTypes` is the tooltips configurations supported by the visual and reflected on the field well.
-    `default` instructs whether the "automatic" tooltips binding via data field is supported.
-    `canvas` instructs whether the report page tooltips are supported.
+`supportedTypes` is the tooltips configuration supported by the visual and reflected on the field well.
+    `default` specifies whether the "automatic" tooltips binding via data field is supported.
+    `canvas` specifies whether the report page tooltips are supported.
 
-`roles` optional. Once defined, instructs what data roles will be tied to the selected tooltip option in field well.
+`roles` optional. Once defined, instructs what data roles will be bound to the selected tooltip option in fields well.
 
 
 For more information, see the Report Page Tooltips usage guidlines [Report Page Tooltips](https://powerbi.microsoft.com/en-us/blog/power-bi-desktop-march-2018-feature-summary/#tooltips).
 
 ## Applying report page tooltips
-On call to SandboxVisualHostTooltipService.Show() (or SandboxVisualHostTooltipService.Move())  PowerBI host will use 'identities' property of powerbi.extensibility.TooltipMoveOptions object sent to the call to get the  selectionId for which report page tooltip should be applied.
+For report page tooltip display, on call to ITooltipService .Show(options TooltipShowOptions) (or ITooltipService .Move(options TooltipMoveOptions)), PowerBI host will look for 'identities' property (ISelectionId[]) of TooltipMoveOptions object sent as argument to tooltip call. 
+SelectionId  should indicate the "filtered" definition to be applied on the visuals referenced by report page tooltip.
 
 Example of how to send the selectionId to tooltip display calls:
 
