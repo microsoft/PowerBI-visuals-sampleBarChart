@@ -9,11 +9,6 @@
             "displayName": "Measure Data",
             "name": "measure",
             "kind": "Measure"
-        },
-        {
-            "displayName": "Tooltips",
-            "name": "tooltips",
-            "kind": "Measure"
         }
     ],
     "dataViewMappings": [
@@ -52,9 +47,7 @@
             "properties": {
                 "show": {
                     "displayName": "Enable Axis",
-                    "type": {
-                        "bool": true
-                    }
+                    "type": { "bool": true }
                 }
             }
         },
@@ -84,20 +77,11 @@
                 },
                 "showHelpLink": {
                     "displayName": "Show Help Button",
-                    "type": {
-                        "bool": true
+                    "type": { 
+                        "bool": true 
                     }
                 }
             }
         }
-    },
-    "tooltips": {
-        "supportedTypes": {
-            "default": true,
-            "canvas": true
-        },
-        "roles": [
-            "tooltips"
-        ]
     }
 }
