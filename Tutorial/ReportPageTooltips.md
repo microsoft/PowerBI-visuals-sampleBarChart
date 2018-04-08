@@ -36,7 +36,7 @@ For more information, see the Report Page Tooltips usage guidlines [Report Page 
 For displaying the report page tooltip, upon calling ITooltipService.Show(options: TooltipShowOptions) or ITooltipService.Move(options: TooltipMoveOptions), the PowerBI host will consume the selectionId ('identities' property of 'options' argument above). 
 Therefore, the SelectionId should represent the selected data (category, series, etc) of the item you hovered above to be retreived by the tooltip.
 
-See more on building SelectionId under [Adding Selection and Interactions with Other Visuals](https://github.com/Microsoft/PowerBI-visuals/Tutorial/Selection.md)
+See more on building SelectionId under [Adding Selection and Interactions with Other Visuals](https://github.com/Microsoft/PowerBI-visuals/blob/master/Tutorial/Selection.md)
 
 Example of sending the selectionId to tooltip display calls:
 
