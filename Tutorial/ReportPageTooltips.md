@@ -33,10 +33,11 @@ To support displaying report page tooltips, add "tooltips" definition to capabil
 For more information, see the Report Page Tooltips usage guidlines [Report Page Tooltips](https://powerbi.microsoft.com/en-us/blog/power-bi-desktop-march-2018-feature-summary/#tooltips).
 
 ## Applying report page tooltips
-For report page tooltip display, on call to ITooltipService .Show(options TooltipShowOptions) (or ITooltipService .Move(options TooltipMoveOptions)), PowerBI host will look for 'identities' property (ISelectionId[]) of TooltipMoveOptions object sent as argument to tooltip call. 
-SelectionId  should indicate the "filtered" definition to be applied on the visuals referenced by report page tooltip.
+For displaying the report page tooltip, upon calling ITooltipService.Show(options: TooltipShowOptions) or ITooltipService.Move(options: TooltipMoveOptions), the PowerBI host will consume the selectionId ('identities' property of 'options' argument above). 
+Therefore, the SelectionId should represent the selected data (category, series, etc) of the item you hovered above to be retreived by the tooltip.
+See more on building selectionId under [Adding Selection and Interactions with Other Visuals] (https://github.com/Microsoft/PowerBI-visuals/blob/master/Tutorial/Selection.md)
 
-Example of how to send the selectionId to tooltip display calls:
+Example of sending the selectionId to tooltip display calls:
 
 ![](images/ApplyReportPageTooltip.png)
 
