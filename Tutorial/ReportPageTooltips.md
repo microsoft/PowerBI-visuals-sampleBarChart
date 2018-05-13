@@ -1,6 +1,6 @@
 # Adding Report Page Tooltips support to Bar Chart
 Report page tooltips support can be done by updating your visual capabilities.
-See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/3c6e8186436b63bf0cf97d2cdd5dde8aa8d08709) for what was added at this step.
+See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/42aa6b6d69dea0b5e75bb6a78779b524efde9800) for what was added at this step.
 
 To add report page tooltips support, most changes will be located in `capabilities.json`. A sample schema is already in place for you.
 
