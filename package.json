@@ -11,6 +11,7 @@
     },
     "devDependencies": {
       "@types/d3": "3.5.36",
+      "@types/powerbi-visuals-tools": "^1.11.0",
       "d3": "3.5.5",
       "powerbi-visuals-tools": "^2.0.1",
       "tslint": "^4.4.2",
