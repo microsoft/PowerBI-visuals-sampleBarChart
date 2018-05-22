@@ -1,4 +1,7 @@
-module powerbi.extensibility.visual {
+    import powerbi from "powerbi-visuals-tools";
+    import DataViewObjects = powerbi.DataViewObjects;
+    import DataViewObject = powerbi.DataViewObject;
+    import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
     /**
      * Gets property value for a particular object.
      *
@@ -48,4 +51,3 @@ module powerbi.extensibility.visual {
         }
         return defaultValue;
     }
-}

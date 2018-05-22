@@ -1,4 +1,7 @@
-module powerbi.extensibility.visual {
+    import powerbi from "powerbi-visuals-tools";
+    import * as d3 from "d3";
+    import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+    import ITooltipService = powerbi.extensibility.ITooltipService;
 
     export interface TooltipEventArgs<TData> {
         data: TData;
@@ -12,7 +15,7 @@ module powerbi.extensibility.visual {
         addTooltip<T>(
             selection: d3.Selection<Element>,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
-            getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
+            getDataPointIdentity: (args: TooltipEventArgs<T>) => powerbi.visuals.ISelectionId,
             reloadTooltipDataOnMouseMove?: boolean): void;
         hide(): void;
     }
@@ -38,7 +41,7 @@ module powerbi.extensibility.visual {
         public addTooltip<T>(
             selection: d3.Selection<Element>,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
-            getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
+            getDataPointIdentity: (args: TooltipEventArgs<T>) => powerbi.visuals.ISelectionId,
             reloadTooltipDataOnMouseMove?: boolean): void {
 
             if (!selection || !this.visualHostTooltipService.enabled()) {
@@ -242,4 +245,3 @@ module powerbi.extensibility.visual {
             return eventName === "pointerdown" || eventName === "MSPointerDown";
         }
     }
-}

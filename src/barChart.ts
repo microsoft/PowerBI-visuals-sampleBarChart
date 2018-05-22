@@ -1,7 +1,27 @@
-module powerbi.extensibility.visual {
     // powerbi.visuals
+    import * as d3 from "d3";
+    import powerbi from "powerbi-visuals-tools";
+    import { getLocalizedString } from "./localization/localizationHelper";
+    import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
+    import {
+        ITooltipServiceWrapper,
+        TooltipEventArgs,
+        createTooltipServiceWrapper
+    } from "./tooltipServiceWrapper";
     import ISelectionId = powerbi.visuals.ISelectionId;
 
+    import PrimitiveValue = powerbi.PrimitiveValue;
+    import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
+    import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+    import IVisualHost = powerbi.extensibility.visual.IVisualHost;
+    import IColorPalette = powerbi.extensibility.IColorPalette;
+    import IVisual = powerbi.extensibility.visual.IVisual;
+    import VisualObjectInstance = powerbi.VisualObjectInstance;
+    import VisualObjectInstanceEnumeration = powerbi.VisualObjectInstanceEnumeration;
+    import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
+    import Fill = powerbi.Fill;
+    import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+    import ISelectionManager = powerbi.extensibility.ISelectionManager;
     /**
      * Interface for BarCharts viewmodel.
      *
@@ -121,7 +141,7 @@ module powerbi.extensibility.visual {
                     .createSelectionId()
             });
         }
-        dataMax = <number>dataValue.maxLocal;
+        dataMax = <number>(<any>dataValue).maxLocal;
 
         return {
             dataPoints: barChartDataPoints,
@@ -431,4 +451,3 @@ module powerbi.extensibility.visual {
             return linkElement;
         };
     }
-}
