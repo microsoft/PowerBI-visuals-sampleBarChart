@@ -150,7 +150,7 @@
         };
     }
 
-    export class BarChart implements IVisual {
+    export default class BarChart implements IVisual {
         private svg: d3.Selection<SVGElement>;
         private host: IVisualHost;
         private selectionManager: ISelectionManager;
