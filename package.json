@@ -10,9 +10,9 @@
         "cert": "pbiviz --create-cert"
     },
     "devDependencies": {
-      "@types/d3": "3.5.36",
-      "@types/powerbi-visuals-tools": "^1.11.0",
-      "d3": "3.5.5",
+      "@types/d3": "5.0.0",
+      "@types/powerbi-visuals-tools": "1.11.0",
+      "d3": "5.4.0",
       "powerbi-visuals-tools": "^2.0.1",
       "tslint": "^4.4.2",
       "tslint-microsoft-contrib": "^4.0.0"
