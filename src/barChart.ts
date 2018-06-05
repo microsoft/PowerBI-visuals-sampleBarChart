@@ -262,19 +262,14 @@
                 .call(xAxis);
 
             this.barSelection = this.barContainer
-                .selectAll('.bar');
-
-            let barSelectionWithData = this.barSelection.data(this.barDataPoints);
-
-            barSelectionWithData
-                .enter()
-                .append('rect')
-                .classed('bar', true);
-
-            this.barSelection = this.barContainer
-                .selectAll('.bar');
+                .selectAll('.bar')
+                .data(this.barDataPoints);
 
             this.barSelection
+                .enter()
+                .append('rect')
+                .classed('bar', true)
+                .merge(this.barSelection)
                 .attr('width', xScale.bandwidth())
                 .attr('height', d => height - yScale(<number>d.value))
                 .attr('y', d => yScale(<number>d.value))
