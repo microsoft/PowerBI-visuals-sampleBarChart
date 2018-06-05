@@ -1,4 +1,4 @@
-module powerbi.extensibility.visual {
+    import { Resources } from "./localizationHelper";
 
     export let myResources: Resources = {};
     myResources["LanguageKey"] = {
@@ -50,5 +50,3 @@ module powerbi.extensibility.visual {
             "zh-TW": "中國 (Chinese-Tranditional)"
         }
     };
-
-}

@@ -1,7 +1,27 @@
-module powerbi.extensibility.visual {
     // powerbi.visuals
+    import * as d3 from "d3";
+    import powerbi from "powerbi-visuals-tools";
+    import { getLocalizedString } from "./localization/localizationHelper";
+    import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
+    import {
+        ITooltipServiceWrapper,
+        TooltipEventArgs,
+        createTooltipServiceWrapper
+    } from "./tooltipServiceWrapper";
     import ISelectionId = powerbi.visuals.ISelectionId;
 
+    import PrimitiveValue = powerbi.PrimitiveValue;
+    import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
+    import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+    import IVisualHost = powerbi.extensibility.visual.IVisualHost;
+    import IColorPalette = powerbi.extensibility.IColorPalette;
+    import IVisual = powerbi.extensibility.visual.IVisual;
+    import VisualObjectInstance = powerbi.VisualObjectInstance;
+    import VisualObjectInstanceEnumeration = powerbi.VisualObjectInstanceEnumeration;
+    import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
+    import Fill = powerbi.Fill;
+    import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+    import ISelectionManager = powerbi.extensibility.ISelectionManager;
     /**
      * Interface for BarCharts viewmodel.
      *
@@ -121,7 +141,7 @@ module powerbi.extensibility.visual {
                     .createSelectionId()
             });
         }
-        dataMax = <number>dataValue.maxLocal;
+        dataMax = <number>(<any>dataValue).maxLocal;
 
         return {
             dataPoints: barChartDataPoints,
@@ -130,20 +150,20 @@ module powerbi.extensibility.visual {
         };
     }
 
-    export class BarChart implements IVisual {
-        private svg: d3.Selection<SVGElement>;
+    export default class BarChart implements IVisual {
+        private svg: d3.Selection<any, any, any, any>;
         private host: IVisualHost;
         private selectionManager: ISelectionManager;
-        private barChartContainer: d3.Selection<SVGElement>;
-        private barContainer: d3.Selection<SVGElement>;
-        private xAxis: d3.Selection<SVGElement>;
+        private barChartContainer: d3.Selection<any, any, any, any>;
+        private barContainer: d3.Selection<any, any, any, any>;
+        private xAxis: d3.Selection<any, any, any, any>;
         private barDataPoints: BarChartDataPoint[];
         private barChartSettings: BarChartSettings;
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private locale: string;
         private helpLinkElement: Element;
 
-        private barSelection: d3.selection.Update<BarChartDataPoint>;
+        private barSelection: d3.Selection<any, any, any, any>;
 
         static Config = {
             xScalePadding: 0.1,
@@ -176,7 +196,7 @@ module powerbi.extensibility.visual {
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
 
-            this.svg = d3.select(options.element)
+            this.svg = d3.select<HTMLElement, any>(options.element)
                 .append('svg')
                 .classed('barChart', true);
 
@@ -210,10 +230,8 @@ module powerbi.extensibility.visual {
             let width = options.viewport.width;
             let height = options.viewport.height;
 
-            this.svg.attr({
-                width: width,
-                height: height
-            });
+            this.svg.attr("width", width);
+            this.svg.attr("height", height);
 
             if (settings.enableAxis.show) {
                 let margins = BarChart.Config.margins;
@@ -226,42 +244,42 @@ module powerbi.extensibility.visual {
                 this.helpLinkElement.classList.add("hidden");
             }
 
-            this.xAxis.style({
-                'font-size': d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier,
-            });
+            this.xAxis.style(
+                'font-size', d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier,
+            );
 
-            let yScale = d3.scale.linear()
+            let yScale = d3.scaleLinear()
                 .domain([0, viewModel.dataMax])
                 .range([height, 0]);
 
-            let xScale = d3.scale.ordinal()
+            let xScale = d3.scaleBand()
                 .domain(viewModel.dataPoints.map(d => d.category))
-                .rangeRoundBands([0, width], BarChart.Config.xScalePadding, 0.2);
+                .rangeRound([0, width]);
 
-            let xAxis = d3.svg.axis()
-                .scale(xScale)
-                .orient('bottom');
+            let xAxis = d3.axisBottom(xScale);
 
             this.xAxis.attr('transform', 'translate(0, ' + height + ')')
                 .call(xAxis);
 
             this.barSelection = this.barContainer
-                .selectAll('.bar')
-                .data(this.barDataPoints);
+                .selectAll('.bar');
 
-            this.barSelection
+            let barSelectionWithData = this.barSelection.data(this.barDataPoints);
+
+            barSelectionWithData
                 .enter()
                 .append('rect')
                 .classed('bar', true);
 
+            this.barSelection = this.barContainer
+                .selectAll('.bar');
+
             this.barSelection
-                .attr({
-                    width: xScale.rangeBand(),
-                    height: d => height - yScale(<number>d.value),
-                    y: d => yScale(<number>d.value),
-                    x: d => xScale(d.category),
-                    fill: d => d.color,
-                })
+                .attr('width', xScale.bandwidth())
+                .attr('height', d => height - yScale(<number>d.value))
+                .attr('y', d => yScale(<number>d.value))
+                .attr('x', d => xScale(d.category))
+                .attr('fill', d => d.color)
                 .style('fill-opacity', viewModel.settings.generalView.opacity / 100);
 
             this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
@@ -305,7 +323,7 @@ module powerbi.extensibility.visual {
         }
 
         private syncSelectionState(
-            selection: d3.Selection<BarChartDataPoint>,
+            selection: d3.Selection<any, any, any, any>,
             selectionIds: ISelectionId[]
         ): void {
             if (!selection || !selectionIds) {
@@ -431,4 +449,3 @@ module powerbi.extensibility.visual {
             return linkElement;
         };
     }
-}

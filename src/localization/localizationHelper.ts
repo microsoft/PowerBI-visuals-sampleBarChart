@@ -1,4 +1,4 @@
-module powerbi.extensibility.visual {
+    import { myResources } from "./localizedResources";
 
     export interface Localization {
             "ar-SA": string;
@@ -64,6 +64,4 @@ module powerbi.extensibility.visual {
      */
     export function getLocalizedString(locale: string, key: string): string {
         return myResources && key && myResources[key] && (((myResources[key]).localization[locale]) || (myResources[key]).defaultValue);
-   }
-
-}
+    }

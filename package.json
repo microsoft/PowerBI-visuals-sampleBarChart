@@ -6,13 +6,14 @@
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
         "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
-        "test": "pbiviz package --resources --no-minify --no-pbiviz"
-
+        "test": "pbiviz package --resources --no-minify --no-pbiviz",
+        "cert": "pbiviz --create-cert"
     },
     "devDependencies": {
-      "@types/d3": "3.5.36",
-      "d3": "3.5.5",
-      "powerbi-visuals-tools": "^1.12.0",      
+      "@types/d3": "5.0.0",
+      "@types/powerbi-visuals-tools": "1.11.0",
+      "d3": "5.4.0",
+      "powerbi-visuals-tools": "^2.0.1",
       "tslint": "^4.4.2",
       "tslint-microsoft-contrib": "^4.0.0"
     }
