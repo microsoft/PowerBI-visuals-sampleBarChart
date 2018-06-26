@@ -29,6 +29,8 @@ module powerbi.extensibility.visual {
         value: PrimitiveValue;
         category: string;
         color: string;
+        strokeColor: string;
+        strokeWidth: number;
         selectionId: ISelectionId;
     };
 
@@ -43,11 +45,13 @@ module powerbi.extensibility.visual {
     interface BarChartSettings {
         enableAxis: {
             show: boolean;
+            fill: string;
         };
 
         generalView: {
             opacity: number;
             showHelpLink: boolean;
+            helpLinkColor: string;
         };
     }
 
@@ -65,10 +69,12 @@ module powerbi.extensibility.visual {
         let defaultSettings: BarChartSettings = {
             enableAxis: {
                 show: false,
+                fill: "#000000",
             },
             generalView: {
                 opacity: 100,
-                showHelpLink: false
+                showHelpLink: false,
+                helpLinkColor: "#80B0E0",
             }
         };
         let viewModel: BarChartViewModel = {
@@ -94,33 +100,42 @@ module powerbi.extensibility.visual {
         let barChartDataPoints: BarChartDataPoint[] = [];
         let dataMax: number;
 
-        let colorPalette: IColorPalette = host.colorPalette;
+        let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
         let objects = dataViews[0].metadata.objects;
+
+        const strokeColor: string = getColumnStrokeColor(colorPalette);
+
         let barChartSettings: BarChartSettings = {
             enableAxis: {
                 show: getValue<boolean>(objects, 'enableAxis', 'show', defaultSettings.enableAxis.show),
+                fill: getAxisTextFillColor(objects, colorPalette, defaultSettings.enableAxis.fill),
             },
             generalView: {
                 opacity: getValue<number>(objects, 'generalView', 'opacity', defaultSettings.generalView.opacity),
                 showHelpLink: getValue<boolean>(objects, 'generalView', 'showHelpLink', defaultSettings.generalView.showHelpLink),
-            }
+                helpLinkColor: strokeColor,
+            },
         };
+
+        const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
+
         for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-            let defaultColor: Fill = {
-                solid: {
-                    color: colorPalette.getColor(category.values[i] + '').value
-                }
-            };
+            const color: string = getColumnColorByIndex(category, i, colorPalette);
+
+            const selectionId: ISelectionId = host.createSelectionIdBuilder()
+                .withCategory(category, i)
+                .createSelectionId();
 
             barChartDataPoints.push({
-                category: category.values[i] + '',
+                color,
+                strokeColor,
+                strokeWidth,
+                selectionId,
                 value: dataValue.values[i],
-                color: getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
-                selectionId: host.createSelectionIdBuilder()
-                    .withCategory(category, i)
-                    .createSelectionId()
+                category: `${category.values[i]}`,
             });
         }
+
         dataMax = <number>dataValue.maxLocal;
 
         return {
@@ -130,25 +145,81 @@ module powerbi.extensibility.visual {
         };
     }
 
+    function getColumnColorByIndex(
+        category: DataViewCategoryColumn,
+        index: number,
+        colorPalette: ISandboxExtendedColorPalette,
+    ): string {
+        if (colorPalette.isHighContrast) {
+            return colorPalette.background.value;
+        }
+
+        const defaultColor: Fill = {
+            solid: {
+                color: colorPalette.getColor(`${category.values[index]}`).value,
+            }
+        };
+
+        return getCategoricalObjectValue<Fill>(
+            category,
+            index,
+            'colorSelector',
+            'fill',
+            defaultColor
+        ).solid.color;
+    }
+
+    function getColumnStrokeColor(colorPalette: ISandboxExtendedColorPalette): string {
+        return colorPalette.isHighContrast
+            ? colorPalette.foreground.value
+            : null;
+    }
+
+    function getColumnStrokeWidth(isHighContrast: boolean): number {
+        return isHighContrast
+            ? 2
+            : 0;
+    }
+
+    function getAxisTextFillColor(
+        objects: DataViewObjects,
+        colorPalette: ISandboxExtendedColorPalette,
+        defaultColor: string
+    ): string {
+        if (colorPalette.isHighContrast) {
+            return colorPalette.foreground.value;
+        }
+
+        return getValue<Fill>(
+            objects,
+            "enableAxis",
+            "fill",
+            {
+                solid: {
+                    color: defaultColor,
+                }
+            },
+        ).solid.color;
+    }
+
     export class BarChart implements IVisual {
         private svg: d3.Selection<SVGElement>;
         private host: IVisualHost;
         private selectionManager: ISelectionManager;
-        private barChartContainer: d3.Selection<SVGElement>;
         private barContainer: d3.Selection<SVGElement>;
         private xAxis: d3.Selection<SVGElement>;
         private barDataPoints: BarChartDataPoint[];
         private barChartSettings: BarChartSettings;
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private locale: string;
-        private helpLinkElement: Element;
+        private helpLinkElement: d3.Selection<any>;
 
         private barSelection: d3.selection.Update<BarChartDataPoint>;
 
         static Config = {
             xScalePadding: 0.1,
             solidOpacity: 1,
-            transparentOpacity: 0.5,
+            transparentOpacity: 0.4,
             margins: {
                 top: 0,
                 right: 0,
@@ -190,8 +261,10 @@ module powerbi.extensibility.visual {
                 .append('g')
                 .classed('xAxis', true);
 
-            this.helpLinkElement = this.createHelpLinkElement();
-            options.element.appendChild(this.helpLinkElement);
+            const helpLinkElement: Element = this.createHelpLinkElement();
+            options.element.appendChild(helpLinkElement);
+
+            this.helpLinkElement = d3.select(helpLinkElement);
         }
 
         /**
@@ -220,14 +293,16 @@ module powerbi.extensibility.visual {
                 height -= margins.bottom;
             }
 
-            if (settings.generalView.showHelpLink) {
-                this.helpLinkElement.classList.remove("hidden");
-            } else {
-                this.helpLinkElement.classList.add("hidden");
-            }
+            this.helpLinkElement
+                .classed("hidden", !settings.generalView.showHelpLink)
+                .style({
+                    "border-color": settings.generalView.helpLinkColor,
+                    "color": settings.generalView.helpLinkColor,
+                });
 
             this.xAxis.style({
-                'font-size': d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier,
+                "font-size": d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier,
+                "fill": settings.enableAxis.fill,
             });
 
             let yScale = d3.scale.linear()
@@ -254,15 +329,22 @@ module powerbi.extensibility.visual {
                 .append('rect')
                 .classed('bar', true);
 
+            const opacity: number = viewModel.settings.generalView.opacity / 100;
+
             this.barSelection
                 .attr({
                     width: xScale.rangeBand(),
                     height: d => height - yScale(<number>d.value),
                     y: d => yScale(<number>d.value),
                     x: d => xScale(d.category),
-                    fill: d => d.color,
                 })
-                .style('fill-opacity', viewModel.settings.generalView.opacity / 100);
+                .style({
+                    'fill-opacity': opacity,
+                    'stroke-opacity': opacity,
+                    fill: (dataPoint: BarChartDataPoint) => dataPoint.color,
+                    stroke: (dataPoint: BarChartDataPoint) => dataPoint.strokeColor,
+                    "stroke-width": (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`,
+                });
 
             this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
                 (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => this.getTooltipData(tooltipEvent.data),
@@ -277,9 +359,10 @@ module powerbi.extensibility.visual {
             this.barSelection.on('click', (d) => {
                 // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
                 if (this.host.allowInteractions) {
-                    const isCrtlPressed: boolean = (d3.event as MouseEvent).ctrlKey;
+                    const isCtrlPressed: boolean = (d3.event as MouseEvent).ctrlKey;
+
                     this.selectionManager
-                        .select(d.selectionId, isCrtlPressed)
+                        .select(d.selectionId, isCtrlPressed)
                         .then((ids: ISelectionId[]) => {
                             this.syncSelectionState(this.barSelection, ids);
                         });
@@ -313,7 +396,11 @@ module powerbi.extensibility.visual {
             }
 
             if (!selectionIds.length) {
-                selection.style("fill-opacity", null);
+                selection.style({
+                    "fill-opacity": null,
+                    "stroke-opacity": null,
+                });
+
                 return;
             }
 
@@ -322,12 +409,14 @@ module powerbi.extensibility.visual {
             selection.each(function (barDataPoint: BarChartDataPoint) {
                 const isSelected: boolean = self.isSelectionIdInArray(selectionIds, barDataPoint.selectionId);
 
-                d3.select(this).style(
-                    "fill-opacity",
-                    isSelected
-                        ? BarChart.Config.solidOpacity
-                        : BarChart.Config.transparentOpacity
-                );
+                const opacity: number = isSelected
+                    ? BarChart.Config.solidOpacity
+                    : BarChart.Config.transparentOpacity;
+
+                d3.select(this).style({
+                    "fill-opacity": opacity,
+                    "stroke-opacity": opacity,
+                });
             });
         }
 
@@ -357,6 +446,7 @@ module powerbi.extensibility.visual {
                         objectName: objectName,
                         properties: {
                             show: this.barChartSettings.enableAxis.show,
+                            fill: this.barChartSettings.enableAxis.fill,
                         },
                         selector: null
                     });
