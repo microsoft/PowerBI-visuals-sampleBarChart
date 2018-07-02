@@ -59,6 +59,7 @@ Here are some guidelines followed by Power BI native visuals:
 In Sample Bar Chart, for example, all bars are drawn with 2 pixels thick foreground outline and background fill. Compare the way it looks with default colors and with a couple of high-contrast themes:
 
 ![Sample Bar Chart using standard colors](images/HC_sampleBarChart_standard.png)
+
 ![Sample Bar Chart using *Dark #2* color theme](images/HC_sampleBarChart_dark2.png)
 ![Sample Bar Chart using *White* color theme](images/HC_sampleBarChart_white.png)
 
