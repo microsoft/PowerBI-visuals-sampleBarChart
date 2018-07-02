@@ -7,7 +7,7 @@ Adding high-contrast support to your visual requires the following:
 2. Every update: Change the way the visual renders to make it easier to see.
 
 ## On Init
-The [colorPalette](./ColorPalette.md) member of `options.host` has several properties for high-contrast mode. Use these properties to determine whether high-contrast mode is active, and if yes, what colors to use.
+The [colorPalette](./ColorPalette.md) member of `options.host` has several properties for high-contrast mode. Use these properties to determine whether high-contrast mode is active, and if so, what colors to use.
 
 ### Detect that Power BI is in high-contrast mode
 If `host.colorPalette.isHighContrast` is `true`, high-contrast mode is active and the visual should draw itself accordingly.
@@ -47,7 +47,7 @@ You can store these values during initialization:
 Alternatively, you can store the `host` object during initialization and access the relevant `colorPalette` properties during update.
 
 ## On Update
-How exactly you draw your visual in high-contrast mode depends on your visual's specific graphic design. Usually, a somewhat different design is required to keep the important details easy to distinguish with the limited colors. 
+The specific implementation of high-contrast support vary from visual to visual and depend on the details of the graphic design. Typically, high-contrast mode requires a slightly different design than the default, in order to keep the important details easy to distinguish with the limited colors. 
 Here are some guidelines followed by Power BI native visuals:
 * All data points use the same color (foreground).
 * All text, axes, arrows, lines etc. use foreground color.
@@ -63,7 +63,7 @@ In Sample Bar Chart, for example, all bars are drawn with 2 pixels thick foregro
 ![Sample Bar Chart using *Dark #2* color theme](images/HC_sampleBarChart_dark2.png)
 ![Sample Bar Chart using *White* color theme](images/HC_sampleBarChart_white.png)
 
-Here is one place in `visualTransform` function that was changed to support high-contrast, it is called as part of rendering during `update`:
+Here is one place in the `visualTransform` function that was changed to support high-contrast, it is called as part of rendering during `update`:
 
 **before**
 ```typescript
