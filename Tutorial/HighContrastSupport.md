@@ -18,9 +18,10 @@ In high-contrast mode, your visual should limit itself to the following colors:
 * **Background** color is used for background, and as the fill color of outlined shapes.
 * **Foreground - selected** color is used to indicate a selected or active element.
 * **Hyperlink** color is used only for hyperlink text.
+
 Note: If a secondary color is needed, foreground color may be used with some opacity (Power BI native visuals use 40% opacity). Use this sparingly to keep the visual details easy to see.
 
-You can store these values during initialization.
+You can store these values during initialization:
 
 ```typescript
     private isHighContrast: boolean;
@@ -43,7 +44,7 @@ You can store these values during initialization.
             this.hyperlinkColor = colorPalette.hyperlink.value;
         }
 ```
-Alternatively, you can store the `host` object during init and access the relevant `colorPalette` properties during update.
+Alternatively, you can store the `host` object during initialization and access the relevant `colorPalette` properties during update.
 
 ## On Update
 How exactly you draw your visual in high-contrast mode depends on your visual's specific graphic design. Usually, a somewhat different design is required to keep the important details easy to distinguish with the limited colors. 
@@ -55,7 +56,8 @@ Here are some guidelines followed by Power BI native visuals:
 * When a data element is highlighted, all other elements change their opacity to 40%.
 * For slicers, active filter elements use foreground-selected color.
 
-In Sample Bar Chart, for example, all bars are drawn with 2 pixels thick forground outline and background fill. Compare the way it looks with default colors and with a couple of high-contrast themes:
+In Sample Bar Chart, for example, all bars are drawn with 2 pixels thick foreground outline and background fill. Compare the way it looks with default colors and with a couple of high-contrast themes:
+
 ![Sample Bar Chart using standard colors](images/HC_sampleBarChart_standard.png)
 ![Sample Bar Chart using *Dark #2* color theme](images/HC_sampleBarChart_dark2.png)
 ![Sample Bar Chart using *White* color theme](images/HC_sampleBarChart_white.png)
