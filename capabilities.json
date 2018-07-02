@@ -1,6 +1,5 @@
 {
-    "dataRoles": [
-        {
+    "dataRoles": [{
             "displayName": "Category Data",
             "name": "category",
             "kind": "Grouping"
@@ -16,36 +15,30 @@
             "kind": "Measure"
         }
     ],
-    "dataViewMappings": [
-        {
-            "conditions": [
-                {
-                    "category": {
-                        "max": 1
-                    },
-                    "measure": {
-                        "max": 1
-                    }
+    "dataViewMappings": [{
+        "conditions": [{
+            "category": {
+                "max": 1
+            },
+            "measure": {
+                "max": 1
+            }
+        }],
+        "categorical": {
+            "categories": {
+                "for": {
+                    "in": "category"
                 }
-            ],
-            "categorical": {
-                "categories": {
-                    "for": {
-                        "in": "category"
+            },
+            "values": {
+                "select": [{
+                    "bind": {
+                        "to": "measure"
                     }
-                },
-                "values": {
-                    "select": [
-                        {
-                            "bind": {
-                                "to": "measure"
-                            }
-                        }
-                    ]
-                }
+                }]
             }
         }
-    ],
+    }],
     "objects": {
         "enableAxis": {
             "displayName": "Enable Axis",
@@ -54,6 +47,16 @@
                     "displayName": "Enable Axis",
                     "type": {
                         "bool": true
+                    }
+                },
+                "fill": {
+                    "displayName": "Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
                     }
                 }
             }

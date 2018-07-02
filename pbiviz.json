@@ -4,12 +4,12 @@
     "displayName": "barChart",
     "guid": "PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166",
     "visualClassName": "BarChart",
-    "version": "1.0.0",
+    "version": "1.3.0",
     "description": "",
     "supportUrl": "",
     "gitHubUrl": ""
   },
-  "apiVersion": "1.12.0",
+  "apiVersion": "1.13.0",
   "author": {
     "name": "",
     "email": ""
