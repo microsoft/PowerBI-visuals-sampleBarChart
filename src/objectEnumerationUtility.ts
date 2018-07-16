@@ -1,4 +1,4 @@
-    import powerbi from "powerbi-visuals-tools";
+    import powerbi from "powerbi-visuals-api";
     import DataViewObjects = powerbi.DataViewObjects;
     import DataViewObject = powerbi.DataViewObject;
     import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;

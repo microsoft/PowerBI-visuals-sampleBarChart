@@ -1,7 +1,8 @@
-    import powerbi from "powerbi-visuals-tools";
+    import powerbi from "powerbi-visuals-api";
     import * as d3 from "d3";
     import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
     import ITooltipService = powerbi.extensibility.ITooltipService;
+import { ContainerElement } from "d3";
 
     export interface TooltipEventArgs<TData> {
         data: TData;
@@ -13,7 +14,7 @@
 
     export interface ITooltipServiceWrapper {
         addTooltip<T>(
-            selection: d3.Selection<Element>,
+            selection: d3.Selection<Element, any, any, any>,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             getDataPointIdentity: (args: TooltipEventArgs<T>) => powerbi.visuals.ISelectionId,
             reloadTooltipDataOnMouseMove?: boolean): void;
@@ -39,7 +40,7 @@
         }
 
         public addTooltip<T>(
-            selection: d3.Selection<Element>,
+            selection: d3.Selection<Element, any, any, any>,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             getDataPointIdentity: (args: TooltipEventArgs<T>) => powerbi.visuals.ISelectionId,
             reloadTooltipDataOnMouseMove?: boolean): void {
@@ -157,7 +158,7 @@
 
         private makeTooltipEventArgs<T>(rootNode: Element, isPointerEvent: boolean, isTouchEvent: boolean): TooltipEventArgs<T> {
             let target = <HTMLElement>(<Event>d3.event).target;
-            let data: T = d3.select(target).datum();
+            let data: T = <any>d3.select(target).datum();
 
             let mouseCoordinates = this.getCoordinates(rootNode, isPointerEvent);
             let elementCoordinates: number[] = this.getCoordinates(target, isPointerEvent);
@@ -198,7 +199,7 @@
                 coordinates = [e.clientX - rect.left - rootNode.clientLeft, e.clientY - rect.top - rootNode.clientTop];
             }
             else {
-                let touchCoordinates = d3.touches(rootNode);
+                let touchCoordinates = d3.touches(rootNode as ContainerElement);
                 if (touchCoordinates && touchCoordinates.length > 0) {
                     coordinates = touchCoordinates[0];
                 }
