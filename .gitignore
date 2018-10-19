@@ -1,6 +1,10 @@
-typings
 node_modules
 .DS_Store
 .tmp
-dist
 .api
+dist
+typings
+.api
+*.log
+.idea/*
+webpack.statistics.html
