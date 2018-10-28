@@ -390,12 +390,12 @@ module powerbi.extensibility.visual {
                 const mouseEvent: MouseEvent = d3.event as MouseEvent;
                 const eventTarget: EventTarget = mouseEvent.target;
                 let dataPoint = d3.select(eventTarget).datum();
-                this.selectionManager.showContextMenu(dataPoint? dataPoint.selectionId : {}, { 
-                    x:mouseEvent.clientX,
-                    y:mouseEvent.clientY
+                this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
+                    x: mouseEvent.clientX,
+                    y: mouseEvent.clientY
                 });
                 mouseEvent.preventDefault();
-            });      
+            });
         }
 
         private syncSelectionState(
