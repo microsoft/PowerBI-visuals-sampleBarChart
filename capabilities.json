@@ -102,5 +102,6 @@
         "roles": [
             "Tooltips"
         ]
-    }
+    },
+    "supportsLandingPage": false
 }

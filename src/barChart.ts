@@ -213,6 +213,10 @@ module powerbi.extensibility.visual {
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private locale: string;
         private helpLinkElement: d3.Selection<any>;
+        private element: HTMLElement;
+        private isLandingPageOn: boolean;
+        private LandingPageRemoved: boolean;
+        private LandingPage: d3.Selection<any>;
 
         private barSelection: d3.selection.Update<BarChartDataPoint>;
 
@@ -239,6 +243,7 @@ module powerbi.extensibility.visual {
          */
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
+            this.element = options.element;
             this.selectionManager = options.host.createSelectionManager();
 
             this.selectionManager.registerOnSelectCallback(() => {
@@ -279,6 +284,9 @@ module powerbi.extensibility.visual {
             let viewModel: BarChartViewModel = visualTransform(options, this.host);
             let settings = this.barChartSettings = viewModel.settings;
             this.barDataPoints = viewModel.dataPoints;
+
+            //Turn on landing page in capabilities and remove comment to turn on landing page!
+            //this.HandleLandingPage(options);
 
             let width = options.viewport.width;
             let height = options.viewport.height;
@@ -527,9 +535,49 @@ module powerbi.extensibility.visual {
             linkElement.setAttribute("title", "Open documentation");
             linkElement.setAttribute("class", "helpLink");
             linkElement.addEventListener("click", () => {
-                this.host.launchUrl("https://github.com/Microsoft/PowerBI-visuals/blob/master/Readme.md#developing-your-first-powerbi-visual");
+                this.host.launchUrl("https://microsoft.github.io/PowerBI-visuals/tutorials/building-bar-chart/adding-url-launcher-element-to-the-bar-chart/");
             });
             return linkElement;
         };
+
+        private HandleLandingPage(options: VisualUpdateOptions) {
+            if(!options.dataViews || !options.dataViews.length) {
+                if(!this.isLandingPageOn) {
+                    this.isLandingPageOn = true;
+                    const SampleLandingPage: Element = this.createSampleLandingPage();
+                    this.element.appendChild(SampleLandingPage);
+
+                    this.LandingPage = d3.select(SampleLandingPage);
+                }
+
+            } else {
+                    if(this.isLandingPageOn && !this.LandingPageRemoved){
+                        this.LandingPageRemoved = true;
+                        this.LandingPage.remove();
+                }
+                
+            }
+        }
+
+        private createSampleLandingPage(): Element {
+            let div = document.createElement("div");
+
+            let header = document.createElement("h1")
+            header.textContent = "Sample Bar Chart Landing Page";
+            header.setAttribute("class","LandingPage");
+            
+            let p1 = document.createElement("a");
+            p1.setAttribute("class", "LandingPageHelpLink");
+            p1.textContent = "Learn more about Landing page";
+
+            p1.addEventListener("click", () => {
+                this.host.launchUrl("https://microsoft.github.io/PowerBI-visuals/docs/overview/");
+            });
+
+            div.appendChild(header);
+            div.appendChild(p1);
+
+            return div;
+        }
     }
 }
