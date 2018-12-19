@@ -561,9 +561,9 @@ module powerbi.extensibility.visual {
         private createSampleLandingPage(): Element {
             let div = document.createElement("div");
 
-            let header = document.createElement("h1")
+            let header = document.createElement("h1");
             header.textContent = "Sample Bar Chart Landing Page";
-            header.setAttribute("class","LandingPage");
+            header.setAttribute("class", "LandingPage");
             let p1 = document.createElement("a");
             p1.setAttribute("class", "LandingPageHelpLink");
             p1.textContent = "Learn more about Landing page";
