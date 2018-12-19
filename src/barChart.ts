@@ -285,8 +285,8 @@ module powerbi.extensibility.visual {
             let settings = this.barChartSettings = viewModel.settings;
             this.barDataPoints = viewModel.dataPoints;
 
-            //Turn on landing page in capabilities and remove comment to turn on landing page!
-            //this.HandleLandingPage(options);
+            // Turn on landing page in capabilities and remove comment to turn on landing page!
+            // this.HandleLandingPage(options);
 
             let width = options.viewport.width;
             let height = options.viewport.height;
@@ -541,8 +541,8 @@ module powerbi.extensibility.visual {
         };
 
         private HandleLandingPage(options: VisualUpdateOptions) {
-            if(!options.dataViews || !options.dataViews.length) {
-                if(!this.isLandingPageOn) {
+            if (!options.dataViews || !options.dataViews.length) {
+                if (!this.isLandingPageOn) {
                     this.isLandingPageOn = true;
                     const SampleLandingPage: Element = this.createSampleLandingPage();
                     this.element.appendChild(SampleLandingPage);
@@ -551,11 +551,10 @@ module powerbi.extensibility.visual {
                 }
 
             } else {
-                    if(this.isLandingPageOn && !this.LandingPageRemoved){
+                    if (this.isLandingPageOn && !this.LandingPageRemoved) {
                         this.LandingPageRemoved = true;
                         this.LandingPage.remove();
                 }
-                
             }
         }
 
@@ -565,7 +564,6 @@ module powerbi.extensibility.visual {
             let header = document.createElement("h1")
             header.textContent = "Sample Bar Chart Landing Page";
             header.setAttribute("class","LandingPage");
-            
             let p1 = document.createElement("a");
             p1.setAttribute("class", "LandingPageHelpLink");
             p1.textContent = "Learn more about Landing page";
