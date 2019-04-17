@@ -622,7 +622,7 @@ module powerbi.extensibility.visual {
 
             // If plain string, just return it
             if (typeof(color) === 'string') {
-                return color
+                return color;
             }
             // Otherwise, extract string representation from Fill type object
             return color.solid.color;
@@ -631,28 +631,28 @@ module powerbi.extensibility.visual {
         private initAverageLine() {
             this.averageLine = this.svg
                 .append('g')
-                .classed('averageLine',true);
+                .classed('averageLine', true);
 
             this.averageLine.append('line')
-                .attr('id','averageLine');
+                .attr('id', 'averageLine');
 
             this.averageLine.append('text')
-                .attr('id','averageLineLabel');
+                .attr('id', 'averageLineLabel');
         }
 
-        private handleAverageLineUpdate(height:number, width:number, yScale: d3.scale.Linear<number,number>) {
+        private handleAverageLineUpdate(height: number, width: number, yScale: d3.scale.Linear<number, number>) {
             let average = this.calculateAverage();
             let fontSize = d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier;
             let chosenColor = this.getColorValue(this.barChartSettings.averageLine.fill);
             // If there's no room to place lable above line, place it below
-            let lableYOffset = fontSize * ((yScale(average) > fontSize * 1.5)? -0.5 : 1.5);
+            let lableYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
 
             this.averageLine
                 .style({
                     "font-size": fontSize,
-                    "display": (this.barChartSettings.averageLine.show)? "initial" : "none",
+                    "display": (this.barChartSettings.averageLine.show) ? "initial" : "none",
                 })
-                .attr("transform", "translate(0, " + Math.round(yScale(average)) + ")")
+                .attr("transform", "translate(0, " + Math.round(yScale(average)) + ")");
             this.averageLine.select("#averageLine")
                 .style({
                     "stroke": chosenColor,
@@ -664,9 +664,9 @@ module powerbi.extensibility.visual {
                     'x2': "" + width
                 });
             this.averageLine.select("#averageLineLabel")
-                .text("Average: "+average.toFixed(2))
+                .text("Average: " + average.toFixed(2))
                 .attr("transform", "translate(0, " + lableYOffset + ")")
-                .style("fill", this.barChartSettings.averageLine.showDataLable? chosenColor: "none");
+                .style("fill", this.barChartSettings.averageLine.showDataLable ? chosenColor : "none");
         }
 
         private calculateAverage(): number {
@@ -676,11 +676,11 @@ module powerbi.extensibility.visual {
 
             let total = 0;
 
-            this.barDataPoints.forEach((value:BarChartDataPoint) => {
+            this.barDataPoints.forEach((value: BarChartDataPoint) => {
                 total += <number>value.value;
-            })
+            });
 
-            return total/this.barDataPoints.length;
+            return total / this.barDataPoints.length;
         }
     }
 }
