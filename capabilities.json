@@ -92,6 +92,38 @@
                     }
                 }
             }
+        },
+        "averageLine" :{
+            "displayName": "Average Line",
+            "objectCategory": 2,
+            "properties": {
+                "show": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "displayName": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "fill": {
+                    "displayName": "Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "showDataLabel": {
+                    "displayName": "Data label",
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
         }
     },
     "tooltips": {

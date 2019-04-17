@@ -53,6 +53,13 @@ module powerbi.extensibility.visual {
             showHelpLink: boolean;
             helpLinkColor: string;
         };
+
+        averageLine: {
+            show: boolean;
+            displayName: string;
+            fill: string;
+            showDataLabel: boolean;
+        };
     }
 
     /**
@@ -75,6 +82,12 @@ module powerbi.extensibility.visual {
                 opacity: 100,
                 showHelpLink: false,
                 helpLinkColor: "#80B0E0",
+            },
+            averageLine: {
+                show: false,
+                displayName: "Average Line",
+                fill: "#888888",
+                showDataLabel: false
             }
         };
         let viewModel: BarChartViewModel = {
@@ -114,6 +127,12 @@ module powerbi.extensibility.visual {
                 opacity: getValue<number>(objects, 'generalView', 'opacity', defaultSettings.generalView.opacity),
                 showHelpLink: getValue<boolean>(objects, 'generalView', 'showHelpLink', defaultSettings.generalView.showHelpLink),
                 helpLinkColor: strokeColor,
+            },
+            averageLine: {
+                show: getValue<boolean>(objects, 'averageLine', 'show', defaultSettings.averageLine.show),
+                displayName: getValue<string>(objects, 'averageLine', 'displayName', defaultSettings.averageLine.displayName),
+                fill: getValue<string>(objects, 'averageLine', 'fill', defaultSettings.averageLine.fill),
+                showDataLabel: getValue<boolean>(objects, 'averageLine', 'showDataLabel', defaultSettings.averageLine.showDataLabel),
             },
         };
 
@@ -217,6 +236,7 @@ module powerbi.extensibility.visual {
         private isLandingPageOn: boolean;
         private LandingPageRemoved: boolean;
         private LandingPage: d3.Selection<any>;
+        private averageLine: d3.Selection<SVGElement>;
 
         private barSelection: d3.selection.Update<BarChartDataPoint>;
 
@@ -265,6 +285,8 @@ module powerbi.extensibility.visual {
             this.xAxis = this.svg
                 .append('g')
                 .classed('xAxis', true);
+
+            this.initAverageLine();
 
             const helpLinkElement: Element = this.createHelpLinkElement();
             options.element.appendChild(helpLinkElement);
@@ -327,6 +349,8 @@ module powerbi.extensibility.visual {
 
             this.xAxis.attr('transform', 'translate(0, ' + height + ')')
                 .call(xAxis);
+
+            this.handleAverageLineUpdate(height, width, yScale);
 
             this.barSelection = this.barContainer
                 .selectAll('.bar')
@@ -504,6 +528,18 @@ module powerbi.extensibility.visual {
                         selector: null
                     });
                     break;
+                case 'averageLine':
+                    objectEnumeration.push({
+                        objectName: objectName,
+                        properties: {
+                            show: this.barChartSettings.averageLine.show,
+                            displayName: this.barChartSettings.averageLine.displayName,
+                            fill: this.barChartSettings.averageLine.fill,
+                            showDataLabel: this.barChartSettings.averageLine.showDataLabel
+                        },
+                        selector: null
+                    });
+                    break;
             };
 
             return objectEnumeration;
@@ -576,6 +612,75 @@ module powerbi.extensibility.visual {
             div.appendChild(p1);
 
             return div;
+        }
+
+        private getColorValue(color: Fill|string): string {
+            // Override color settings if in high contrast mode
+            if (this.host.colorPalette.isHighContrast) {
+                return this.host.colorPalette.foreground.value;
+            }
+
+            // If plain string, just return it
+            if (typeof(color) === 'string') {
+                return color;
+            }
+            // Otherwise, extract string representation from Fill type object
+            return color.solid.color;
+        }
+
+        private initAverageLine() {
+            this.averageLine = this.svg
+                .append('g')
+                .classed('averageLine', true);
+
+            this.averageLine.append('line')
+                .attr('id', 'averageLine');
+
+            this.averageLine.append('text')
+                .attr('id', 'averageLineLabel');
+        }
+
+        private handleAverageLineUpdate(height: number, width: number, yScale: d3.scale.Linear<number, number>) {
+            let average = this.calculateAverage();
+            let fontSize = d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier;
+            let chosenColor = this.getColorValue(this.barChartSettings.averageLine.fill);
+            // If there's no room to place lable above line, place it below
+            let labelYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
+
+            this.averageLine
+                .style({
+                    "font-size": fontSize,
+                    "display": (this.barChartSettings.averageLine.show) ? "initial" : "none",
+                })
+                .attr("transform", "translate(0, " + Math.round(yScale(average)) + ")");
+            this.averageLine.select("#averageLine")
+                .style({
+                    "stroke": chosenColor,
+                    "stroke-width": "3px",
+                    "stroke-dasharray": "6,6",
+                })
+                .attr({
+                    'x1': "0",
+                    'x2': "" + width
+                });
+            this.averageLine.select("#averageLineLabel")
+                .text("Average: " + average.toFixed(2))
+                .attr("transform", "translate(0, " + labelYOffset + ")")
+                .style("fill", this.barChartSettings.averageLine.showDataLabel ? chosenColor : "none");
+        }
+
+        private calculateAverage(): number {
+            if (this.barDataPoints.length === 0) {
+                return 0;
+            }
+
+            let total = 0;
+
+            this.barDataPoints.forEach((value: BarChartDataPoint) => {
+                total += <number>value.value;
+            });
+
+            return total / this.barDataPoints.length;
         }
     }
 }
