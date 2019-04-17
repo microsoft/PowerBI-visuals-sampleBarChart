@@ -58,7 +58,7 @@ module powerbi.extensibility.visual {
             show: boolean;
             displayName: string;
             fill: string;
-            showDataLable: boolean;
+            showDataLabel: boolean;
         };
     }
 
@@ -87,7 +87,7 @@ module powerbi.extensibility.visual {
                 show: false,
                 displayName: "Average Line",
                 fill: "#888888",
-                showDataLable: false
+                showDataLabel: false
             }
         };
         let viewModel: BarChartViewModel = {
@@ -132,7 +132,7 @@ module powerbi.extensibility.visual {
                 show: getValue<boolean>(objects, 'averageLine', 'show', defaultSettings.averageLine.show),
                 displayName: getValue<string>(objects, 'averageLine', 'displayName', defaultSettings.averageLine.displayName),
                 fill: getValue<string>(objects, 'averageLine', 'fill', defaultSettings.averageLine.fill),
-                showDataLable: getValue<boolean>(objects, 'averageLine', 'showDataLable', defaultSettings.averageLine.showDataLable),
+                showDataLabel: getValue<boolean>(objects, 'averageLine', 'showDataLabel', defaultSettings.averageLine.showDataLabel),
             },
         };
 
@@ -535,7 +535,7 @@ module powerbi.extensibility.visual {
                             show: this.barChartSettings.averageLine.show,
                             displayName: this.barChartSettings.averageLine.displayName,
                             fill: this.barChartSettings.averageLine.fill,
-                            showDataLable: this.barChartSettings.averageLine.showDataLable
+                            showDataLabel: this.barChartSettings.averageLine.showDataLabel
                         },
                         selector: null
                     });
@@ -645,7 +645,7 @@ module powerbi.extensibility.visual {
             let fontSize = d3.min([height, width]) * BarChart.Config.xAxisFontMultiplier;
             let chosenColor = this.getColorValue(this.barChartSettings.averageLine.fill);
             // If there's no room to place lable above line, place it below
-            let lableYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
+            let labelYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
 
             this.averageLine
                 .style({
@@ -665,8 +665,8 @@ module powerbi.extensibility.visual {
                 });
             this.averageLine.select("#averageLineLabel")
                 .text("Average: " + average.toFixed(2))
-                .attr("transform", "translate(0, " + lableYOffset + ")")
-                .style("fill", this.barChartSettings.averageLine.showDataLable ? chosenColor : "none");
+                .attr("transform", "translate(0, " + labelYOffset + ")")
+                .style("fill", this.barChartSettings.averageLine.showDataLabel ? chosenColor : "none");
         }
 
         private calculateAverage(): number {

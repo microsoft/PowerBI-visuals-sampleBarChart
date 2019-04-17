@@ -117,8 +117,8 @@
                         }
                     }
                 },
-                "showDataLable": {
-                    "displayName": "Data lable",
+                "showDataLabel": {
+                    "displayName": "Data label",
                     "type": {
                         "bool": true
                     }
