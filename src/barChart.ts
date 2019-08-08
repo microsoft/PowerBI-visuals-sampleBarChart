@@ -483,6 +483,12 @@ module powerbi.extensibility.visual {
             let objectName = options.objectName;
             let objectEnumeration: VisualObjectInstance[] = [];
 
+            if (!this.barChartSettings ||
+                !this.barChartSettings.enableAxis ||
+                !this.barDataPoints) {
+                return objectEnumeration;
+            }
+
             switch (objectName) {
                 case 'enableAxis':
                     objectEnumeration.push({
