@@ -1,18 +1,21 @@
 {
     "name": "visual",
-    "version": "2.5.0",
+    "version": "3.0.0",
     "scripts": {
-        "postinstall": "pbiviz update 2.5.0",
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
         "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
     },
     "devDependencies": {
-        "@types/d3": "3.5.36",
-        "d3": "3.5.5",
-        "powerbi-visuals-tools": "2.5.0",
-        "tslint": "4.4.2",
-        "tslint-microsoft-contrib": "4.0.0"
+        "@types/d3": "5.7.2",
+        "d3": "5.12.0",
+        "powerbi-visuals-api": "^2.6.1",
+        "powerbi-visuals-tools": "^3.1.7",
+        "powerbi-visuals-utils-dataviewutils": "^2.2.1",
+        "powerbi-visuals-utils-interactivityutils": "^5.6.0",
+        "powerbi-visuals-utils-tooltiputils": "^2.3.1",
+        "tslint": "^5.20.0",
+        "tslint-microsoft-contrib": "^6.2.0"
     }
 }

@@ -1,5 +1,6 @@
 {
-    "dataRoles": [{
+    "dataRoles": [
+        {
             "displayName": "Category Data",
             "name": "category",
             "kind": "Grouping"
@@ -15,30 +16,36 @@
             "kind": "Measure"
         }
     ],
-    "dataViewMappings": [{
-        "conditions": [{
-            "category": {
-                "max": 1
-            },
-            "measure": {
-                "max": 1
-            }
-        }],
-        "categorical": {
-            "categories": {
-                "for": {
-                    "in": "category"
-                }
-            },
-            "values": {
-                "select": [{
-                    "bind": {
-                        "to": "measure"
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "category": {
+                        "max": 1
+                    },
+                    "measure": {
+                        "max": 1
                     }
-                }]
+                }
+            ],
+            "categorical": {
+                "categories": {
+                    "for": {
+                        "in": "category"
+                    }
+                },
+                "values": {
+                    "select": [
+                        {
+                            "bind": {
+                                "to": "measure"
+                            }
+                        }
+                    ]
+                }
             }
         }
-    }],
+    ],
     "objects": {
         "enableAxis": {
             "displayName": "Enable Axis",
@@ -93,7 +100,7 @@
                 }
             }
         },
-        "averageLine" :{
+        "averageLine": {
             "displayName": "Average Line",
             "objectCategory": 2,
             "properties": {

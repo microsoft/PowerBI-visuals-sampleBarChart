@@ -4,12 +4,12 @@
     "displayName": "barChart",
     "guid": "PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166",
     "visualClassName": "BarChart",
-    "version": "2.5.0",
+    "version": "3.0.0",
     "description": "",
     "supportUrl": "",
     "gitHubUrl": ""
   },
-  "apiVersion": "2.5.0",
+  "apiVersion": "2.6.0",
   "author": {
     "name": "",
     "email": ""
@@ -17,9 +17,7 @@
   "assets": {
     "icon": "assets/icon.png"
   },
-  "externalJS": [
-    "node_modules/d3/d3.min.js"
-  ],
+  "externalJS": [],
   "style": "style/visual.less",
   "capabilities": "capabilities.json"
 }
