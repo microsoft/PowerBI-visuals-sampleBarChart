@@ -1,5 +1,4 @@
-import powerbiVisualsApi from "powerbi-visuals-api";
-import powerbi = powerbiVisualsApi;
+import { Resources } from "./localizationHelper";
 
 export let myResources: Resources = {};
 myResources["LanguageKey"] = {

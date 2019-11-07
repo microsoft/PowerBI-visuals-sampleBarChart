@@ -1,9 +1,16 @@
-import powerbiVisualsApi from "powerbi-visuals-api";
-import powerbi = powerbiVisualsApi;
+import {
+    Selection,
+    event as d3Event,
+    select as d3Select,
+    touches as d3Touches,
+    ContainerElement
+} from "d3-selection";
 
-type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
+import powerbi from "powerbi-visuals-api";
+import ISelectionId = powerbi.visuals.ISelectionId;
+import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+import ITooltipService = powerbi.extensibility.ITooltipService;
 
-import { TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 
 export interface TooltipEventArgs<TData> {
     data: TData;
@@ -15,7 +22,7 @@ export interface TooltipEventArgs<TData> {
 
 export interface ITooltipServiceWrapper {
     addTooltip<T>(
-        selection: Selection<Element>,
+        selection: Selection<d3.BaseType, any, d3.BaseType, any>,
         getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
         getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
         reloadTooltipDataOnMouseMove?: boolean): void;
@@ -24,24 +31,24 @@ export interface ITooltipServiceWrapper {
 
 const DefaultHandleTouchDelay = 1000;
 
-export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: Element, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
+export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: ContainerElement, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
     return new TooltipServiceWrapper(tooltipService, rootElement, handleTouchDelay);
 }
 
 class TooltipServiceWrapper implements ITooltipServiceWrapper {
-    private handleTouchTimeoutId: number;
+    private handleTouchTimeoutId: NodeJS.Timeout;
     private visualHostTooltipService: ITooltipService;
-    private rootElement: Element;
+    private rootElement: ContainerElement;
     private handleTouchDelay: number;
 
-    constructor(tooltipService: ITooltipService, rootElement: Element, handleTouchDelay: number) {
+    constructor(tooltipService: ITooltipService, rootElement: ContainerElement, handleTouchDelay: number) {
         this.visualHostTooltipService = tooltipService;
         this.handleTouchDelay = handleTouchDelay;
         this.rootElement = rootElement;
     }
 
     public addTooltip<T>(
-        selection: Selection<Element>,
+        selection: Selection<d3.BaseType, any, d3.BaseType, any>,
         getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
         getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
         reloadTooltipDataOnMouseMove?: boolean): void {
@@ -55,7 +62,7 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         // Mouse events
         selection.on("mouseover.tooltip", () => {
             // Ignore mouseover while handling touch events
-            if (!this.canDisplayTooltip(d3.event))
+            if (!this.canDisplayTooltip(d3Event))
                 return;
 
             let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
@@ -85,7 +92,7 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
 
         selection.on("mousemove.tooltip", () => {
             // Ignore mousemove while handling touch events
-            if (!this.canDisplayTooltip(d3.event))
+            if (!this.canDisplayTooltip(d3Event))
                 return;
 
             let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
@@ -157,9 +164,9 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
     }
 
-    private makeTooltipEventArgs<T>(rootNode: Element, isPointerEvent: boolean, isTouchEvent: boolean): TooltipEventArgs<T> {
-        let target = <HTMLElement>(<Event>d3.event).target;
-        let data: T = d3.select(target).datum();
+    private makeTooltipEventArgs<T>(rootNode: ContainerElement, isPointerEvent: boolean, isTouchEvent: boolean): TooltipEventArgs<T> {
+        let target = <HTMLElement>(<Event>d3Event).target;
+        let data: T = d3Select<HTMLElement, T>(target).datum();
 
         let mouseCoordinates = this.getCoordinates(rootNode, isPointerEvent);
         let elementCoordinates: number[] = this.getCoordinates(target, isPointerEvent);
@@ -189,18 +196,18 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         return canDisplay;
     }
 
-    private getCoordinates(rootNode: Element, isPointerEvent: boolean): number[] {
+    private getCoordinates(rootNode: ContainerElement, isPointerEvent: boolean): number[] {
         let coordinates: number[];
 
         if (isPointerEvent) {
             // copied from d3_eventSource (which is not exposed)
-            let e = <any>d3.event, s;
+            let e = <any>d3Event, s;
             while (s = e.sourceEvent) e = s;
             let rect = rootNode.getBoundingClientRect();
             coordinates = [e.clientX - rect.left - rootNode.clientLeft, e.clientY - rect.top - rootNode.clientTop];
         }
         else {
-            let touchCoordinates = d3.touches(rootNode);
+            let touchCoordinates = d3Touches(rootNode);
             if (touchCoordinates && touchCoordinates.length > 0) {
                 coordinates = touchCoordinates[0];
             }
