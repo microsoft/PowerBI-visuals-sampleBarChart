@@ -3,18 +3,14 @@
     "allowJs": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "ES5",
+    "module": "es6",
+    "target": "ES6",
     "sourceMap": true,
-    "out": "./.tmp/build/visual.js",
-    "sourceRoot": "../../src/",
+    "outDir": "./.tmp/build/",
+    "moduleResolution": "node",
     "declaration": true
   },
   "files": [
-    ".api/v2.5.0/PowerBI-visuals.d.ts",
-    "src/tooltipServiceWrapper.ts",
-    "src/barChart.ts",
-    "src/objectEnumerationUtility.ts",
-    "src/localization/localizationHelper.ts",
-    "src/localization/localizedResources.ts"
+    "src/barChart.ts"
   ]
 }
