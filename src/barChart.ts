@@ -304,6 +304,7 @@ export class BarChart implements IVisual {
         this.host = options.host;
         this.element = options.element;
         this.selectionManager = options.host.createSelectionManager();
+        this.locale = options.host.locale;
 
         this.selectionManager.registerOnSelectCallback(() => {
             this.syncSelectionState(this.barSelection, this.selectionManager.getSelectionIds() as ISelectionId[]);
@@ -314,8 +315,6 @@ export class BarChart implements IVisual {
         this.svg = d3Select(options.element)
             .append('svg')
             .classed('barChart', true);
-
-        this.locale = options.host.locale;
 
         this.barContainer = this.svg
             .append('g')
@@ -392,18 +391,20 @@ export class BarChart implements IVisual {
             .selectAll('.bar')
             .data(this.barDataPoints);
 
-        this.barSelection
+        const barSelectionMerged = this.barSelection
             .enter()
             .append('rect')
-            .classed('bar', true);
+            .merge(<any>this.barSelection);
+
+        barSelectionMerged.classed('bar', true);
 
         const opacity: number = viewModel.settings.generalView.opacity / 100;
 
-        this.barSelection
+        barSelectionMerged
             .attr("width", xScale.bandwidth())
             .attr("height", d => height - yScale(<number>d.value))
-            .attr("x", d => yScale(<number>d.value))
-            .attr("y", d => xScale(d.category))
+            .attr("y", d => yScale(<number>d.value))
+            .attr("x", d => xScale(d.category))
             .style("fill-opacity", opacity)
             .style("stroke-opacity", opacity)
             .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
@@ -416,11 +417,11 @@ export class BarChart implements IVisual {
         );
 
         this.syncSelectionState(
-            this.barSelection,
+            barSelectionMerged,
             this.selectionManager.getSelectionIds() as ISelectionId[]
         );
 
-        this.barSelection.on('click', (d) => {
+        barSelectionMerged.on('click', (d) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.allowInteractions) {
                 const isCtrlPressed: boolean = (d3Event as MouseEvent).ctrlKey;
@@ -428,7 +429,7 @@ export class BarChart implements IVisual {
                 this.selectionManager
                     .select(d.selectionId, isCtrlPressed)
                     .then((ids: ISelectionId[]) => {
-                        this.syncSelectionState(this.barSelection, ids);
+                        this.syncSelectionState(barSelectionMerged, ids);
                     });
 
                 (<Event>d3Event).stopPropagation();
@@ -445,7 +446,7 @@ export class BarChart implements IVisual {
                 this.selectionManager
                     .clear()
                     .then(() => {
-                        this.syncSelectionState(this.barSelection, []);
+                        this.syncSelectionState(barSelectionMerged, []);
                     });
             }
         });
