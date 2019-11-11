@@ -1,4 +1,4 @@
-import { myResources } from "./localizedResources";
+import { localizedResources as myResources } from "./localizedResources";
 
 export interface Localization {
     "ar-SA": string;
