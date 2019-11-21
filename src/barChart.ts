@@ -52,7 +52,7 @@ interface BarChartViewModel {
     dataPoints: BarChartDataPoint[];
     dataMax: number;
     settings: BarChartSettings;
-};
+}
 
 /**
  * Interface for BarChart data points.
@@ -71,7 +71,7 @@ interface BarChartDataPoint {
     strokeColor: string;
     strokeWidth: number;
     selectionId: ISelectionId;
-};
+}
 
 /**
  * Interface for BarChart settings.
@@ -307,7 +307,7 @@ export class BarChart implements IVisual {
         this.locale = options.host.locale;
 
         this.selectionManager.registerOnSelectCallback(() => {
-            this.syncSelectionState(this.barSelection, this.selectionManager.getSelectionIds() as ISelectionId[]);
+            this.syncSelectionState(this.barSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
         });
 
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
@@ -418,13 +418,13 @@ export class BarChart implements IVisual {
 
         this.syncSelectionState(
             barSelectionMerged,
-            this.selectionManager.getSelectionIds() as ISelectionId[]
+            <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
         barSelectionMerged.on('click', (d) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.allowInteractions) {
-                const isCtrlPressed: boolean = (d3Event as MouseEvent).ctrlKey;
+                const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
 
                 this.selectionManager
                     .select(d.selectionId, isCtrlPressed)
@@ -440,13 +440,17 @@ export class BarChart implements IVisual {
             .exit()
             .remove();
 
+        this.handleClick(barSelectionMerged);
+    }
+
+    private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
         // Clear selection when clicking outside a bar
         this.svg.on('click', (d) => {
             if (this.host.allowInteractions) {
                 this.selectionManager
                     .clear()
                     .then(() => {
-                        this.syncSelectionState(barSelectionMerged, []);
+                        this.syncSelectionState(barSelection, []);
                     });
             }
         });
@@ -615,7 +619,7 @@ export class BarChart implements IVisual {
         return linkElement;
     };
 
-    private HandleLandingPage(options: VisualUpdateOptions) {
+    private handleLandingPage(options: VisualUpdateOptions) {
         if (!options.dataViews || !options.dataViews.length) {
             if (!this.isLandingPageOn) {
                 this.isLandingPageOn = true;
