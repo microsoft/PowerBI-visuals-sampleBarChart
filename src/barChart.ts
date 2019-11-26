@@ -35,8 +35,10 @@ import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
-// powerbi.extensibility.utils.tooltip
+// powerbi.extensibility.utils
 import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
+import textMeasurementService = tms.textMeasurementService;
 
 import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
 import { getLocalizedString } from "./localization/localizationHelper"
@@ -381,10 +383,11 @@ export class BarChart implements IVisual {
             .padding(0.2);
 
         let xAxis = axisBottom(xScale);
-
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
             .call(xAxis);
 
+        const textNodes = this.xAxis.selectAll("text")
+        BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
         this.handleAverageLineUpdate(height, width, yScale);
 
         this.barSelection = this.barContainer
@@ -399,7 +402,6 @@ export class BarChart implements IVisual {
         barSelectionMerged.classed('bar', true);
 
         const opacity: number = viewModel.settings.generalView.opacity / 100;
-
         barSelectionMerged
             .attr("width", xScale.bandwidth())
             .attr("height", d => height - yScale(<number>d.value))
@@ -443,6 +445,19 @@ export class BarChart implements IVisual {
         this.handleClick(barSelectionMerged);
     }
 
+    private static wordBreak(
+        textNodes: Selection<any, SVGElement>,
+        allowedWidth: number,
+        maxHeight: number
+    ) {
+        textNodes.each(function () {
+            textMeasurementService.wordBreak(
+                this,
+                allowedWidth,
+                maxHeight);
+        });
+    }
+
     private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
         // Clear selection when clicking outside a bar
         this.svg.on('click', (d) => {
@@ -478,9 +493,10 @@ export class BarChart implements IVisual {
         }
 
         if (!selectionIds.length) {
+            const opacity: number = this.barChartSettings.generalView.opacity / 100;
             selection
-                .style("fill-opacity", null)
-                .style("stroke-opacity", null);
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
 
             return;
         }
