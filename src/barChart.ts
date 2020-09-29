@@ -36,7 +36,9 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
 // powerbi.extensibility.utils
-import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+//import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+
+import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "./tooltipServiceWrapper";
 import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
 import textMeasurementService = tms.textMeasurementService;
 
@@ -312,7 +314,7 @@ export class BarChart implements IVisual {
             this.syncSelectionState(this.barSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
         });
 
-        this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
+        this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element, this.selectionManager);
 
         this.svg = d3Select(options.element)
             .append('svg')
@@ -356,7 +358,7 @@ export class BarChart implements IVisual {
         let height = options.viewport.height;
 
         this.svg
-            .attr("width", width)
+            .attr("width", width/2)
             .attr("height", height);
 
         if (settings.enableAxis.show) {
@@ -423,26 +425,9 @@ export class BarChart implements IVisual {
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
-        barSelectionMerged.on('click', (d) => {
-            // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
-            if (this.host.allowInteractions) {
-                const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
-
-                this.selectionManager
-                    .select(d.selectionId, isCtrlPressed)
-                    .then((ids: ISelectionId[]) => {
-                        this.syncSelectionState(barSelectionMerged, ids);
-                    });
-
-                (<Event>d3Event).stopPropagation();
-            }
-        });
-
         this.barSelection
             .exit()
             .remove();
-
-        this.handleClick(barSelectionMerged);
     }
 
     private static wordBreak(
@@ -473,6 +458,9 @@ export class BarChart implements IVisual {
 
     private handleContextMenu() {
         this.svg.on('contextmenu', () => {
+
+            this.tooltipServiceWrapper.cancelTouchTimeoutEvents();
+            
             const mouseEvent: MouseEvent = getEvent();
             const eventTarget: EventTarget = mouseEvent.target;
             let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
