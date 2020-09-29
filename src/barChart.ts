@@ -36,9 +36,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
 // powerbi.extensibility.utils
-//import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
-
-import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "./tooltipServiceWrapper";
+import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
 import textMeasurementService = tms.textMeasurementService;
 
@@ -266,7 +264,6 @@ function getAxisTextFillColor(
 
 export class BarChart implements IVisual {
     private svg: Selection<any>;
-    private logTextArea: Selection<any>;
     private host: IVisualHost;
     private selectionManager: ISelectionManager;
     private barContainer: Selection<SVGElement>;
@@ -315,16 +312,11 @@ export class BarChart implements IVisual {
             this.syncSelectionState(this.barSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
         });
 
-        this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element, this.selectionManager);
+        this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
 
         this.svg = d3Select(options.element)
             .append('svg')
             .classed('barChart', true);
-
-
-        this.logTextArea = d3Select(options.element)
-            .append('textarea');
-
 
         this.barContainer = this.svg
             .append('g')
@@ -364,15 +356,8 @@ export class BarChart implements IVisual {
         let height = options.viewport.height;
 
         this.svg
-            .attr("width", width/2)
+            .attr("width", width)
             .attr("height", height);
-
-
-        this.logTextArea
-            .style("width", width/2 + "px") 
-            .style("height", height + "px")
-            .style("position", "absolute")
-
 
         if (settings.enableAxis.show) {
             let margins = BarChart.Config.margins;
@@ -428,62 +413,16 @@ export class BarChart implements IVisual {
             .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
             .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
 
-            
         this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
             (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => this.getTooltipData(tooltipEvent.data),
             (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => tooltipEvent.data.selectionId
         );
-
 
         this.syncSelectionState(
             barSelectionMerged,
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
-        
-        let eventTypes = [
-        
-        //"pointerover",
-        //"pointerenter",
-        "pointerdown",
-        //"pointermove",
-        "pointerup",
-        "pointercancel",
-        //"pointerout",
-        //"pointerleave",
-        "gotpointercapture",
-        "lostpointercapture",
-
-        "mousedown",
-        "mouseup",
-        //"mousemove",
-        "click",
-        "dblclick",
-       
-        "mouseover",
-        //"mouseout",
-        //"mouseenter",
-        //"mouseleave",
-        "contextmenu",
-
-        
-        "contextmenuCustom",
-
-
-        "touchcancel",
-        "touchend",
-        "touchmove",
-        "touchstart"]
-
-        eventTypes.forEach((eventType) => {
-
-            barSelectionMerged.on(eventType, (d) => this.handleEvent(eventType, d));
-        })
-       
-
-
-
-        /*
         barSelectionMerged.on('click', (d) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.allowInteractions) {
@@ -498,25 +437,13 @@ export class BarChart implements IVisual {
                 (<Event>d3Event).stopPropagation();
             }
         });
-        */
 
         this.barSelection
             .exit()
             .remove();
 
-        //this.handleClick(barSelectionMerged);
+        this.handleClick(barSelectionMerged);
     }
-
-    private handleEvent(eventType: string, d: any) {
-        console.log(eventType);
-
-        let logs = this.logTextArea.text();
-        this.logTextArea.text(logs + eventType + "\r\n");
-        this.logTextArea.node().scrollTop = this.logTextArea.node().scrollHeight;
-
-    }
-
-    
 
     private static wordBreak(
         textNodes: Selection<any, SVGElement>,
@@ -546,11 +473,6 @@ export class BarChart implements IVisual {
 
     private handleContextMenu() {
         this.svg.on('contextmenu', () => {
-
-            console.log('contextmenu triggered. Call cancelTouchTimeoutEvents');
-
-            this.tooltipServiceWrapper.cancelTouchTimeoutEvents();
-            
             const mouseEvent: MouseEvent = getEvent();
             const eventTarget: EventTarget = mouseEvent.target;
             let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
@@ -560,7 +482,6 @@ export class BarChart implements IVisual {
             });
             mouseEvent.preventDefault();
         });
-
     }
 
     private syncSelectionState(
