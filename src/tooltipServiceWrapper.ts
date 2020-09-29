@@ -27,6 +27,7 @@ export interface ITooltipServiceWrapper {
         getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
         reloadTooltipDataOnMouseMove?: boolean): void;
     hide(): void;
+    cancelTouchTimeoutEvents(): void;
 }
 
 const DefaultHandleTouchDelay = 1000;
@@ -140,8 +141,7 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         selection.on(touchEndEventName + '.tooltip', () => {
             this.visualHostTooltipService.hide({ isTouchEvent: true, immediately: false });
 
-            if (this.handleTouchTimeoutId)
-                clearTimeout(this.handleTouchTimeoutId);
+            this.cancelTouchTimeoutEvents();
 
             // At the end of touch action, set a timeout that will let us ignore the incoming mouse events for a small amount of time
             // TO BE CHANGED: any better way to do this?
@@ -149,6 +149,12 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
                 this.handleTouchTimeoutId = undefined;
             }, this.handleTouchDelay);
         });
+    }
+
+    public cancelTouchTimeoutEvents() {
+        if (this.handleTouchTimeoutId) {
+            clearTimeout(this.handleTouchTimeoutId);
+        }
     }
 
     public hide(): void {
