@@ -6,11 +6,14 @@ import {
     ContainerElement
 } from "d3-selection";
 
+const getEvent = () => require("d3-selection").event;
+
 import powerbiVisualsApi from "powerbi-visuals-api";
 import ISelectionId = powerbiVisualsApi.visuals.ISelectionId;
 import VisualTooltipDataItem = powerbiVisualsApi.extensibility.VisualTooltipDataItem;
 import ITooltipService = powerbiVisualsApi.extensibility.ITooltipService;
 
+import ISelectionManager = powerbiVisualsApi.extensibility.ISelectionManager;
 
 export interface TooltipEventArgs<TData> {
     data: TData;
@@ -27,12 +30,14 @@ export interface ITooltipServiceWrapper {
         getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
         reloadTooltipDataOnMouseMove?: boolean): void;
     hide(): void;
+    cancelTouchTimeoutEvents(): void;
+
 }
 
 const DefaultHandleTouchDelay = 1000;
 
-export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: ContainerElement, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
-    return new TooltipServiceWrapper(tooltipService, rootElement, handleTouchDelay);
+export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: ContainerElement, selectionManager: ISelectionManager, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
+    return new TooltipServiceWrapper(tooltipService, rootElement, selectionManager, handleTouchDelay);
 }
 
 class TooltipServiceWrapper implements ITooltipServiceWrapper {
@@ -41,10 +46,13 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
     private rootElement: ContainerElement;
     private handleTouchDelay: number;
 
-    constructor(tooltipService: ITooltipService, rootElement: ContainerElement, handleTouchDelay: number) {
+    private selectionManager: ISelectionManager;
+
+    constructor(tooltipService: ITooltipService, rootElement: ContainerElement, selectionManager: ISelectionManager, handleTouchDelay?: number) {
         this.visualHostTooltipService = tooltipService;
         this.handleTouchDelay = handleTouchDelay;
         this.rootElement = rootElement;
+        this.selectionManager = selectionManager;
     }
 
     public addTooltip<T>(
@@ -61,9 +69,13 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
 
         // Mouse events
         selection.on("mouseover.tooltip", () => {
+
+
+            console.log('mouseover triggered');
+
             // Ignore mouseover while handling touch events
-            if (!this.canDisplayTooltip(d3Event))
-                return;
+            //if (!this.canDisplayTooltip(d3Event))
+            //   return;
 
             let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
             if (!tooltipEventArgs)
@@ -84,10 +96,14 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         });
 
         selection.on("mouseout.tooltip", () => {
-            this.visualHostTooltipService.hide({ isTouchEvent: false,immediately: false });
+
+            console.log('mouseout triggered');
+            this.visualHostTooltipService.hide({ isTouchEvent: false, immediately: false });
         });
 
         selection.on("mousemove.tooltip", () => {
+
+            //console.log('mouseout triggered');
             // Ignore mousemove while handling touch events
             if (!this.canDisplayTooltip(d3Event))
                 return;
@@ -119,29 +135,83 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         let touchEndEventName: string = TooltipServiceWrapper.touchEndEventName();
         let isPointerEvent: boolean = TooltipServiceWrapper.usePointerEvents();
 
+
+        /*
         selection.on(touchStartEventName + '.tooltip', () => {
-            this.visualHostTooltipService.hide({ isTouchEvent: true, immediately: true });
 
-            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, isPointerEvent, true);
-            if (!tooltipEventArgs)
-                return;
+            const mouseEvent: MouseEvent = getEvent();
+            const eventTarget: EventTarget = mouseEvent.target;
+            let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
 
-            let tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
-            let selectionId = getDataPointIdentity(tooltipEventArgs);
+            //mouseEvent.preventDefault();
 
-            this.visualHostTooltipService.show({
-                coordinates: tooltipEventArgs.coordinates,
-                isTouchEvent: true,
-                dataItems: tooltipInfo,
-                identities: selectionId ? [selectionId] : [],
-            });
+
+
+            this.handleTouchTimeoutId = setTimeout(() => {
+                console.log('CUSTOM contextmenu triggered');
+
+
+                this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
+                    x: mouseEvent.clientX,
+                    y: mouseEvent.clientY
+                });
+
+
+                this.handleTouchTimeoutId = undefined;
+            }, this.handleTouchDelay)
+
+
+
         });
+
+        */
+
+        
+            selection.on(touchStartEventName + '.tooltip', () => {
+                
+                let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, isPointerEvent, true);
+                if (!tooltipEventArgs) {
+                    return;
+                }
+    
+                let tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
+                let selectionId = getDataPointIdentity(tooltipEventArgs);
+
+
+                /*
+                let target = <HTMLElement>(<Event>d3Event).target;
+
+                let event = new Event("contextmenu");
+                target.dispatchEvent(event);
+                */
+
+    
+                this.handleTouchTimeoutId = setTimeout(() => {
+    
+                    console.log('CUSTOM contextmenu triggered');
+
+                    
+                    this.visualHostTooltipService.hide({ isTouchEvent: true, immediately: true });
+    
+    
+                    this.visualHostTooltipService.show({
+                        coordinates: tooltipEventArgs.coordinates,
+                        isTouchEvent: true,
+                        dataItems: tooltipInfo,
+                        identities: selectionId ? [selectionId] : [],
+                    });
+                    
+                    
+                    this.handleTouchTimeoutId = undefined;
+                }, this.handleTouchDelay)
+            });
+    
+
 
         selection.on(touchEndEventName + '.tooltip', () => {
             this.visualHostTooltipService.hide({ isTouchEvent: true, immediately: false });
 
-            if (this.handleTouchTimeoutId)
-                clearTimeout(this.handleTouchTimeoutId);
+            this.cancelTouchTimeoutEvents();
 
             // At the end of touch action, set a timeout that will let us ignore the incoming mouse events for a small amount of time
             // TO BE CHANGED: any better way to do this?
@@ -149,6 +219,12 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
                 this.handleTouchTimeoutId = undefined;
             }, this.handleTouchDelay);
         });
+    }
+
+    public cancelTouchTimeoutEvents() {
+        if (this.handleTouchTimeoutId) {
+            clearTimeout(this.handleTouchTimeoutId);
+        }
     }
 
     public hide(): void {
