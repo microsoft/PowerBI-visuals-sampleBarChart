@@ -35,8 +35,7 @@ import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
-// powerbi.extensibility.utils
-import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "./tooltipServiceWrapper";
 import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
 import textMeasurementService = tms.textMeasurementService;
 
@@ -473,6 +472,9 @@ export class BarChart implements IVisual {
 
     private handleContextMenu() {
         this.svg.on('contextmenu', () => {
+
+            // this.tooltipServiceWrapper.cancelTouchTimeoutEvents();
+            
             const mouseEvent: MouseEvent = getEvent();
             const eventTarget: EventTarget = mouseEvent.target;
             let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
