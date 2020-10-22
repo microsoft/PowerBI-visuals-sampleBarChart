@@ -143,7 +143,6 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         });
 
         selection.on(touchEndEventName + '.tooltip', () => {
-            this.visualHostTooltipService.hide({ isTouchEvent: true, immediately: false });
 
             this.cancelTouchTimeoutEvents();
 
