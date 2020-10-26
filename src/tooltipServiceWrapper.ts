@@ -52,16 +52,16 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
         getDataPointIdentity: (args: TooltipEventArgs<T>) => ISelectionId,
         reloadTooltipDataOnMouseMove?: boolean): void {
-
-        if (!selection || !this.visualHostTooltipService.enabled()) {
+        if (!selection || !this.visualHostTooltipService.enabled()) 
             return;
-        }
 
         let rootNode = this.rootElement;
 
         // Mouse events
         selection.on("mouseover.tooltip", () => {
-
+            // Ignore mouseover while handling touch events
+            if (!this.canDisplayTooltip(d3Event))
+              return;
             let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
             if (!tooltipEventArgs)
                 return;
@@ -86,6 +86,8 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
 
         selection.on("mousemove.tooltip", () => {
             // Ignore mousemove while handling touch events
+            if (!this.canDisplayTooltip(d3Event))
+            return;
             let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
             if (!tooltipEventArgs)
                 return;
@@ -123,7 +125,6 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
             let selectionId = getDataPointIdentity(tooltipEventArgs);
 
             this.handleTouchTimeoutId = setTimeout(() => {
-                this.visualHostTooltipService.hide({ isTouchEvent: true, immediately: true });
 
                 this.visualHostTooltipService.show({
                     coordinates: tooltipEventArgs.coordinates,
@@ -175,20 +176,20 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         };
     }
 
-    // private canDisplayTooltip(d3Event: any): boolean {
-    //     let canDisplay: boolean = true;
-    //     let mouseEvent: MouseEvent = <MouseEvent>d3Event;
-    //     if (mouseEvent.buttons !== undefined) {
-    //         // Check mouse buttons state
-    //         let hasMouseButtonPressed = mouseEvent.buttons !== 0;
-    //         canDisplay = !hasMouseButtonPressed;
-    //     }
+    private canDisplayTooltip(d3Event: any): boolean {
+        let canDisplay: boolean = true;
+        let mouseEvent: MouseEvent = <MouseEvent>d3Event;
+        if (mouseEvent.buttons !== undefined) {
+            // Check mouse buttons state
+            let hasMouseButtonPressed = mouseEvent.buttons !== 0;
+            canDisplay = !hasMouseButtonPressed;
+        }
 
-    //     // Make sure we are not ignoring mouse events immediately after touch end.
-    //     canDisplay = canDisplay && (this.handleTouchTimeoutId == null);
+        // Make sure we are not ignoring mouse events immediately after touch end.
+        canDisplay = canDisplay && (this.handleTouchTimeoutId == null);
 
-    //     return canDisplay;
-    // }
+        return canDisplay;
+    }
 
     private getCoordinates(rootNode: ContainerElement, isPointerEvent: boolean): number[] {
         let coordinates: number[];
