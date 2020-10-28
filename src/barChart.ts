@@ -34,6 +34,7 @@ import VisualObjectInstanceEnumeration = powerbi.VisualObjectInstanceEnumeration
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
 // powerbi.extensibility.utils
 import { createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
@@ -42,6 +43,7 @@ import textMeasurementService = tms.textMeasurementService;
 
 import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
 import { getLocalizedString } from "./localization/localizationHelper"
+import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 
 /**
  * Interface for BarCharts viewmodel.
@@ -565,7 +567,11 @@ export class BarChart implements IVisual {
                                 }
                             }
                         },
-                        selector: barDataPoint.selectionId.getSelector()
+                        propertyInstanceKind: {
+                            fill: VisualEnumerationInstanceKinds.ConstantOrRule
+                        },
+                        altConstantValueSelector: barDataPoint.selectionId.getSelector(),
+                        selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals)
                     });
                 }
                 break;
