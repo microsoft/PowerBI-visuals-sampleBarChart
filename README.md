@@ -32,7 +32,8 @@ pbiviz start
 7.  [Adding Powerbi Extensibility Utils](Tutorial/ExtensibilityUtils.md)
 8.  [Adding URL Launcher element to the Bar Chart](Tutorial/LaunchURL.md)
 9.  [Adding Report Page tooltips support to the Bar Chart](Tutorial/ReportPageTooltips.md)
-10. [Accessibility: Adding High-Contrast Mode Support](Tutorial/HighContrastSupport.md)
-11. [Finally Package for Distribution ... Done](https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/usage.md#packaging-your-visual-for-distribution)
+10. [Adding Conditional Formatting support to the Bar Chart](Tutorial/ConditionalFormatting.md)
+11. [Accessibility: Adding High-Contrast Mode Support](Tutorial/HighContrastSupport.md)
+12. [Finally Package for Distribution ... Done](https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/usage.md#packaging-your-visual-for-distribution)
 
 
