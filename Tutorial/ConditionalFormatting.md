@@ -10,7 +10,7 @@ Conditional formatting can only be applied to the following property types:
 * Web URL
 
 ## Add a conditional color formatting entry in the format pane
-To add conditional color formatting button in the format pane for the desired object, under the `enumerateObjectInstances` method, make the following change:
+To add the conditional color formatting button in the format pane for the desired object, under the `enumerateObjectInstances` method, make the following change:
 
 Via `propertyInstanceKind` property of enumerated `VisualObjectInstance`, list all the properties that you'd like to have the conditional formatting entry applied to in the format pane. 
 Use `VisualEnumerationInstanceKinds` enum to declare the type of the desired format (constant, rule or both). 
@@ -28,7 +28,7 @@ Using `createDataViewWildcardSelector` declared under `powerbi-visuals-utils-dat
 
 In `enumerateObjectInstances`, make the following changes to the objects you want to apply conditional formatting to:
 
-* Replace the `VisualObjectInstance`'s `selector` value with a `dataViewWildcard.createDataViewWildcardSelector()` call. Specify desired option from `DataViewWildcardMatchingOption` enum to define whether conditional formatting is applied to instances, totals, or both.
+* Replace the `VisualObjectInstance`'s `selector` value with a `dataViewWildcard.createDataViewWildcardSelector()` call. Specify the desired option from `DataViewWildcardMatchingOption` enum to define whether conditional formatting is applied to instances, totals, or both.
 
 * Add the `altConstantValueSelector` property having the value previously defined for the `selector` property.
 
