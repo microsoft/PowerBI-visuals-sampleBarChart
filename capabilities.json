@@ -142,5 +142,10 @@
             "Tooltips"
         ]
     },
-    "supportsLandingPage": false
+    "supportsLandingPage": false,
+    "drilldown": {
+        "roles": [
+            "category"
+        ]
+    }
 }
