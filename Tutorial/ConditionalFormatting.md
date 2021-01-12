@@ -39,6 +39,6 @@ selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataV
 // Add this property with the value previously defined for the selector property
 altConstantValueSelector: barDataPoint.selectionId.getSelector()
 ```
-See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/<TBD>) for how conditional formatting was applied to sample bar chart.
+See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/956923b641bb1eacb613bf55a91f77725bc42431) for how conditional formatting was applied to sample bar chart.
 
 ![](images/CondFormatSupport.png)
