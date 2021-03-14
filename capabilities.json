@@ -136,7 +136,7 @@
             "displayName": "Warning Icon Example",
             "properties": {
                 "text": {
-                    "displayName": "Text that could raise warning",
+                    "displayName": "Text that could raise warning if input includes numbers",
                     "type": {
                         "text": true
                     }
