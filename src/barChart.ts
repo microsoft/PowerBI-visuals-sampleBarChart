@@ -83,6 +83,7 @@ interface BarChartDataPoint {
  * @property {{show:boolean}} enableAxis - Object property that allows axis to be enabled.
  * @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
  * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
+ * @property {{text:string}} WarningIconExample
  */
 interface BarChartSettings {
     enableAxis: {
@@ -101,6 +102,10 @@ interface BarChartSettings {
         displayName: string;
         fill: string;
         showDataLabel: boolean;
+    };
+    
+    warningIconExample: {
+        text: string;
     };
 }
 
@@ -130,6 +135,9 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             displayName: "Average Line",
             fill: "#888888",
             showDataLabel: false
+        },
+        warningIconExample: {
+            text: ""
         }
     };
     let viewModel: BarChartViewModel = {
@@ -176,6 +184,9 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             fill: getValue<string>(objects, 'averageLine', 'fill', defaultSettings.averageLine.fill),
             showDataLabel: getValue<boolean>(objects, 'averageLine', 'showDataLabel', defaultSettings.averageLine.showDataLabel),
         },
+        warningIconExample: {
+            text: getValue<string>(objects, 'warningIconExample', 'text', defaultSettings.warningIconExample.text),
+        }
     };
 
     const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
@@ -279,6 +290,7 @@ export class BarChart implements IVisual {
     private LandingPageRemoved: boolean;
     private LandingPage: Selection<any>;
     private averageLine: Selection<SVGElement>;
+    private warningIconExampleText: Selection<any>;
 
     private barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
 
@@ -335,6 +347,10 @@ export class BarChart implements IVisual {
         this.helpLinkElement = d3Select(helpLinkElement);
 
         this.handleContextMenu();
+
+        const warningIconExampleText: Element = this.createWarningIconExampleText();
+        options.element.appendChild(warningIconExampleText);
+        this.warningIconExampleText = d3Select(warningIconExampleText);
     }
 
     /**
@@ -444,6 +460,12 @@ export class BarChart implements IVisual {
             .remove();
 
         this.handleClick(barSelectionMerged);
+
+        if (/\d/.test(settings.warningIconExample.text)) {
+            this.host.displayWarningIcon('illegal input', 'the written text contains numbers!');
+        }
+        this.warningIconExampleText
+            .text(settings.warningIconExample.text);
     }
 
     private static wordBreak(
@@ -607,6 +629,15 @@ export class BarChart implements IVisual {
                     selector: null
                 });
                 break;
+            case 'warningIconExample':
+                objectEnumeration.push({
+                    objectName: objectName,
+                    properties: {
+                        text: this.barChartSettings.warningIconExample.text
+                    },
+                    selector: null
+                });
+                break;
         };
 
         return objectEnumeration;
@@ -642,6 +673,14 @@ export class BarChart implements IVisual {
         });
         return linkElement;
     };
+
+
+    private createWarningIconExampleText(): Element {
+        let warningIconExampleText = document.createElement("h5");
+        warningIconExampleText.textContent = "";
+        warningIconExampleText.setAttribute("style", "position: absolute; top: 0px; right: 150px");
+        return warningIconExampleText;
+    }
 
     private handleLandingPage(options: VisualUpdateOptions) {
         if (!options.dataViews || !options.dataViews.length) {
