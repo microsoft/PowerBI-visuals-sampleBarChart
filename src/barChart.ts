@@ -444,7 +444,7 @@ export class BarChart implements IVisual {
             .remove();
 
         this.handleClick(barSelectionMerged);
-
+        // implementation of warning icon - two posible use cases, the first one is language compatibility, the second one is same color for 'neighbor' columns
         if (this.locale != 'en-US') {
             this.host.displayWarningIcon('Language mismatch', 'This visual does not support languages other than english. Please use US english as your browser language.');
         }
