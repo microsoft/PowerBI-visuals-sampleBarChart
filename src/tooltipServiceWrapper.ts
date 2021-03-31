@@ -153,6 +153,7 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
     public cancelTouchTimeoutEvents() {
         if (this.handleTouchTimeoutId) {
             clearTimeout(this.handleTouchTimeoutId);
+            this.handleTouchTimeoutId = undefined;
         }
     }
 
@@ -186,7 +187,7 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         }
 
         // Make sure we are not ignoring mouse events immediately after touch end.
-        canDisplay = canDisplay && (this.handleTouchTimeoutId == null);
+        canDisplay = canDisplay && (this.handleTouchTimeoutId === undefined);
 
         return canDisplay;
     }
