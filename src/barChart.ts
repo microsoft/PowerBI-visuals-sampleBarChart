@@ -36,7 +36,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
-import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "./tooltipServiceWrapper";
+import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
 import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
 import textMeasurementService = tms.textMeasurementService;
 
