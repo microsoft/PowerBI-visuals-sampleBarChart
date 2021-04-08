@@ -104,6 +104,24 @@ interface BarChartSettings {
     };
 }
 
+let defaultSettings: BarChartSettings = {
+    enableAxis: {
+        show: false,
+        fill: "#000000",
+    },
+    generalView: {
+        opacity: 100,
+        showHelpLink: false,
+        helpLinkColor: "#80B0E0",
+    },
+    averageLine: {
+        show: false,
+        displayName: "Average Line",
+        fill: "#888888",
+        showDataLabel: false
+    }
+};
+
 /**
  * Function that converts queried data into a view model that will be used by the visual.
  *
@@ -115,23 +133,6 @@ interface BarChartSettings {
  */
 function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
     let dataViews = options.dataViews;
-    let defaultSettings: BarChartSettings = {
-        enableAxis: {
-            show: false,
-            fill: "#000000",
-        },
-        generalView: {
-            opacity: 100,
-            showHelpLink: false,
-            helpLinkColor: "#80B0E0",
-        },
-        averageLine: {
-            show: false,
-            displayName: "Average Line",
-            fill: "#888888",
-            showDataLabel: false
-        }
-    };
     let viewModel: BarChartViewModel = {
         dataPoints: [],
         dataMax: 0,
@@ -384,8 +385,14 @@ export class BarChart implements IVisual {
             .padding(0.2);
 
         let xAxis = axisBottom(xScale);
+        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
-            .call(xAxis);
+            .call(xAxis)
+            .attr("color", getAxisTextFillColor(
+                colorObjects,
+                this.host.colorPalette,
+                defaultSettings.enableAxis.fill
+            ));
 
         const textNodes = this.xAxis.selectAll("text")
         BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
