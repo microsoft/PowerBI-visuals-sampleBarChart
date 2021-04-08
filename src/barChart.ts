@@ -11,6 +11,7 @@ import {
 import { axisBottom } from "d3-axis";
 
 import powerbiVisualsApi from "powerbi-visuals-api";
+import "regenerator-runtime/runtime";
 import powerbi = powerbiVisualsApi;
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
@@ -26,7 +27,6 @@ import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColo
 import ISelectionId = powerbi.visuals.ISelectionId;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
 import IVisual = powerbi.extensibility.IVisual;
-import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualObjectInstance = powerbi.VisualObjectInstance;
@@ -36,7 +36,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
-import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
+import {createTooltipServiceWrapper, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
 import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
 import textMeasurementService = tms.textMeasurementService;
 
@@ -104,6 +104,24 @@ interface BarChartSettings {
     };
 }
 
+let defaultSettings: BarChartSettings = {
+    enableAxis: {
+        show: false,
+        fill: "#000000",
+    },
+    generalView: {
+        opacity: 100,
+        showHelpLink: false,
+        helpLinkColor: "#80B0E0",
+    },
+    averageLine: {
+        show: false,
+        displayName: "Average Line",
+        fill: "#888888",
+        showDataLabel: false
+    }
+};
+
 /**
  * Function that converts queried data into a view model that will be used by the visual.
  *
@@ -115,23 +133,6 @@ interface BarChartSettings {
  */
 function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
     let dataViews = options.dataViews;
-    let defaultSettings: BarChartSettings = {
-        enableAxis: {
-            show: false,
-            fill: "#000000",
-        },
-        generalView: {
-            opacity: 100,
-            showHelpLink: false,
-            helpLinkColor: "#80B0E0",
-        },
-        averageLine: {
-            show: false,
-            displayName: "Average Line",
-            fill: "#888888",
-            showDataLabel: false
-        }
-    };
     let viewModel: BarChartViewModel = {
         dataPoints: [],
         dataMax: 0,
@@ -384,8 +385,14 @@ export class BarChart implements IVisual {
             .padding(0.2);
 
         let xAxis = axisBottom(xScale);
+        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
-            .call(xAxis);
+            .call(xAxis)
+            .attr("color", getAxisTextFillColor(
+                colorObjects,
+                this.host.colorPalette,
+                defaultSettings.enableAxis.fill
+            ));
 
         const textNodes = this.xAxis.selectAll("text")
         BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
@@ -414,9 +421,9 @@ export class BarChart implements IVisual {
             .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
             .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
 
-        this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
-            (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => this.getTooltipData(tooltipEvent.data),
-            (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => tooltipEvent.data.selectionId
+        this.tooltipServiceWrapper.addTooltip(barSelectionMerged,
+            (datapoint: BarChartDataPoint) => this.getTooltipData(datapoint),
+            (datapoint: BarChartDataPoint) => datapoint.selectionId
         );
 
         this.syncSelectionState(
@@ -473,19 +480,16 @@ export class BarChart implements IVisual {
     }
 
     private handleContextMenu() {
-        this.svg.on('contextmenu', () => {
-
-            // this.tooltipServiceWrapper.cancelTouchTimeoutEvents();
-            
+        this.svg.on('contextmenu', (event) => {​​
             const mouseEvent: MouseEvent = getEvent();
             const eventTarget: EventTarget = mouseEvent.target;
             let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
-            this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
-                x: mouseEvent.clientX,
-                y: mouseEvent.clientY
-            });
-            mouseEvent.preventDefault();
-        });
+            this.selectionManager.showContextMenu(dataPoint? dataPoint.selectionId : {}, {​​
+                x: event.clientX,
+                y: event.clientY
+            }​​);
+            event.preventDefault();
+        }​​);
     }
 
     private syncSelectionState(

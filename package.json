@@ -1,12 +1,15 @@
 {
     "name": "visual",
-    "version": "3.0.7",
+    "version": "3.0.9",
     "scripts": {
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
         "package": "pbiviz package",
         "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
+    },
+    "dependencies": {
+        "regenerator-runtime": "^0.13.7"
     },
     "devDependencies": {
         "@types/d3": "5.7.2",
