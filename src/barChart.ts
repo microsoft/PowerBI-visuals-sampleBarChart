@@ -27,7 +27,6 @@ import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColo
 import ISelectionId = powerbi.visuals.ISelectionId;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
 import IVisual = powerbi.extensibility.IVisual;
-import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualObjectInstance = powerbi.VisualObjectInstance;
@@ -37,7 +36,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
-import {createTooltipServiceWrapper, TooltipEventArgs, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
+import {createTooltipServiceWrapper, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
 import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
 import textMeasurementService = tms.textMeasurementService;
 
@@ -415,9 +414,9 @@ export class BarChart implements IVisual {
             .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
             .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
 
-        this.tooltipServiceWrapper.addTooltip(this.barContainer.selectAll('.bar'),
-            (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => this.getTooltipData(tooltipEvent.data),
-            (tooltipEvent: TooltipEventArgs<BarChartDataPoint>) => tooltipEvent.data.selectionId
+        this.tooltipServiceWrapper.addTooltip(barSelectionMerged,
+            (datapoint: BarChartDataPoint) => this.getTooltipData(datapoint),
+            (datapoint: BarChartDataPoint) => datapoint.selectionId
         );
 
         this.syncSelectionState(
@@ -474,19 +473,16 @@ export class BarChart implements IVisual {
     }
 
     private handleContextMenu() {
-        this.svg.on('contextmenu', () => {
-
-            // this.tooltipServiceWrapper.cancelTouchTimeoutEvents();
-            
+        this.svg.on('contextmenu', (event) => {​​
             const mouseEvent: MouseEvent = getEvent();
             const eventTarget: EventTarget = mouseEvent.target;
             let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
-            this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
-                x: mouseEvent.clientX,
-                y: mouseEvent.clientY
-            });
-            mouseEvent.preventDefault();
-        });
+            this.selectionManager.showContextMenu(dataPoint? dataPoint.selectionId : {}, {​​
+                x: event.clientX,
+                y: event.clientY
+            }​​);
+            event.preventDefault();
+        }​​);
     }
 
     private syncSelectionState(
