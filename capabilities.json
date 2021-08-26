@@ -140,7 +140,8 @@
         },
         "roles": [
             "Tooltips"
-        ]
+        ],
+        "supportEnhancedTooltips": true
     },
     "supportsLandingPage": false,
     "drilldown": {
