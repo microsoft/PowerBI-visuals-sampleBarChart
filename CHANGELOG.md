@@ -1,10 +1,10 @@
 # Change Log - Sample Bar Chart
 
-This page contains information about changes to the 'Sample bar chart' PowerBI visual.
+This page contains information about changes to the 'Sample bar chart' Power BI visual.
 
 ## 3.2.0
 
-* Added modern tooltip feature
+* Added *modern tooltip* feature
 * Updated dependencies
 
 ## 3.0.0
