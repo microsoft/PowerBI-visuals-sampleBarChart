@@ -37,8 +37,7 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
 import {createTooltipServiceWrapper, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
-import { textMeasurementService as tms } from "powerbi-visuals-utils-formattingutils";
-import textMeasurementService = tms.textMeasurementService;
+import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 
 import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
 import { getLocalizedString } from "./localization/localizationHelper"
@@ -350,10 +349,8 @@ export class BarChart implements IVisual {
         let viewModel: BarChartViewModel = visualTransform(options, this.host);
         let settings = this.barChartSettings = viewModel.settings;
         this.barDataPoints = viewModel.dataPoints;
-
         // Turn on landing page in capabilities and remove comment to turn on landing page!
         // this.HandleLandingPage(options);
-
         let width = options.viewport.width;
         let height = options.viewport.height;
 
@@ -433,23 +430,19 @@ export class BarChart implements IVisual {
 
         barSelectionMerged.on('click', (d) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
-            if (this.host.allowInteractions) {
+            if (this.host.hostCapabilities.allowInteractions) {
                 const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
-
                 this.selectionManager
                     .select(d.selectionId, isCtrlPressed)
                     .then((ids: ISelectionId[]) => {
                         this.syncSelectionState(barSelectionMerged, ids);
                     });
-
                 (<Event>d3Event).stopPropagation();
             }
         });
-
         this.barSelection
             .exit()
             .remove();
-
         this.handleClick(barSelectionMerged);
     }
 
@@ -469,7 +462,7 @@ export class BarChart implements IVisual {
     private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
         // Clear selection when clicking outside a bar
         this.svg.on('click', (d) => {
-            if (this.host.allowInteractions) {
+            if (this.host.hostCapabilities.allowInteractions) {
                 this.selectionManager
                     .clear()
                     .then(() => {
@@ -505,7 +498,6 @@ export class BarChart implements IVisual {
             selection
                 .style("fill-opacity", opacity)
                 .style("stroke-opacity", opacity);
-
             return;
         }
 

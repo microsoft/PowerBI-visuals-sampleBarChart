@@ -1,6 +1,6 @@
 {
     "name": "visual",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "scripts": {
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
@@ -9,18 +9,18 @@
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
     },
     "dependencies": {
-        "regenerator-runtime": "^0.13.7"
+        "regenerator-runtime": "^0.13.9"
     },
     "devDependencies": {
         "@types/d3": "5.7.2",
         "d3": "5.12.0",
-        "powerbi-visuals-api": "^3.5.1",
-        "powerbi-visuals-tools": "^3.1.15",
-        "powerbi-visuals-utils-dataviewutils": "^2.4.0",
-        "powerbi-visuals-utils-formattingutils": "^4.4.2",
-        "powerbi-visuals-utils-interactivityutils": "^5.6.0",
+        "powerbi-visuals-api": "^3.8.3",
+        "powerbi-visuals-tools": "^3.3.2",
+        "powerbi-visuals-utils-dataviewutils": "^2.4.1",
+        "powerbi-visuals-utils-formattingutils": "^4.7.1",
+        "powerbi-visuals-utils-interactivityutils": "^5.7.1",
         "powerbi-visuals-utils-tooltiputils": "^2.5.2",
-        "tslint": "^5.20.0",
+        "tslint": "^5.20.1",
         "tslint-microsoft-contrib": "^6.2.0"
     }
 }
