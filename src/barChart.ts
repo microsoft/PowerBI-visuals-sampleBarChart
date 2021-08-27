@@ -349,10 +349,8 @@ export class BarChart implements IVisual {
         let viewModel: BarChartViewModel = visualTransform(options, this.host);
         let settings = this.barChartSettings = viewModel.settings;
         this.barDataPoints = viewModel.dataPoints;
-
         // Turn on landing page in capabilities and remove comment to turn on landing page!
         // this.HandleLandingPage(options);
-
         let width = options.viewport.width;
         let height = options.viewport.height;
 
@@ -434,21 +432,17 @@ export class BarChart implements IVisual {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.hostCapabilities.allowInteractions) {
                 const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
-
                 this.selectionManager
                     .select(d.selectionId, isCtrlPressed)
                     .then((ids: ISelectionId[]) => {
                         this.syncSelectionState(barSelectionMerged, ids);
                     });
-
                 (<Event>d3Event).stopPropagation();
             }
         });
-
         this.barSelection
             .exit()
             .remove();
-
         this.handleClick(barSelectionMerged);
     }
 
@@ -504,7 +498,6 @@ export class BarChart implements IVisual {
             selection
                 .style("fill-opacity", opacity)
                 .style("stroke-opacity", opacity);
-
             return;
         }
 
