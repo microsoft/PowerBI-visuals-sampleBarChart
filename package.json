@@ -8,14 +8,11 @@
         "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
     },
-    "dependencies": {
-        "regenerator-runtime": "^0.13.9"
-    },
     "devDependencies": {
         "@types/d3": "5.7.2",
         "d3": "5.12.0",
         "powerbi-visuals-api": "^3.8.3",
-        "powerbi-visuals-tools": "^3.3.2",
+        "powerbi-visuals-tools": "^4.0.5",
         "powerbi-visuals-utils-dataviewutils": "^2.4.1",
         "powerbi-visuals-utils-formattingutils": "^4.7.1",
         "powerbi-visuals-utils-interactivityutils": "^5.7.1",
