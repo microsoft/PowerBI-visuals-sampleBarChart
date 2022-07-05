@@ -6,8 +6,9 @@ import { BarChartDataPoint } from "./barChart";
 class EnableAxisCardSettings implements FormattingSettingsCard {
     show: FormattingSettingsSlice = {
         name: "show",
-        displayName: "Show",
+        displayName: undefined,
         value: false,
+        topLevelToggle:  true,
         type: powerbi.visuals.FormattingComponent.ToggleSwitch
     };
 
@@ -56,6 +57,7 @@ class AverageLineCardSettings implements FormattingSettingsCard {
         name: "show",
         displayName: undefined,
         value: false,
+        topLevelToggle: true,
         type: powerbi.visuals.FormattingComponent.ToggleSwitch
     };
 
