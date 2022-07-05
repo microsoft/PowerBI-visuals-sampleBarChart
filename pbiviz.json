@@ -9,7 +9,7 @@
     "supportUrl": "pbicvsupport@microsoft.com",
     "gitHubUrl": ""
   },
-  "apiVersion": "3.8.0",
+  "apiVersion": "5.0.0",
   "author": {
     "name": "Author name",
     "email": "author@mail.com"
