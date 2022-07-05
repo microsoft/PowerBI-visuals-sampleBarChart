@@ -30,24 +30,44 @@ We defined `createSelectorDataPoints` as a construct to convert  options `dataVi
 Since we iterate through the data points in `createSelectorDataPoints` it is also the ideal place to assign colors.
 
 ```typescript
-let colorPalette: IColorPalette = host.colorPalette; // host: IVisualHost
-const strokeColor: string = getColumnStrokeColor(colorPalette);
-const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
 
-for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-    const color: string = getColumnColorByIndex(category, i, colorPalette);
+function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
+    let barChartDataPoints: BarChartDataPoint[] = []
+    const dataViews = options.dataViews;
+    if (!dataViews
+        || !dataViews[0]
+        || !dataViews[0].categorical
+        || !dataViews[0].categorical.categories
+        || !dataViews[0].categorical.categories[0].source
+        || !dataViews[0].categorical.values
+    ) {
+        return barChartDataPoints;
+    }
 
-    const selectionId: ISelectionId = host.createSelectionIdBuilder()
-        .withCategory(category, i)
-        .createSelectionId();
+    const categorical = dataViews[0].categorical;
+    const category = categorical.categories[0];
+    const dataValue = categorical.values[0];
 
-    barChartDataPoints.push({
-        color,
-        strokeColor,
-        strokeWidth,
-        selectionId,
-        value: dataValue.values[i],
-        category: `${category.values[i]}`,
-    });
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
+    const strokeColor: string = getColumnStrokeColor(colorPalette);
+    const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
+
+    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
+        const color: string = getColumnColorByIndex(category, i, colorPalette);
+
+        const selectionId: ISelectionId = host.createSelectionIdBuilder()
+            .withCategory(category, i)
+            .createSelectionId();
+
+        barChartDataPoints.push({
+            color,
+            strokeColor,
+            strokeWidth,
+            selectionId,
+            value: dataValue.values[i],
+            category: `${category.values[i]}`,
+        });
+    }
+    return barChartDataPoints;
 }
 ```

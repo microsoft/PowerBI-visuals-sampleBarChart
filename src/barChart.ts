@@ -14,6 +14,8 @@ import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localization/localizationHelper";
 import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
+import { interactivitySelectionService } from "powerbi-visuals-utils-interactivityutils";
+import SelectableDataPoint = interactivitySelectionService.SelectableDataPoint;
 
 import powerbiVisualsApi from "powerbi-visuals-api";
 import "regenerator-runtime/runtime";
@@ -47,7 +49,7 @@ import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualC
  * @property {ISelectionId} selectionId - Id assigned to data point for cross filtering
  *                                        and visual interaction.
  */
-export interface BarChartDataPoint {
+export interface BarChartDataPoint extends SelectableDataPoint {
     value: PrimitiveValue;
     category: string;
     color: string;
@@ -100,6 +102,8 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             selectionId,
             value: dataValue.values[i],
             category: `${category.values[i]}`,
+            identity: selectionId,
+            selected: false
         });
     }
     return barChartDataPoints;
@@ -317,7 +321,7 @@ export class BarChart implements IVisual {
 
         this.tooltipServiceWrapper.addTooltip(barSelectionMerged,
             (dataPoint: BarChartDataPoint) => this.getTooltipData(dataPoint),
-            (dataPoint: BarChartDataPoint) => dataPoint.selectionId
+            (dataPoint: BarChartDataPoint) => dataPoint.identity
         );
 
         this.syncSelectionState(
@@ -376,7 +380,7 @@ export class BarChart implements IVisual {
 
     private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
         // Clear selection when clicking outside a bar
-        this.svg.on('click', (d) => {
+        this.svg.on('click', () => {
             if (this.host.hostCapabilities.allowInteractions) {
                 this.selectionManager
                     .clear()
@@ -388,15 +392,15 @@ export class BarChart implements IVisual {
     }
 
     private handleContextMenu() {
-        this.svg.on('contextmenu', () => {
-            const mouseEvent: MouseEvent = getEvent();
-            const eventTarget: EventTarget = mouseEvent.target;
-            let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
-            this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
-                x: mouseEvent.clientX,
-                y: mouseEvent.clientY
-            });
-            mouseEvent.preventDefault();
+        this.svg.on('contextmenu', (event: MouseEvent) => {
+            if (event) {
+                let dataPoint: any = d3Select(<d3.BaseType>event.target).datum();
+                this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
+                    x: event.clientX,
+                    y: event.clientY
+                });
+                event.preventDefault();
+            }
         });
     }
 

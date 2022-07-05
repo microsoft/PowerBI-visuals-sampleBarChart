@@ -65,10 +65,10 @@ A `showHelpLink` boolean static object was added to `capabilities.json` objects 
 
 And, in the visual's `update` function, the following lines were added:
 ```typescript
-    if (settings.generalView.showHelpLink) {
-        this.helpLinkElement.classList.remove("hidden");
-    } else {
-        this.helpLinkElement.classList.add("hidden");
-    }
+this.helpLinkElement
+    .classed("hidden", !this.formattingSettings.generalView.showHelpLink.value)
+    .style("border-color", this.formattingSettings.generalView.helpLinkColor)
+    .style("color", this.formattingSettings.generalView.helpLinkColor);
 ```
+
 The `hidden` class is defined in visual.less to control the display of the element.

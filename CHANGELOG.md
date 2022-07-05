@@ -2,7 +2,7 @@
 
 This page contains information about changes to the 'Sample bar chart' Power BI visual.
 
-## 3.3.0
+## 5.0.0
 
 * Migrate to API version 5.1.0
 * Update powerbi-visuals-api to 5.1.x

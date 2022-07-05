@@ -1,5 +1,6 @@
 # Adding conditional formatting to your Visual 
-[Conditional formatting](https://docs.microsoft.com/en-us/power-bi/visuals/service-tips-and-tricks-for-color-formatting#conditional-formatting-for-visualizations) of custom formatting properties is supported by updating formatting property object's in `getFormattingModel` method.
+[Conditional formatting](https://docs.microsoft.com/en-us/power-bi/visuals/service-tips-and-tricks-for-color-formatting#conditional-formatting-for-visualizations) of custom formatting properties is supported by setting formatting property  `instanceKind` in `getFormattingModel` method.
+For more info on conditional formatting click [here](https://learn.microsoft.com/en-us/power-bi/developer/visuals/conditional-format?tabs=getFormattingModel)
 
 Conditional formatting can only be applied to the following property types:
 * Color
