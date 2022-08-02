@@ -16,7 +16,6 @@ type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 import ScaleLinear = d3.ScaleLinear;
 const getEvent = () => require("d3-selection").event;
 
-// powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 import DataViewObjects = powerbi.DataViewObjects;
 import Fill = powerbi.Fill;
@@ -230,7 +229,7 @@ export class BarChart implements IVisual {
     }
 
     /**
-     * Updates the state of the visual. Every sequential databinding and resize will call update.
+     * Updates the state of the visual. Every sequential data binding and resize will call update.
      *
      * @function
      * @param {VisualUpdateOptions} options - Contains references to the size of the container
@@ -238,7 +237,7 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        this.formattingSettings = BarChartSettingsModel.populateFrom(options);
+        this.formattingSettings = BarChartSettingsModel.populateFrom(options.dataViews);
         this.barDataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.barDataPoints);
 
@@ -261,7 +260,7 @@ export class BarChart implements IVisual {
 
         this.xAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
-            .style("fill", this.formattingSettings.enableAxis.fill.value);
+            .style("fill", this.formattingSettings.enableAxis.fill.value.value);
 
         let yScale = scaleLinear()
             .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
@@ -279,7 +278,7 @@ export class BarChart implements IVisual {
             .attr("color", getAxisTextFillColor(
                 colorObjects,
                 this.host.colorPalette,
-                this.formattingSettings.enableAxis.fill.value
+                this.formattingSettings.enableAxis.fill.value.value
             ));
 
         const textNodes = this.xAxis.selectAll("text")
@@ -310,8 +309,8 @@ export class BarChart implements IVisual {
             .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
 
         this.tooltipServiceWrapper.addTooltip(barSelectionMerged,
-            (datapoint: BarChartDataPoint) => this.getTooltipData(datapoint),
-            (datapoint: BarChartDataPoint) => datapoint.selectionId
+            (dataPoint: BarChartDataPoint) => this.getTooltipData(dataPoint),
+            (dataPoint: BarChartDataPoint) => dataPoint.selectionId
         );
 
         this.syncSelectionState(
@@ -476,8 +475,8 @@ export class BarChart implements IVisual {
     private handleAverageLineUpdate(height: number, width: number, yScale: ScaleLinear<number, number>) {
         let average = this.calculateAverage();
         let fontSize = Math.min(height, width) * BarChart.Config.xAxisFontMultiplier;
-        let chosenColor = this.getColorValue(this.formattingSettings.averageLine.fill.value);
-        // If there's no room to place lable above line, place it below
+        let chosenColor = this.getColorValue(this.formattingSettings.averageLine.fill.value.value);
+        // If there's no room to place label above line, place it below
         let labelYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
 
         this.averageLine

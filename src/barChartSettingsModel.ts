@@ -1,23 +1,50 @@
 import powerbi from "powerbi-visuals-api";
 import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
-import { FormattingSettingsCard, FormattingSettingsModel, FormattingSettingsSlice } from "powerbi-visuals-utils-formattingmodel";
+import { formattingSettings, formattingSettingsModel } from "powerbi-visuals-utils-formattingmodel";
 import { BarChartDataPoint } from "./barChart";
 
+import FormattingSettingsCard = formattingSettings.Card;
+import FormattingSettingsSlice = formattingSettings.Slice;
+
 class EnableAxisCardSettings implements FormattingSettingsCard {
-    show: FormattingSettingsSlice = {
+    show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
         value: false,
-        topLevelToggle:  true,
-        type: powerbi.visuals.FormattingComponent.ToggleSwitch
-    };
+        topLevelToggle: true
+    });
 
-    fill: FormattingSettingsSlice = {
+    fill = new formattingSettings.ColorPicker({
         name: "fill",
         displayName: "Color",
-        value: "#000000",
-        type: powerbi.visuals.FormattingComponent.ColorPicker
-    };
+        value: { value: "#000000" }
+    });
+
+    font = new formattingSettings.FontControl({
+        displayName: "font",
+        name: "font",
+        fontFamily: {
+            name: "fontFamily",
+            value: "Segoe UI, wf_segoe-ui_normal, helvetica, arial, sans-serif",
+            type: powerbi.visuals.FormattingComponent.FontPicker
+        },
+        fontSize: {
+            name: "fontSize",
+            value: 5
+        },
+        bold: {
+            name: "fontBold",
+            value: false
+        },
+        underline: {
+            name: "fontUnderline",
+            value: false
+        },
+        italic: {
+            name: "fontItalic",
+            value: false
+        }
+    });
 
     name: string = "enableAxis";
     displayName: string = "Enable Axis";
@@ -32,19 +59,27 @@ class ColorSelectorCardSettings implements FormattingSettingsCard {
 }
 
 class GeneralViewCardSettings implements FormattingSettingsCard {
-    opacity: FormattingSettingsSlice = {
+    opacity = new formattingSettings.NumUpDown({
         name: "opacity",
         displayName: "Bars Opacity",
         value: 100,
-        type: powerbi.visuals.FormattingComponent.NumUpDown
-    };
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 0,
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 100,
+            }
+        }
+    });
 
-    showHelpLink: FormattingSettingsSlice = {
+    showHelpLink = new formattingSettings.ToggleSwitch({
         name: "showHelpLink",
         displayName: "Show Help Button",
-        value: false,
-        type: powerbi.visuals.FormattingComponent.ToggleSwitch
-    };
+        value: false
+    });
 
     name: string = "generalView";
     displayName: string = "General View";
@@ -53,32 +88,29 @@ class GeneralViewCardSettings implements FormattingSettingsCard {
 }
 
 class AverageLineCardSettings implements FormattingSettingsCard {
-    show: FormattingSettingsSlice = {
+    show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
         value: false,
-        topLevelToggle: true,
-        type: powerbi.visuals.FormattingComponent.ToggleSwitch
-    };
+        topLevelToggle: true
+    });
 
-    fill: FormattingSettingsSlice = {
+    fill = new formattingSettings.ColorPicker({
         name: "fill",
         displayName: "Color",
-        value: "#888888",
-        type: powerbi.visuals.FormattingComponent.ColorPicker
-    };
+        value: { value: "#888888" },
+    });
 
-    showDataLabel: FormattingSettingsSlice = {
+    showDataLabel = new formattingSettings.ToggleSwitch({
         name: "showDataLabel",
         displayName: "Data Label",
-        value: false,
-        type: powerbi.visuals.FormattingComponent.ToggleSwitch
-    };
+        value: false
+    });
 
     name: string = "averageLine";
     displayName: string = "Average Line";
     analyticsPane: boolean = true;
-    slices: Array<FormattingSettingsSlice> = [this.show, this.fill, this.showDataLabel];
+    slices = [this.show, this.fill, this.showDataLabel];
 }
 
 /**
@@ -89,16 +121,12 @@ class AverageLineCardSettings implements FormattingSettingsCard {
 * @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
 * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
 */
-export class BarChartSettingsModel extends FormattingSettingsModel {
+export class BarChartSettingsModel extends formattingSettingsModel.FormattingSettingsModel {
     enableAxis = new EnableAxisCardSettings();
     colorSelector = new ColorSelectorCardSettings();
     generalView = new GeneralViewCardSettings();
     averageLine = new AverageLineCardSettings();
-
-    constructor() {
-        super();
-        this.cards = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine];
-    }
+    cards = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine];
 
 
     /**
@@ -109,15 +137,14 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
         let slices = this.colorSelector.slices;
         if (dataPoints) {
             dataPoints.forEach(dataPoint => {
-                slices.push({
+                slices.push(new formattingSettings.ColorPicker({
                     name: "fill",
                     displayName: dataPoint.category,
-                    value: dataPoint.color,
-                    type: powerbi.visuals.FormattingComponent.ColorPicker,
-                    instanceKind: powerbi.VisualEnumerationInstanceKinds.ConstantOrRule,
-                    altConstantValueSelector: dataPoint.selectionId.getSelector(),
-                    selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals)
-                });
+                    value: { value: dataPoint.color },
+                    selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
+                    altConstantSelector: dataPoint.selectionId.getSelector(),
+                    instanceKind: powerbi.VisualEnumerationInstanceKinds.ConstantOrRule
+                }));
             });
         }
     }
