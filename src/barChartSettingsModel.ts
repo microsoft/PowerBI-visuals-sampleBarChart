@@ -3,6 +3,9 @@ import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import { BarChartDataPoint } from "./barChart";
 
+import FormattingSettingsCard = formattingSettings.Card;
+import FormattingSettingsSlice = formattingSettings.Slice;
+
 import Card = formattingSettings.Card;
 import Model = formattingSettings.Model;
 
