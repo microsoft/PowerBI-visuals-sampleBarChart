@@ -1,12 +1,13 @@
 import powerbi from "powerbi-visuals-api";
 import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
-import { formattingSettings, formattingSettingsModel } from "powerbi-visuals-utils-formattingmodel";
+import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import { BarChartDataPoint } from "./barChart";
 
 import FormattingSettingsCard = formattingSettings.Card;
 import FormattingSettingsSlice = formattingSettings.Slice;
+import FormattingSettingsModel = formattingSettings.Model;
 
-class EnableAxisCardSettings implements FormattingSettingsCard {
+class EnableAxisCardSettings extends FormattingSettingsCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -16,52 +17,26 @@ class EnableAxisCardSettings implements FormattingSettingsCard {
 
     fill = new formattingSettings.ColorPicker({
         name: "fill",
-        displayName: "Color",
+        displayNameKey: "Visual_Color",
         value: { value: "#000000" }
     });
 
-    font = new formattingSettings.FontControl({
-        displayName: "font",
-        name: "font",
-        fontFamily: {
-            name: "fontFamily",
-            value: "Segoe UI, wf_segoe-ui_normal, helvetica, arial, sans-serif",
-            type: powerbi.visuals.FormattingComponent.FontPicker
-        },
-        fontSize: {
-            name: "fontSize",
-            value: 5
-        },
-        bold: {
-            name: "fontBold",
-            value: false
-        },
-        underline: {
-            name: "fontUnderline",
-            value: false
-        },
-        italic: {
-            name: "fontItalic",
-            value: false
-        }
-    });
-
     name: string = "enableAxis";
-    displayName: string = "Enable Axis";
+    displayNameKey: string = "Visual_EnableAxis";
     slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
 }
 
 
-class ColorSelectorCardSettings implements FormattingSettingsCard {
+class ColorSelectorCardSettings extends FormattingSettingsCard {
     name: string = "colorSelector";
-    displayName: string = "Data Colors";
+    displayNameKey: string = "Visual_DataColors";
     slices: Array<FormattingSettingsSlice> = [];
 }
 
-class GeneralViewCardSettings implements FormattingSettingsCard {
+class GeneralViewCardSettings extends FormattingSettingsCard {
     opacity = new formattingSettings.NumUpDown({
         name: "opacity",
-        displayName: "Bars Opacity",
+        displayNameKey: "Visual_BarsOpacity",
         value: 100,
         options: {
             minValue: {
@@ -77,17 +52,17 @@ class GeneralViewCardSettings implements FormattingSettingsCard {
 
     showHelpLink = new formattingSettings.ToggleSwitch({
         name: "showHelpLink",
-        displayName: "Show Help Button",
+        displayNameKey: "Visual_Show_HelpButton",
         value: false
     });
 
     name: string = "generalView";
-    displayName: string = "General View";
+    displayNameKey: string = "Visual_GeneralView";
     helpLinkColor: string = "#80B0E0"
     slices: Array<FormattingSettingsSlice> = [this.opacity, this.showHelpLink];
 }
 
-class AverageLineCardSettings implements FormattingSettingsCard {
+class AverageLineCardSettings extends FormattingSettingsCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -97,18 +72,18 @@ class AverageLineCardSettings implements FormattingSettingsCard {
 
     fill = new formattingSettings.ColorPicker({
         name: "fill",
-        displayName: "Color",
+        displayNameKey: "Visual_Color",
         value: { value: "#888888" },
     });
 
     showDataLabel = new formattingSettings.ToggleSwitch({
         name: "showDataLabel",
-        displayName: "Data Label",
+        displayNameKey: "Visual_DataLabel",
         value: false
     });
 
     name: string = "averageLine";
-    displayName: string = "Average Line";
+    displayNameKey: string = "Visual_AverageLine";
     analyticsPane: boolean = true;
     slices = [this.show, this.fill, this.showDataLabel];
 }
@@ -121,13 +96,12 @@ class AverageLineCardSettings implements FormattingSettingsCard {
 * @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
 * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
 */
-export class BarChartSettingsModel extends formattingSettingsModel.FormattingSettingsModel {
+export class BarChartSettingsModel extends FormattingSettingsModel {
     enableAxis = new EnableAxisCardSettings();
     colorSelector = new ColorSelectorCardSettings();
     generalView = new GeneralViewCardSettings();
     averageLine = new AverageLineCardSettings();
     cards = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine];
-
 
     /**
      * populate colorSelector object categories formatting properties
