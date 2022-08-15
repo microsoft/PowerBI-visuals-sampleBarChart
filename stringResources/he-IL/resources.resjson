@@ -1,0 +1,11 @@
+{
+	"Visual_EnableAxis" : "הצג ציר",
+	"Visual_Color": "צבע",
+	"Visual_DataColors": "צבעי נתונים",
+	"Visual_BarsOpacity": "כֵּהוּת סורגים",
+	"Visual_Show_HelpButton": "הצג כפתור עזרה",
+	"Visual_GeneralView": "תצוגה כללית",
+	"Visual_DataLabel": "תווית נתונים",
+	"Visual_AverageLine": "קו ממוצע"
+
+}
