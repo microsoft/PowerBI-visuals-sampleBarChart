@@ -32,6 +32,7 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localization/localizationHelper";
 import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
@@ -165,11 +166,8 @@ export class BarChart implements IVisual {
     private tooltipServiceWrapper: ITooltipServiceWrapper;
     private locale: string;
     private helpLinkElement: Selection<any>;
-    private element: HTMLElement;
-    private isLandingPageOn: boolean;
-    private LandingPageRemoved: boolean;
-    private LandingPage: Selection<any>;
     private averageLine: Selection<SVGElement>;
+    private formattingSettingsService: FormattingSettingsService;
 
     private barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
 
@@ -196,7 +194,6 @@ export class BarChart implements IVisual {
      */
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
-        this.element = options.element;
         this.selectionManager = options.host.createSelectionManager();
         this.locale = options.host.locale;
 
@@ -205,6 +202,9 @@ export class BarChart implements IVisual {
         });
 
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
+
+        const localizationManager = this.host.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(localizationManager);
 
         this.svg = d3Select(options.element)
             .append('svg')
@@ -237,7 +237,9 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        this.formattingSettings = BarChartSettingsModel.populateFrom(options.dataViews);
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
+
+
         this.barDataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.barDataPoints);
 
@@ -512,6 +514,6 @@ export class BarChart implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
-        return this.formattingSettings.buildFormattingModel();
+        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 }
