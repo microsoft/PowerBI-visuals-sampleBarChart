@@ -53,6 +53,8 @@ export interface BarChartDataPoint {
     color: string;
     strokeColor: string;
     strokeWidth: number;
+    boundNumericProperty: number;
+    unboundNumericProperty: number;
     selectionId: ISelectionId;
 }
 
@@ -72,6 +74,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     let categorical = dataViews[0].categorical;
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
+    let categoricalObjectsValues = category.objects;
 
 
     let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
@@ -92,6 +95,8 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
+            boundNumericProperty: +categoricalObjectsValues?.[i]?.["CardWithContainer"]?.["boundNumericProperty"],
+            unboundNumericProperty: +categoricalObjectsValues?.[i]?.["CardWithContainer"]?.["unboundNumericProperty"],
             category: `${category.values[i]}`,
         });
     }
@@ -242,6 +247,7 @@ export class BarChart implements IVisual {
 
         this.barDataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.barDataPoints);
+        this.formattingSettings.populateContainers(this.barDataPoints);
 
         let width = options.viewport.width;
         let height = options.viewport.height;

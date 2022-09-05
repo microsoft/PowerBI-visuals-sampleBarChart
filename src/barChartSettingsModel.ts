@@ -7,6 +7,41 @@ import FormattingSettingsCard = formattingSettings.Card;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 
+
+class CardWithContainer extends FormattingSettingsCard {
+    displayName = "Card with container";
+    name = "CardWithContainer";
+
+    boundNumericProperty = new formattingSettings.NumUpDown({
+        name: "boundNumericProperty",
+        displayName: "Numeric (bound) Property",
+        value: 20,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 0,
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 200,
+            }
+        }
+    });
+
+    unboundNumericProperty = new formattingSettings.NumUpDown({
+        name: "unboundNumericProperty",
+        displayName: "Numeric (unbound) Property",
+        value: 10.5
+    });
+
+    container: formattingSettings.Container = {
+        containerItems: [{
+            displayName: "[ALL]",
+            slices: [this.boundNumericProperty, this.unboundNumericProperty]
+        }]
+    };
+}
+
 class EnableAxisCardSettings extends FormattingSettingsCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
@@ -97,11 +132,13 @@ class AverageLineCardSettings extends FormattingSettingsCard {
 * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
 */
 export class BarChartSettingsModel extends FormattingSettingsModel {
+    
+    cardWithContainers = new CardWithContainer();
     enableAxis = new EnableAxisCardSettings();
     colorSelector = new ColorSelectorCardSettings();
     generalView = new GeneralViewCardSettings();
     averageLine = new AverageLineCardSettings();
-    cards = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine];
+    cards = [this.cardWithContainers, this.enableAxis, this.colorSelector, this.generalView, this.averageLine];
 
     /**
      * populate colorSelector object categories formatting properties
@@ -122,4 +159,30 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
             });
         }
     }
+
+    
+    populateContainers(dataPoints: BarChartDataPoint[]) {
+        if (dataPoints) {
+            let defaultContainerSlices = this.cardWithContainers.container.containerItems[0].slices;
+
+            dataPoints.forEach(dataPoint => {
+                let containerItem: formattingSettings.ContainerItem = {
+                    displayName: dataPoint.category,
+                    slices: []
+                }
+
+                defaultContainerSlices.forEach(slice => {
+                    let clonedSlice: formattingSettings.SimpleSlice = Object.create(slice);
+                    clonedSlice.value = dataPoint[slice.name] ? dataPoint[slice.name] : clonedSlice.value;
+                    clonedSlice.selector = dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals);
+                    clonedSlice.altConstantSelector = dataPoint.selectionId.getSelector();
+                    clonedSlice.instanceKind = powerbi.VisualEnumerationInstanceKinds.ConstantOrRule
+                    containerItem.slices.push(clonedSlice);
+                });
+
+                this.cardWithContainers.container.containerItems.push(containerItem);
+            });
+        }
+    }
+
 }
