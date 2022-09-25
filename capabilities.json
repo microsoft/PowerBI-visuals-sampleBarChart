@@ -9,11 +9,6 @@
             "displayName": "Measure Data",
             "name": "measure",
             "kind": "Measure"
-        },
-        {
-            "displayName": "Tooltips",
-            "name": "Tooltips",
-            "kind": "Measure"
         }
     ],
     "dataViewMappings": [
@@ -77,49 +72,6 @@
                     }
                 }
             }
-        },
-        "generalView": {
-            "properties": {
-                "opacity": {
-                    "type": {
-                        "integer": true
-                    }
-                },
-                "showHelpLink": {
-                    "type": {
-                        "bool": true
-                    }
-                }
-            }
-        },
-        "averageLine": {
-            "objectCategory": 2,
-            "properties": {
-                "show": {
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "displayName": {
-                    "type": {
-                        "text": true
-                    }
-                },
-                "fill": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "showDataLabel": {
-                    "type": {
-                        "bool": true
-                    }
-                }
-            }
         }
     },
     "tooltips": {
@@ -129,8 +81,7 @@
         },
         "roles": [
             "Tooltips"
-        ],
-        "supportEnhancedTooltips": true
+        ]
     },
     "supportsLandingPage": false,
     "drilldown": {
