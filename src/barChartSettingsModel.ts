@@ -17,26 +17,26 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
 
     fill = new formattingSettings.ColorPicker({
         name: "fill",
-        displayNameKey: "Visual_Color",
+        displayName: "Color",
         value: { value: "#000000" }
     });
 
     name: string = "enableAxis";
-    displayNameKey: string = "Visual_EnableAxis";
+    displayName: string = "Enable Axis";
     slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
 }
 
 
 class ColorSelectorCardSettings extends FormattingSettingsCard {
     name: string = "colorSelector";
-    displayNameKey: string = "Visual_DataColors";
+    displayName: string = "Data Colors";
     slices: Array<FormattingSettingsSlice> = [];
 }
 
 class GeneralViewCardSettings extends FormattingSettingsCard {
     opacity = new formattingSettings.NumUpDown({
         name: "opacity",
-        displayNameKey: "Visual_BarsOpacity",
+        displayName: "Bars Opacity",
         value: 100,
         options: {
             minValue: {
@@ -52,12 +52,12 @@ class GeneralViewCardSettings extends FormattingSettingsCard {
 
     showHelpLink = new formattingSettings.ToggleSwitch({
         name: "showHelpLink",
-        displayNameKey: "Visual_Show_HelpButton",
+        displayName: "Show Help Button",
         value: false
     });
 
     name: string = "generalView";
-    displayNameKey: string = "Visual_GeneralView";
+    displayName: string = "General View";
     helpLinkColor: string = "#80B0E0"
     slices: Array<FormattingSettingsSlice> = [this.opacity, this.showHelpLink];
 }
@@ -72,18 +72,18 @@ class AverageLineCardSettings extends FormattingSettingsCard {
 
     fill = new formattingSettings.ColorPicker({
         name: "fill",
-        displayNameKey: "Visual_Color",
+        displayName: "Color",
         value: { value: "#888888" },
     });
 
     showDataLabel = new formattingSettings.ToggleSwitch({
         name: "showDataLabel",
-        displayNameKey: "Visual_DataLabel",
+        displayName: "Data Label",
         value: false
     });
 
     name: string = "averageLine";
-    displayNameKey: string = "Visual_AverageLine";
+    displayName: string = "Average Line";
     analyticsPane: boolean = true;
     slices = [this.show, this.fill, this.showDataLabel];
 }
