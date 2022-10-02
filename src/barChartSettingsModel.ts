@@ -7,7 +7,11 @@ import FormattingSettingsCard = formattingSettings.Card;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 
+/**
+ * Enable Axis Formatting Card
+ */
 class EnableAxisCardSettings extends FormattingSettingsCard {
+    // Formatting property `show` toggle switch (formatting simple slice)
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -15,6 +19,7 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
         topLevelToggle: true
     });
 
+    // Formatting property `fill` color picker (formatting simple slice)
     fill = new formattingSettings.ColorPicker({
         name: "fill",
         displayName: "Color",
@@ -26,82 +31,29 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
 }
 
+/**
+ * Color Selector Formatting Card
+ */
 
 class ColorSelectorCardSettings extends FormattingSettingsCard {
     name: string = "colorSelector";
     displayName: string = "Data Colors";
+
+    // slices will be populated in barChart settings model `populateColorSelector` method
     slices: Array<FormattingSettingsSlice> = [];
 }
 
-class GeneralViewCardSettings extends FormattingSettingsCard {
-    opacity = new formattingSettings.NumUpDown({
-        name: "opacity",
-        displayName: "Bars Opacity",
-        value: 100,
-        options: {
-            minValue: {
-                type: powerbi.visuals.ValidatorType.Min,
-                value: 0,
-            },
-            maxValue: {
-                type: powerbi.visuals.ValidatorType.Max,
-                value: 100,
-            }
-        }
-    });
-
-    showHelpLink = new formattingSettings.ToggleSwitch({
-        name: "showHelpLink",
-        displayName: "Show Help Button",
-        value: false
-    });
-
-    name: string = "generalView";
-    displayName: string = "General View";
-    helpLinkColor: string = "#80B0E0"
-    slices: Array<FormattingSettingsSlice> = [this.opacity, this.showHelpLink];
-}
-
-class AverageLineCardSettings extends FormattingSettingsCard {
-    show = new formattingSettings.ToggleSwitch({
-        name: "show",
-        displayName: undefined,
-        value: false,
-        topLevelToggle: true
-    });
-
-    fill = new formattingSettings.ColorPicker({
-        name: "fill",
-        displayName: "Color",
-        value: { value: "#888888" },
-    });
-
-    showDataLabel = new formattingSettings.ToggleSwitch({
-        name: "showDataLabel",
-        displayName: "Data Label",
-        value: false
-    });
-
-    name: string = "averageLine";
-    displayName: string = "Average Line";
-    analyticsPane: boolean = true;
-    slices = [this.show, this.fill, this.showDataLabel];
-}
 
 /**
-* Interface for BarChart settings.
+* BarChart settings model class
 *
-* @interface
-* @property {{show:boolean}} enableAxis - Object property that allows axis to be enabled.
-* @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
-* @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
 */
 export class BarChartSettingsModel extends FormattingSettingsModel {
+
+    // Create formatting settings model formatting cards
     enableAxis = new EnableAxisCardSettings();
     colorSelector = new ColorSelectorCardSettings();
-    generalView = new GeneralViewCardSettings();
-    averageLine = new AverageLineCardSettings();
-    cards = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine];
+    cards = [this.enableAxis, this.colorSelector];
 
     /**
      * populate colorSelector object categories formatting properties
