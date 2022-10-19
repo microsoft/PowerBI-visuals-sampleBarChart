@@ -9,25 +9,25 @@ import "./../style/visual.less";
 
 import { axisBottom } from "d3-axis";
 
-import powerbi from "powerbi-visuals-api";
+import powerbiVisualsApi from "powerbi-visuals-api";
 import "regenerator-runtime/runtime";
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 import ScaleLinear = d3.ScaleLinear;
 const getEvent = () => require("d3-selection").event;
 
-import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
-import DataViewObjects = powerbi.DataViewObjects;
-import Fill = powerbi.Fill;
-import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColorPalette;
-import ISelectionId = powerbi.visuals.ISelectionId;
-import ISelectionManager = powerbi.extensibility.ISelectionManager;
-import IVisual = powerbi.extensibility.IVisual;
-import IVisualHost = powerbi.extensibility.visual.IVisualHost;
-import PrimitiveValue = powerbi.PrimitiveValue;
-import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
-import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
-import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import DataViewCategoryColumn = powerbiVisualsApi.DataViewCategoryColumn;
+import DataViewObjects = powerbiVisualsApi.DataViewObjects;
+import Fill = powerbiVisualsApi.Fill;
+import ISandboxExtendedColorPalette = powerbiVisualsApi.extensibility.ISandboxExtendedColorPalette;
+import ISelectionId = powerbiVisualsApi.visuals.ISelectionId;
+import ISelectionManager = powerbiVisualsApi.extensibility.ISelectionManager;
+import IVisual = powerbiVisualsApi.extensibility.IVisual;
+import IVisualHost = powerbiVisualsApi.extensibility.visual.IVisualHost;
+import PrimitiveValue = powerbiVisualsApi.PrimitiveValue;
+import VisualTooltipDataItem = powerbiVisualsApi.extensibility.VisualTooltipDataItem;
+import VisualUpdateOptions = powerbiVisualsApi.extensibility.visual.VisualUpdateOptions;
+import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualConstructorOptions;
 
 import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
@@ -238,8 +238,6 @@ export class BarChart implements IVisual {
      */
     public update(options: VisualUpdateOptions) {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
-
-
         this.barDataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.barDataPoints);
 
@@ -513,7 +511,7 @@ export class BarChart implements IVisual {
         return total / this.barDataPoints.length;
     }
 
-    public getFormattingModel(): powerbi.visuals.FormattingModel {
+    public getFormattingModel(): powerbiVisualsApi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 }

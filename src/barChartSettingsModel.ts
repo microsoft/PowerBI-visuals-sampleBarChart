@@ -1,13 +1,13 @@
-import powerbi from "powerbi-visuals-api";
+import powerbiVisualsApi from "powerbi-visuals-api";
 import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import { BarChartDataPoint } from "./barChart";
 
-import FormattingSettingsCard = formattingSettings.Card;
-import FormattingSettingsSlice = formattingSettings.Slice;
-import FormattingSettingsModel = formattingSettings.Model;
+import Card = formattingSettings.Card;
+import Slice = formattingSettings.Slice;
+import Model = formattingSettings.Model;
 
-class EnableAxisCardSettings extends FormattingSettingsCard {
+class EnableAxisCardSettings extends Card {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -23,28 +23,28 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
 
     name: string = "enableAxis";
     displayName: string = "Enable Axis";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
+    slices = [this.show, this.fill];
 }
 
 
-class ColorSelectorCardSettings extends FormattingSettingsCard {
+class ColorSelectorCardSettings extends Card {
     name: string = "colorSelector";
     displayName: string = "Data Colors";
-    slices: Array<FormattingSettingsSlice> = [];
+    slices = [];
 }
 
-class GeneralViewCardSettings extends FormattingSettingsCard {
+class GeneralViewCardSettings extends Card {
     opacity = new formattingSettings.NumUpDown({
         name: "opacity",
         displayName: "Bars Opacity",
         value: 100,
         options: {
             minValue: {
-                type: powerbi.visuals.ValidatorType.Min,
+                type: powerbiVisualsApi.visuals.ValidatorType.Min,
                 value: 0,
             },
             maxValue: {
-                type: powerbi.visuals.ValidatorType.Max,
+                type: powerbiVisualsApi.visuals.ValidatorType.Max,
                 value: 100,
             }
         }
@@ -59,10 +59,10 @@ class GeneralViewCardSettings extends FormattingSettingsCard {
     name: string = "generalView";
     displayName: string = "General View";
     helpLinkColor: string = "#80B0E0"
-    slices: Array<FormattingSettingsSlice> = [this.opacity, this.showHelpLink];
+    slices = [this.opacity, this.showHelpLink];
 }
 
-class AverageLineCardSettings extends FormattingSettingsCard {
+class AverageLineCardSettings extends Card {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -96,7 +96,7 @@ class AverageLineCardSettings extends FormattingSettingsCard {
 * @property {{generalView.opacity:number}} Bars Opacity - Controls opacity of plotted bars, values range between 10 (almost transparent) to 100 (fully opaque, default)
 * @property {{generalView.showHelpLink:boolean}} Show Help Button - When TRUE, the plot displays a button which launch a link to documentation.
 */
-export class BarChartSettingsModel extends FormattingSettingsModel {
+export class BarChartSettingsModel extends Model {
     enableAxis = new EnableAxisCardSettings();
     colorSelector = new ColorSelectorCardSettings();
     generalView = new GeneralViewCardSettings();
@@ -117,7 +117,7 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
                     value: { value: dataPoint.color },
                     selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
                     altConstantSelector: dataPoint.selectionId.getSelector(),
-                    instanceKind: powerbi.VisualEnumerationInstanceKinds.ConstantOrRule
+                    instanceKind: powerbiVisualsApi.VisualEnumerationInstanceKinds.ConstantOrRule
                 }));
             });
         }
