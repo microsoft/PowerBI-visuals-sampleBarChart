@@ -30,11 +30,11 @@ To support displaying report page tooltips, add "tooltips" definition to capabil
 `roles` optional. Once defined, instructs what data roles will be bound to the selected tooltip option in fields well.
 
 
-For more information, see the Report Page Tooltips usage guidlines [Report Page Tooltips](https://powerbi.microsoft.com/en-us/blog/power-bi-desktop-march-2018-feature-summary/#tooltips).
+For more information, see the Report Page Tooltips usage guidelines [Report Page Tooltips](https://powerbi.microsoft.com/en-us/blog/power-bi-desktop-march-2018-feature-summary/#tooltips).
 
 ## Applying report page tooltips
 For displaying the report page tooltip, upon calling ITooltipService.Show(options: TooltipShowOptions) or ITooltipService.Move(options: TooltipMoveOptions), the PowerBI host will consume the selectionId ('identities' property of 'options' argument above). 
-Therefore, the SelectionId should represent the selected data (category, series, etc) of the item you hovered above to be retreived by the tooltip.
+Therefore, the SelectionId should represent the selected data (category, series, etc) of the item you hovered above to be retrieved by the tooltip.
 
 See more on building SelectionId under [Adding Selection and Interactions with Other Visuals](https://github.com/Microsoft/PowerBI-visuals/blob/master/Tutorial/Selection.md)
 
