@@ -8,6 +8,12 @@ import {
 import "./../style/visual.less";
 
 import { axisBottom } from "d3-axis";
+import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
+import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { getLocalizedString } from "./localization/localizationHelper";
+import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
 
 import powerbiVisualsApi from "powerbi-visuals-api";
 import "regenerator-runtime/runtime";
@@ -29,21 +35,15 @@ import VisualTooltipDataItem = powerbiVisualsApi.extensibility.VisualTooltipData
 import VisualUpdateOptions = powerbiVisualsApi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualConstructorOptions;
 
-import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
-import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
-
-import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
-import { BarChartSettingsModel } from "./barChartSettingsModel";
-import { getLocalizedString } from "./localization/localizationHelper";
-import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
-
 /**
  * Interface for BarChart data points.
  *
  * @interface
- * @property {number} value             - Data value for point.
+ * @property {PrimitiveValue} value     - Data value for point.
  * @property {string} category          - Corresponding category of data value.
  * @property {string} color             - Color corresponding to data point.
+ * @property {string} strokeColor       - Stroke color for data point column.
+ * @property {number} strokeWidth       - Stroke width for data point column.
  * @property {ISelectionId} selectionId - Id assigned to data point for cross filtering
  *                                        and visual interaction.
  */
@@ -336,6 +336,24 @@ export class BarChart implements IVisual {
         this.handleClick(barSelectionMerged);
     }
 
+    /**
+     * Returns properties pane formatting model content hierarchies, properties and latest formatting values, Then populate properties pane.
+     * This method is called once every time we open properties pane or when the user edit any format property. 
+     */
+    public getFormattingModel(): powerbiVisualsApi.visuals.FormattingModel {
+        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
+
+    /**
+     * Destroy runs when the visual is removed. Any cleanup that the visual needs to
+     * do should be done here.
+     *
+     * @function
+     */
+    public destroy(): void {
+        // Perform any cleanup tasks here
+    }
+
     private static wordBreak(
         textNodes: Selection<any, SVGElement>,
         allowedWidth: number,
@@ -415,16 +433,6 @@ export class BarChart implements IVisual {
             return currentSelectionId.includes(selectionId);
         });
     }
-    /**
-     * Destroy runs when the visual is removed. Any cleanup that the visual needs to
-     * do should be done here.
-     *
-     * @function
-     */
-    public destroy(): void {
-        // Perform any cleanup tasks here
-    }
-
     private getTooltipData(value: any): VisualTooltipDataItem[] {
         let language = getLocalizedString(this.locale, "LanguageKey");
         return [{
@@ -509,9 +517,5 @@ export class BarChart implements IVisual {
         });
 
         return total / this.barDataPoints.length;
-    }
-
-    public getFormattingModel(): powerbiVisualsApi.visuals.FormattingModel {
-        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 }
