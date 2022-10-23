@@ -9,6 +9,7 @@ PowerBI provides several tools that help to cover the main needs to build your o
 5. [InteractivityUtils](https://www.npmjs.com/package/powerbi-visuals-utils-interactivityutils) is a set of functions and classes for implementation of cross-selection and cross-filtering for PowerBI custom visuals.
 6. [FormattingUtils](https://www.npmjs.com/package/powerbi-visuals-utils-formattingutils) are interfaces for creating PowerBI custom visuals.
 7. [SVGUtils](https://www.npmjs.com/package/powerbi-visuals-utils-svgutils) is a tool for SVG manipulations for PowerBI custom visuals.
+8. [FormattingModelUtils](https://github.com/microsoft/powerbi-visuals-utils-formattingmodel) is a set of classes, interfaces and method help building format pane easily.
 
 ### How to install
   To install the package you should run the following command in the directory with your current custom visual:

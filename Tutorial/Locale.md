@@ -14,7 +14,7 @@ In the sample we display the current locale in the tooltip.
 
 Each of these bar charts was created under different locale (English, Basque and Hindi).
 
-The BarChart contructor now has a `locale` member which is instantiated in the constructor with the host `locale` instance.
+The BarChart constructor now has a `locale` member which is instantiated in the constructor with the host `locale` instance.
 
 ```typescript
     private locale: string;
@@ -22,7 +22,7 @@ The BarChart contructor now has a `locale` member which is instantiated in the c
     this.locale = options.host.locale;
 ```
 
-A `LocalizaionResources` interface was added, which helps in localizing strings. It defines the required string for each locale, and also the 'defaultValue', which will be displayed if the visual wansn't adapted to this locale.<br>
+A `LocalizationResources` interface was added, which helps in localizing strings. It defines the required string for each locale, and also the 'defaultValue', which will be displayed if the visual wasn't adapted to this locale.<br>
 `myResources` is an instance of this interface, which holds the localized strings:
 
 ```typescript
@@ -45,7 +45,7 @@ module powerbi.extensibility.visual {
 Getting a localized string is easy using `getLocalizedString`.
 ```typescript
     /**
-     * Returns the localized string in the locale transfared using the key that was given to serch the resources
+     * Returns the localized string in the locale transferred using the key that was given to search the resources
      * 
      * @param {string} locale - the locale in which PowerBI is currently running
      * @param {object} key - specify a key for the string you want localized in your visual
@@ -68,3 +68,6 @@ private getTooltipData(value: any): VisualTooltipDataItem[] {
     }];
 }
 ```
+
+## Format Pane Localization 
+For more info on localization [here](https://learn.microsoft.com/power-bi/developer/visuals/localization)

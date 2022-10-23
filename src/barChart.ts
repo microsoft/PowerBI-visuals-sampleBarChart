@@ -56,9 +56,18 @@ export interface BarChartDataPoint {
     selectionId: ISelectionId;
 }
 
+/**
+ * Function that converts queried data into bar chart data points that will be used by the visual
+ *
+ * @function
+ * @param {VisualUpdateOptions} options - Contains references to the size of the container
+ *                                        and the dataView which contains all the data
+ *                                        the visual had queried.
+ * @param {IVisualHost} host            - Contains references to the host which contains services
+ */
 function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
     let barChartDataPoints: BarChartDataPoint[] = []
-    let dataViews = options.dataViews;
+    const dataViews = options.dataViews;
     if (!dataViews
         || !dataViews[0]
         || !dataViews[0].categorical
@@ -69,13 +78,11 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
         return barChartDataPoints;
     }
 
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
+    const categorical = dataViews[0].categorical;
+    const category = categorical.categories[0];
+    const dataValue = categorical.values[0];
 
-
-    let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
-
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
     const strokeColor: string = getColumnStrokeColor(colorPalette);
     const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
 
@@ -162,12 +169,12 @@ export class BarChart implements IVisual {
     private barContainer: Selection<SVGElement>;
     private xAxis: Selection<SVGElement>;
     private barDataPoints: BarChartDataPoint[];
-    private formattingSettings: BarChartSettingsModel;
     private tooltipServiceWrapper: ITooltipServiceWrapper;
     private locale: string;
     private helpLinkElement: Selection<any>;
     private averageLine: Selection<SVGElement>;
     private formattingSettingsService: FormattingSettingsService;
+    private formattingSettings: BarChartSettingsModel;
 
     private barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
 
