@@ -13,11 +13,12 @@
     },
     "devDependencies": {
         "@types/d3": "5.7.2",
+        "@types/d3-selection": "^1.0.0",
         "d3": "5.12.0",
         "powerbi-visuals-api": "~5.1.0",
-        "powerbi-visuals-utils-formattingmodel": "~5.0.0",
         "powerbi-visuals-tools": "^4.0.6",
         "powerbi-visuals-utils-dataviewutils": "^2.4.1",
+        "powerbi-visuals-utils-formattingmodel": "~5.0.0",
         "powerbi-visuals-utils-formattingutils": "^4.7.1",
         "powerbi-visuals-utils-interactivityutils": "^5.7.1",
         "powerbi-visuals-utils-tooltiputils": "^2.5.2",
