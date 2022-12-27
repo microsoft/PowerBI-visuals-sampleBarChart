@@ -9,7 +9,8 @@
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
     },
     "dependencies": {
-        "regenerator-runtime": "^0.13.9"
+        "regenerator-runtime": "^0.13.9",
+        "typescript": "^4.9.4"
     },
     "devDependencies": {
         "@types/d3": "5.7.2",
