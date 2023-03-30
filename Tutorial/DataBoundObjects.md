@@ -9,16 +9,13 @@ See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/
 ## Define Object in Capabilities
 Similar to static objects, we will define another object in the capabilities
 `colorSelector` is the internal name that will be referenced in the `dataView`.
-`displayName` is the name that will be shown on the property pane.
 
 `fill` is a `StructuralObjectValue` and is not associated with a primitive type.
 
 ```typescript
 "colorSelector": {
-    "displayName": "Data Colors",
     "properties": {
         "fill": {
-            "displayName": "Color",
             "type": {
                 "fill": {
                     "solid": {
@@ -69,74 +66,67 @@ export function getCategoricalObjectValue<T>(category: DataViewCategoryColumn, i
 See [objectEnumerationUtility.ts](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/blob/master/src/objectEnumerationUtility.ts) for source code.
 
 ## Defining Default Color and Retrieving Categorical Object from DataView
-Each color is now associated with each category inside `dataView`. We will set each data point to its cooresponding color.
+Each color is now associated with each category inside  options dataView. We will set each data point to its corresponding color.
 
 ```typescript
+ const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
+
 for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-    let defaultColor: Fill = {
-        solid: {
-            color: colorPalette.getColor(category.values[i]).value
-        }
-    }
+    const color: string = getColumnColorByIndex(category, i, colorPalette);
+
+    const selectionId: ISelectionId = host.createSelectionIdBuilder()
+        .withCategory(category, i)
+        .createSelectionId();
 
     barChartDataPoints.push({
-        category: category.values[i],
+        color,
+        strokeColor,
+        strokeWidth,
+        selectionId,
         value: dataValue.values[i],
-        color: getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
-        selectionId: host.createSelectionIdBuilder()
-            .withCategory(category, i)
-            .createSelectionId()
+        category: `${category.values[i]}`,
     });
 }
 ```
 
-## Populate Property Pane with `enumerateObjectInstances`
-`enumerateObjectInstances` is used to populate the property pane with objects. 
+## Populate Property Pane with `getFormattingModel`
+`getFormattingModel` is used to populate the property pane with objects. 
+For more information [here](https://learn.microsoft.com/en-us/power-bi/developer/visuals/format-pane)
+
 For this instance, we would like a color picker per category we have. Each category be rendered on the property pane.
+We will do this by adding a populate method `populateColorSelector` to create corresponding bar chart data points color selector in format pane after building the data points in `update` method. This `populateColorSelector` method iterate through each data point with the associated color.
 
-We will do this by adding an additional case to the switch statement for `colorSelector` and iterate through each data point with the associated color.
+Selection is required to associate the color with a data point.
+In visual class:
+```typescript 
+    public update(options: VisualUpdateOptions) {
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
+        this.barDataPoints = createSelectorDataPoints(options, this.host);
+        this.formattingSettings.populateColorSelector(this.barDataPoints);
 
-Selection is required to associate the color with a datapoint.
+        // ...
+    }
+```
 
+In formatting settings model:
 ```typescript
-/**
- * Enumerates through the objects defined in the capabilities and adds the properties to the format pane
- *
- * @function
- * @param {EnumerateVisualObjectInstancesOptions} options - Map of defined objects
+ /**
+ * populate colorSelector object categories formatting properties
+ * @param dataPoints 
  */
-public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-    let objectName = options.objectName;
-    let objectEnumeration: VisualObjectInstance[] = [];
-
-    switch(objectName) {
-        case 'enableAxis':
-            objectEnumeration.push({
-                objectName: objectName,
-                properties: {
-                    show: this.barChartSettings.enableAxis.show,
-                },
-                selector: null
-            });
-            break;
-        case 'colorSelector':
-            for(let barDataPoint of this.barDataPoints) {
-                objectEnumeration.push({
-                    objectName: objectName,
-                    displayName: barDataPoint.category,
-                    properties: {
-                        fill: {
-                            solid: {
-                                color: barDataPoint.color
-                            }
-                        }
-                    },
-                    selector: barDataPoint.selectionId.getSelector()
-                });
-            }
-            break;
-    };
-
-    return objectEnumeration;
+populateColorSelector(dataPoints: BarChartDataPoint[]) {
+    let slices = this.colorSelector.slices;
+    if (dataPoints) {
+        dataPoints.forEach(dataPoint => {
+            slices.push(new formattingSettings.ColorPicker({
+                name: "fill",
+                displayName: dataPoint.category,
+                value: { value: dataPoint.color },
+                selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
+                altConstantSelector: dataPoint.selectionId.getSelector(),
+                instanceKind: powerbiVisualsApi.VisualEnumerationInstanceKinds.ConstantOrRule
+            }));
+        });
+    }
 }
 ```

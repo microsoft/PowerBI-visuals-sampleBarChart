@@ -48,16 +48,13 @@
     ],
     "objects": {
         "enableAxis": {
-            "displayName": "Enable Axis",
             "properties": {
                 "show": {
-                    "displayName": "Enable Axis",
                     "type": {
                         "bool": true
                     }
                 },
                 "fill": {
-                    "displayName": "Color",
                     "type": {
                         "fill": {
                             "solid": {
@@ -69,10 +66,8 @@
             }
         },
         "colorSelector": {
-            "displayName": "Data Colors",
             "properties": {
                 "fill": {
-                    "displayName": "Color",
                     "type": {
                         "fill": {
                             "solid": {
@@ -84,16 +79,13 @@
             }
         },
         "generalView": {
-            "displayName": "General View",
             "properties": {
                 "opacity": {
-                    "displayName": "Bars Opacity",
                     "type": {
                         "integer": true
                     }
                 },
                 "showHelpLink": {
-                    "displayName": "Show Help Button",
                     "type": {
                         "bool": true
                     }
@@ -101,7 +93,6 @@
             }
         },
         "averageLine": {
-            "displayName": "Average Line",
             "objectCategory": 2,
             "properties": {
                 "show": {
@@ -115,7 +106,6 @@
                     }
                 },
                 "fill": {
-                    "displayName": "Color",
                     "type": {
                         "fill": {
                             "solid": {
@@ -125,7 +115,6 @@
                     }
                 },
                 "showDataLabel": {
-                    "displayName": "Data label",
                     "type": {
                         "bool": true
                     }
@@ -148,5 +137,6 @@
         "roles": [
             "category"
         ]
-    }
+    },
+    "privileges": []
 }

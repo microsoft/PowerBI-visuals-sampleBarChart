@@ -47,13 +47,13 @@ export interface Localization {
     "zh-TW": string;
 }
 
-export interface LocalizaionResources {
+export interface LocalizationResources {
     defaultValue: string;
     localization: Localization;
 }
 
 export interface Resources {
-    [key: string]: LocalizaionResources;
+    [key: string]: LocalizationResources;
 }
 
 /**

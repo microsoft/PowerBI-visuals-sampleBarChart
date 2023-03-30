@@ -57,16 +57,16 @@ Use the internal `name` defined in your dataRoles to reference each field.
 
 For more information, see the section about [Data View Mapping](https://github.com/Microsoft/PowerBI-visuals/blob/master/Capabilities/DataViewMappings.md).
 
-## Defining and Using `visualTransform`
+## Defining and Using `createSelectorDataPoints`
 DataView is the structure that PowerBI provides to your visual and it contains the queried data to be visualized.
 However, DataView provides your data in different forms such as categorical and table forms. In this instance we're building a categorical visual and we will only need the use the categorical property on the DataView.
 
-Defining visualTransform will allow you to convert DataView into a view model your visual will use.
+Defining `createSelectorDataPoints` will allow you to convert options dataView into bar chart data points your visual will use.
 IVisualHost is required because when defining individual data points, you will want to assign colors and selection to them.
 
 ```typescript
 /**
- * Function that converts queried data into a view model that will be used by the visual
+ * Function that converts queried data into bar chart data points that will be used by the visual
  *
  * @function
  * @param {VisualUpdateOptions} options - Contains references to the size of the container
@@ -74,9 +74,8 @@ IVisualHost is required because when defining individual data points, you will w
  *                                        the visual had queried.
  * @param {IVisualHost} host            - Contains references to the host which contains services
  */
-function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
-    /*Convert dataView to your viewModel*/
+function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
+    /*Convert dataView to bar chart data points*/
 }
 
 ```
-See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/3c6e8186436b63bf0cf97d2cdd5dde8aa8d08709) for what was added to visualTransform

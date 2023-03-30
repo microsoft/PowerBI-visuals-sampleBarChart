@@ -11,22 +11,26 @@ Since each data point is unique, selection must be added to each data point. Add
  * Interface for BarChart data points.
  *
  * @interface
- * @property {number} value             - Data value for point.
+ * @property {PrimitiveValue} value     - Data value for point.
  * @property {string} category          - Corresponding category of data value.
  * @property {string} color             - Color corresponding to data point.
+ * @property {string} strokeColor       - Stroke color for data point column.
+ * @property {number} strokeWidth       - Stroke width for data point column.
  * @property {ISelectionId} selectionId - Id assigned to data point for cross filtering
  *                                        and visual interaction.
  */
-interface BarChartDataPoint {
-    value: number;
+export interface BarChartDataPoint {
+    value: PrimitiveValue;
     category: string;
     color: string;
+    strokeColor: string;
+    strokeWidth: number;
     selectionId: ISelectionId;
-};
+}
 ```
 
 ## Assigning Selection Ids to Each Data Point
-Since we iterate through the data points in `visualTransform` it is also the ideal place to create your selection ids.
+Since we iterate through the data points in `createSelectorDataPoints` it is also the ideal place to create your selection ids.
 The host variable is a `IVisualHost`, which contains services that the visual may use such as color and selection builder.
 
 Use the selection builder factory method on `IVisualHost` to create a new selection id.
@@ -35,16 +39,23 @@ Since we're making selection only based on the category, we only need to define 
 **NOTE**: A new selection builder must be created per data point.
 
 ```typescript
-for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-    barChartDataPoints.push({
-        category: category.values[i],
-        value: dataValue.values[i],
-        color: colorPalette.getColor(category.values[i]).value,
-        selectionId: host.createSelectionIdBuilder()
+
+    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
+        const color: string = getColumnColorByIndex(category, i, colorPalette);
+
+        const selectionId: ISelectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
-            .createSelectionId()
-    });
-}
+            .createSelectionId();
+
+        barChartDataPoints.push({
+            color,
+            strokeColor,
+            strokeWidth,
+            selectionId,
+            value: dataValue.values[i],
+            category: `${category.values[i]}`,
+        });
+    }
 ```
 
 For more information, see the section about using [Selection Id Builder](https://github.com/Microsoft/PowerBI-visuals/blob/master/Visual/Selection.md#creating-selection-ids-selectionidbuilder).
@@ -54,25 +65,47 @@ Each bar on the bar chart can be interacted with once a selection id is assigned
 The bar chart will listen to click events.
 
 Use the selection manager factory method on `IVisualHost` to create selection manager. This allow for cross filtering and clearing selections.
+Call `syncSelectionState` using selectionManager selectionIds and barSelection:
 
 ```typescript
-let selectionManager = this.selectionManager;
-
-//This must be an anonymous function instead of a lambda because
-//d3 uses 'this' as the reference to the element that was clicked.
-bars.on('click', function(d) {
-    selectionManager.select(d.selectionId).then((ids: ISelectionId[]) => {
-        bars.attr({
-            'fill-opacity': ids.length > 0 ? BarChart.Config.transparentOpacity : BarChart.Config.solidOpacity
-        });
-
-        d3.select(this).attr({
-            'fill-opacity': BarChart.Config.solidOpacity
-        });
-    });
-
-    (<Event>d3.event).stopPropagation();
+this.selectionManager = options.host.createSelectionManager();
+this.selectionManager.registerOnSelectCallback(() => {
+    this.syncSelectionState(this.barSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
 });
+
+// ....
+
+private syncSelectionState(
+        selection: Selection<BarChartDataPoint>,
+        selectionIds: ISelectionId[]
+    ): void {
+        if (!selection || !selectionIds) {
+            return;
+        }
+
+        if (!selectionIds.length) {
+            const opacity: number = this.formattingSettings.generalView.opacity.value / 100;
+            selection
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
+            return;
+        }
+
+        const self: this = this;
+
+        selection.each(function (barDataPoint: BarChartDataPoint) {
+            const isSelected: boolean = self.isSelectionIdInArray(selectionIds, barDataPoint.selectionId);
+
+            const opacity: number = isSelected
+                ? BarChart.Config.solidOpacity
+                : BarChart.Config.transparentOpacity;
+
+            d3Select(this)
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
+        });
+    }
+
 ```
 
 For more information, see the section about using [Selection Manager](https://github.com/Microsoft/PowerBI-visuals/blob/master/Visual/Selection.md#managing-selection-selectionmanager).

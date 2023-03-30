@@ -1,12 +1,10 @@
 # Opening a URL in a new tab/window
 Launch URL allows opening a new browser tab (or window), by delegating the actual work to Power BI.
 
-See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/2ecc5cf74b9bc6fbf5c03f84c3ab24841b489d4e) for what was added at this step.
-
 Note: custom visuals are hosted in Power BI inside sandboxed iframes, this prevents opening a new browser tab (or window) in "the usual way", e.g. using `window.open('http://some.link.net','_blank')`.
 
 ## Usage
-Use the `host.launchUrl()` API call, passing your destenation URL as a string argument:
+Use the `host.launchUrl()` API call, passing your destination URL as a string argument:
 
 ```typescript
 this.host.launchUrl('http://some.link.net');
@@ -18,7 +16,7 @@ this.host.launchUrl('http://some.link.net');
 
 ## Best practices
 1. For most cases, it is best to only open a link as a response to a user's explicit action. Make it easy for the user to understand that clicking the link or button will result in opening a new tab. Triggering a `launchUrl()` call without a user's action, or as a side effect of a different action can be confusing or frustrating for the user.
-2. If the link is not crucial for the proper functioning of the visual, it is recommanded to provide the report's author a way to disable and hide the link. This is especially relevant for special Power BI use-cases, such as embedding a report in a 3rd party application or publishing it to the web.
+2. If the link is not crucial for the proper functioning of the visual, it is recommended to provide the report's author a way to disable and hide the link. This is especially relevant for special Power BI use-cases, such as embedding a report in a 3rd party application or publishing it to the web.
 3. Avoid Triggering a `launchUrl()` call from inside a loop, the visual's `update` function, or any other frequently recurring code.
 
 ## Step by step example
@@ -51,11 +49,9 @@ A `showHelpLink` boolean static object was added to `capabilities.json` objects 
 "objects": {
 //...
     "generalView": {
-            "displayName": "General View",
             "properties": 
                 //...
                 "showHelpLink": {
-                    "displayName": "Show Help Button",
                     "type": { 
                         "bool": true 
                     }
@@ -69,10 +65,10 @@ A `showHelpLink` boolean static object was added to `capabilities.json` objects 
 
 And, in the visual's `update` function, the following lines were added:
 ```typescript
-    if (settings.generalView.showHelpLink) {
-        this.helpLinkElement.classList.remove("hidden");
-    } else {
-        this.helpLinkElement.classList.add("hidden");
-    }
+this.helpLinkElement
+    .classed("hidden", !this.formattingSettings.generalView.showHelpLink.value)
+    .style("border-color", this.formattingSettings.generalView.helpLinkColor)
+    .style("color", this.formattingSettings.generalView.helpLinkColor);
 ```
+
 The `hidden` class is defined in visual.less to control the display of the element.
