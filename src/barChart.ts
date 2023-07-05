@@ -1,6 +1,5 @@
 import "./../style/visual.less";
 import {
-    event as d3Event,
     select as d3Select
 } from "d3-selection";
 import {
@@ -11,12 +10,10 @@ import {
 import { axisBottom } from "d3-axis";
 
 import powerbiVisualsApi from "powerbi-visuals-api";
-import "regenerator-runtime/runtime";
 import powerbi = powerbiVisualsApi;
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 import ScaleLinear = d3.ScaleLinear;
-const getEvent = () => require("d3-selection").event;
 
 // powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
@@ -36,7 +33,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
-import {createTooltipServiceWrapper, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
+import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 
 import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
@@ -428,16 +425,20 @@ export class BarChart implements IVisual {
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
-        barSelectionMerged.on('click', (d) => {
+        barSelectionMerged.on('click', (event) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.hostCapabilities.allowInteractions) {
-                const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
+                const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
+                const mouseEvent: MouseEvent = event;
+                const eventTarget: EventTarget = mouseEvent.target;
+
+                let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
                 this.selectionManager
-                    .select(d.selectionId, isCtrlPressed)
+                    .select(dataPoint.selectionId, isCtrlPressed)
                     .then((ids: ISelectionId[]) => {
                         this.syncSelectionState(barSelectionMerged, ids);
                     });
-                (<Event>d3Event).stopPropagation();
+                (<Event>event).stopPropagation();
             }
         });
         this.barSelection
@@ -461,7 +462,7 @@ export class BarChart implements IVisual {
 
     private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
         // Clear selection when clicking outside a bar
-        this.svg.on('click', (d) => {
+        this.svg.on('click', () => {
             if (this.host.hostCapabilities.allowInteractions) {
                 this.selectionManager
                     .clear()
@@ -473,8 +474,8 @@ export class BarChart implements IVisual {
     }
 
     private handleContextMenu() {
-        this.svg.on('contextmenu', () => {​​
-            const mouseEvent: MouseEvent = getEvent();
+        this.svg.on('contextmenu', (event) => {
+            const mouseEvent: MouseEvent = event;
             const eventTarget: EventTarget = mouseEvent.target;
             let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
             this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
