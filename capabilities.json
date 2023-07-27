@@ -1,153 +1,160 @@
 {
-    "dataRoles": [
-        {
-            "displayName": "Category Data",
-            "name": "category",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Measure Data",
-            "name": "measure",
-            "kind": "Measure"
-        },
-        {
-            "displayName": "Tooltips",
-            "name": "Tooltips",
-            "kind": "Measure"
-        }
-    ],
-    "dataViewMappings": [
-        {
-            "conditions": [
-                {
-                    "category": {
-                        "max": 1
-                    },
-                    "measure": {
-                        "max": 1
-                    }
-                }
-            ],
-            "categorical": {
-                "categories": {
-                    "for": {
-                        "in": "category"
-                    }
-                },
-                "values": {
-                    "select": [
-                        {
-                            "bind": {
-                                "to": "measure"
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    ],
-    "objects": {
-        "enableAxis": {
-            "displayName": "Enable Axis",
-            "properties": {
-                "show": {
-                    "displayName": "Enable Axis",
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "fill": {
-                    "displayName": "Color",
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "colorSelector": {
-            "displayName": "Data Colors",
-            "properties": {
-                "fill": {
-                    "displayName": "Color",
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "generalView": {
-            "displayName": "General View",
-            "properties": {
-                "opacity": {
-                    "displayName": "Bars Opacity",
-                    "type": {
-                        "integer": true
-                    }
-                },
-                "showHelpLink": {
-                    "displayName": "Show Help Button",
-                    "type": {
-                        "bool": true
-                    }
-                }
-            }
-        },
-        "averageLine": {
-            "displayName": "Average Line",
-            "objectCategory": 2,
-            "properties": {
-                "show": {
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "displayName": {
-                    "type": {
-                        "text": true
-                    }
-                },
-                "fill": {
-                    "displayName": "Color",
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "showDataLabel": {
-                    "displayName": "Data label",
-                    "type": {
-                        "bool": true
-                    }
-                }
-            }
-        }
+  "dataRoles": [
+    {
+      "displayName": "Category Data",
+      "name": "category",
+      "kind": "Grouping"
     },
-    "tooltips": {
-        "supportedTypes": {
-            "default": true,
-            "canvas": true
+    {
+      "displayName": "Measure Data",
+      "name": "measure",
+      "kind": "Measure"
+    },
+    {
+      "displayName": "Tooltips",
+      "name": "Tooltips",
+      "kind": "Measure"
+    }
+  ],
+  "dataViewMappings": [
+    {
+      "conditions": [
+        {
+          "category": {
+            "max": 1
+          },
+          "measure": {
+            "max": 1
+          }
+        }
+      ],
+      "categorical": {
+        "categories": {
+          "for": {
+            "in": "category"
+          }
         },
-        "roles": [
-            "Tooltips"
-        ],
-        "supportEnhancedTooltips": true
+        "values": {
+          "select": [
+            {
+              "bind": {
+                "to": "measure"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "objects": {
+    "general": {
+      "properties": {
+        "formatString": {
+          "type": {
+            "formatting": {
+              "formatString": true
+            }
+          }
+        }
+      }
     },
-    "supportsLandingPage": false,
-    "drilldown": {
-        "roles": [
-            "category"
-        ]
+    "enableAxis": {
+      "displayName": "Enable Axis",
+      "properties": {
+        "show": {
+          "displayName": "Enable Axis",
+          "type": {
+            "bool": true
+          }
+        },
+        "fill": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
     },
-    "privileges": []
+    "colorSelector": {
+      "displayName": "Data Colors",
+      "properties": {
+        "fill": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "generalView": {
+      "displayName": "General View",
+      "properties": {
+        "opacity": {
+          "displayName": "Bars Opacity",
+          "type": {
+            "integer": true
+          }
+        },
+        "showHelpLink": {
+          "displayName": "Show Help Button",
+          "type": {
+            "bool": true
+          }
+        }
+      }
+    },
+    "averageLine": {
+      "displayName": "Average Line",
+      "objectCategory": 2,
+      "properties": {
+        "show": {
+          "type": {
+            "bool": true
+          }
+        },
+        "displayName": {
+          "type": {
+            "text": true
+          }
+        },
+        "fill": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "showDataLabel": {
+          "displayName": "Data label",
+          "type": {
+            "bool": true
+          }
+        }
+      }
+    }
+  },
+  "tooltips": {
+    "supportedTypes": {
+      "default": true,
+      "canvas": true
+    },
+    "roles": ["Tooltips"],
+    "supportEnhancedTooltips": true
+  },
+  "supportsLandingPage": false,
+  "drilldown": {
+    "roles": ["category"]
+  },
+  "privileges": []
 }

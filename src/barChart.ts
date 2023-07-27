@@ -343,6 +343,8 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
+        console.log("Options.. : ", options)
+        //we can find formatString in "options.dataViews[0].categorical.values[0].objects"
         let viewModel: BarChartViewModel = visualTransform(options, this.host);
         let settings = this.barChartSettings = viewModel.settings;
         this.barDataPoints = viewModel.dataPoints;
