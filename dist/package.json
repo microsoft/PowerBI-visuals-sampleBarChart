@@ -1,0 +1,17 @@
+{
+		"version": "3.2.0",
+		"author": {"name":"Safia Khan","email":"like.programming@gmail.com"},
+		"resources": [
+			{
+				"resourceId": "rId0",
+				"sourceType": 5,
+				"file": "resources/PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166.pbiviz.json"
+			}
+		],
+		"visual": {"name":"Bar Chart","displayName":"barChart","guid":"PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166","visualClassName":"BarChart","version":"3.2.0","description":"Bar Chart Custom Visual","supportUrl":"like.programming@gmail.co","gitHubUrl":""},
+		"metadata": {
+			"pbivizjson": {
+				"resourceId": "rId0"
+			}
+		}
+	}

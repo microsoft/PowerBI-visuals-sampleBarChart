@@ -5,14 +5,14 @@
     "guid": "PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166",
     "visualClassName": "BarChart",
     "version": "3.2.0",
-    "description": "Sample bar chart",
-    "supportUrl": "pbicvsupport@microsoft.com",
+    "description": "Bar Chart Custom Visual",
+    "supportUrl": "like.programming@gmail.co",
     "gitHubUrl": ""
   },
   "apiVersion": "3.8.0",
   "author": {
-    "name": "Author name",
-    "email": "author@mail.com"
+    "name": "Safia Khan",
+    "email": "like.programming@gmail.com"
   },
   "assets": {
     "icon": "assets/icon.png"
