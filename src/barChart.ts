@@ -70,6 +70,7 @@ interface BarChartDataPoint {
     strokeColor: string;
     strokeWidth: number;
     selectionId: ISelectionId;
+    format: string;
 }
 
 /**
@@ -191,6 +192,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             selectionId,
             value: dataValue.values[i],
             category: `${category.values[i]}`,
+            format: <string>dataValue.objects[i].general.formatString,
         });
     }
 
@@ -622,10 +624,11 @@ export class BarChart implements IVisual {
     }
 
     private getTooltipData(value: any): VisualTooltipDataItem[] {
+        const formattedValue = valueFormatter.format(value.value, value.format);
         let language = getLocalizedString(this.locale, "LanguageKey");
         return [{
             displayName: value.category,
-            value: value.value.toString(),
+            value: formattedValue,
             color: value.color,
             header: language && "displayed language " + language
         }];
