@@ -1,6 +1,6 @@
 import { Resources } from "./localizationHelper";
 
-export let localizedResources: Resources = {};
+export const localizedResources: Resources = {};
 localizedResources["LanguageKey"] = {
     defaultValue: "English(English)",
     localization: {
