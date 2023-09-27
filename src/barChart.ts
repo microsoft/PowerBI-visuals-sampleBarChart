@@ -151,7 +151,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
     const dataValue = categorical.values[0];
 
     const barChartDataPoints: BarChartDataPoint[] = [];
-    let dataMax: number;
+    let dataMax: number = 0;
 
     const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
     const objects = dataViews[0].metadata.objects;
@@ -195,7 +195,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             format: <string>dataValue.objects[i].general.formatString,
         });
     }
-
+    
     dataMax = <number>dataValue.maxLocal;
 
     return {
@@ -505,7 +505,7 @@ export class BarChart implements IVisual {
                 .style("stroke-opacity", opacity);
             return;
         }
-
+        // eslint-disable-next-line
         const self: this = this;
 
         selection.each(function (barDataPoint: BarChartDataPoint) {
