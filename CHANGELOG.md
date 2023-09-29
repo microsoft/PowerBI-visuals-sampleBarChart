@@ -2,6 +2,12 @@
 
 This page contains information about changes to the 'Sample bar chart' Power BI visual.
 
+## 4.0.0
+
+* Added *dynamic format* feature support
+* Migrated to ESlint
+* Updated dependencies
+
 ## 3.2.0
 
 * Added *modern tooltip* feature

@@ -70,7 +70,7 @@ interface BarChartDataPoint {
     strokeColor: string;
     strokeWidth: number;
     selectionId: ISelectionId;
-    format: string;
+    format?: string;
 }
 
 /**
@@ -192,7 +192,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             selectionId,
             value: dataValue.values[i],
             category: `${category.values[i]}`,
-            format: <string>dataValue.objects[i].general.formatString,
+            format: dataValue.objects ? <string>dataValue.objects[i].general.formatString : null,
         });
     }
     
