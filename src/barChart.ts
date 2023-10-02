@@ -1,9 +1,12 @@
 import "./../style/visual.less";
 import {
-    select as d3Select
+    select as d3Select,
+    Selection as d3Selection,
+    BaseType
 } from "d3-selection";
 import {
     scaleLinear,
+    ScaleLinear,
     scaleBand
 } from "d3-scale";
 
@@ -12,8 +15,7 @@ import { axisBottom } from "d3-axis";
 import powerbiVisualsApi from "powerbi-visuals-api";
 import powerbi = powerbiVisualsApi;
 
-type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
-import ScaleLinear = d3.ScaleLinear;
+type Selection<T1, T2 = T1> = d3Selection<any, T1, any, T2>;
 
 // powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
@@ -195,7 +197,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             format: dataValue.objects ? <string>dataValue.objects[i].general.formatString : null,
         });
     }
-    
+
     dataMax = <number>dataValue.maxLocal;
 
     return {
@@ -279,7 +281,7 @@ export class BarChart implements IVisual {
     private LandingPage: Selection<any>;
     private averageLine: Selection<SVGElement>;
 
-    private barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
+    private barSelection: Selection<any>;
 
     static Config = {
         xScalePadding: 0.1,
@@ -345,8 +347,6 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        console.log("Options.. : ", options)
-        //we can find formatString in "options.dataViews[0].categorical.values[0].objects"
         const viewModel: BarChartViewModel = visualTransform(options, this.host);
         const settings = this.barChartSettings = viewModel.settings;
         this.barDataPoints = viewModel.dataPoints;
@@ -429,16 +429,13 @@ export class BarChart implements IVisual {
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
-        barSelectionMerged.on('click', (event) => {
+        barSelectionMerged.on('click', (event: Event, datum: BarChartDataPoint) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.hostCapabilities.allowInteractions) {
                 const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
-                const mouseEvent: MouseEvent = event;
-                const eventTarget: EventTarget = mouseEvent.target;
 
-                const dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
                 this.selectionManager
-                    .select(dataPoint.selectionId, isCtrlPressed)
+                    .select(datum.selectionId, isCtrlPressed)
                     .then((ids: ISelectionId[]) => {
                         this.syncSelectionState(barSelectionMerged, ids);
                     });
@@ -464,7 +461,7 @@ export class BarChart implements IVisual {
         });
     }
 
-    private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
+    private handleClick(barSelection: Selection<any>) {
         // Clear selection when clicking outside a bar
         this.svg.on('click', () => {
             if (this.host.hostCapabilities.allowInteractions) {
@@ -481,7 +478,7 @@ export class BarChart implements IVisual {
         this.svg.on('contextmenu', (event) => {
             const mouseEvent: MouseEvent = event;
             const eventTarget: EventTarget = mouseEvent.target;
-            const dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
+            const dataPoint: any = d3Select(<BaseType>eventTarget).datum();
             this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
                 x: mouseEvent.clientX,
                 y: mouseEvent.clientY

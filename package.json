@@ -10,7 +10,9 @@
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
     },
     "devDependencies": {
-        "@types/d3": "^7.4.0",
+        "@types/d3-axis": "^3.0.4",
+        "@types/d3-scale": "^4.0.5",
+        "@types/d3-selection": "^3.0.7",
         "@typescript-eslint/eslint-plugin": "^6.7.3",
         "@typescript-eslint/parser": "^6.7.3",
         "d3-axis": "^3.0.0",
