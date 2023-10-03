@@ -1,22 +1,21 @@
 import "./../style/visual.less";
 import {
-    event as d3Event,
-    select as d3Select
+    select as d3Select,
+    Selection as d3Selection,
+    BaseType
 } from "d3-selection";
 import {
     scaleLinear,
+    ScaleLinear,
     scaleBand
 } from "d3-scale";
 
 import { axisBottom } from "d3-axis";
 
 import powerbiVisualsApi from "powerbi-visuals-api";
-import "regenerator-runtime/runtime";
 import powerbi = powerbiVisualsApi;
 
-type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
-import ScaleLinear = d3.ScaleLinear;
-const getEvent = () => require("d3-selection").event;
+type Selection<T1, T2 = T1> = d3Selection<any, T1, any, T2>;
 
 // powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
@@ -36,8 +35,8 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
 
-import {createTooltipServiceWrapper, ITooltipServiceWrapper} from "powerbi-visuals-utils-tooltiputils";
-import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
+import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import { textMeasurementService, valueFormatter } from "powerbi-visuals-utils-formattingutils";
 
 import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
 import { getLocalizedString } from "./localization/localizationHelper"
@@ -73,6 +72,7 @@ interface BarChartDataPoint {
     strokeColor: string;
     strokeWidth: number;
     selectionId: ISelectionId;
+    format?: string;
 }
 
 /**
@@ -103,7 +103,7 @@ interface BarChartSettings {
     };
 }
 
-let defaultSettings: BarChartSettings = {
+const defaultSettings: BarChartSettings = {
     enableAxis: {
         show: false,
         fill: "#000000",
@@ -131,8 +131,8 @@ let defaultSettings: BarChartSettings = {
  * @param {IVisualHost} host            - Contains references to the host which contains services
  */
 function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
-    let dataViews = options.dataViews;
-    let viewModel: BarChartViewModel = {
+    const dataViews = options.dataViews;
+    const viewModel: BarChartViewModel = {
         dataPoints: [],
         dataMax: 0,
         settings: <BarChartSettings>{}
@@ -148,19 +148,19 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
         return viewModel;
     }
 
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
+    const categorical = dataViews[0].categorical;
+    const category = categorical.categories[0];
+    const dataValue = categorical.values[0];
 
-    let barChartDataPoints: BarChartDataPoint[] = [];
-    let dataMax: number;
+    const barChartDataPoints: BarChartDataPoint[] = [];
+    let dataMax: number = 0;
 
-    let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
-    let objects = dataViews[0].metadata.objects;
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
+    const objects = dataViews[0].metadata.objects;
 
     const strokeColor: string = getColumnStrokeColor(colorPalette);
 
-    let barChartSettings: BarChartSettings = {
+    const barChartSettings: BarChartSettings = {
         enableAxis: {
             show: getValue<boolean>(objects, 'enableAxis', 'show', defaultSettings.enableAxis.show),
             fill: getAxisTextFillColor(objects, colorPalette, defaultSettings.enableAxis.fill),
@@ -194,6 +194,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
             selectionId,
             value: dataValue.values[i],
             category: `${category.values[i]}`,
+            format: dataValue.objects ? <string>dataValue.objects[i].general.formatString : null,
         });
     }
 
@@ -280,7 +281,7 @@ export class BarChart implements IVisual {
     private LandingPage: Selection<any>;
     private averageLine: Selection<SVGElement>;
 
-    private barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
+    private barSelection: Selection<any>;
 
     static Config = {
         xScalePadding: 0.1,
@@ -346,12 +347,12 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        let viewModel: BarChartViewModel = visualTransform(options, this.host);
-        let settings = this.barChartSettings = viewModel.settings;
+        const viewModel: BarChartViewModel = visualTransform(options, this.host);
+        const settings = this.barChartSettings = viewModel.settings;
         this.barDataPoints = viewModel.dataPoints;
         // Turn on landing page in capabilities and remove comment to turn on landing page!
         // this.HandleLandingPage(options);
-        let width = options.viewport.width;
+        const width = options.viewport.width;
         let height = options.viewport.height;
 
         this.svg
@@ -359,7 +360,7 @@ export class BarChart implements IVisual {
             .attr("height", height);
 
         if (settings.enableAxis.show) {
-            let margins = BarChart.Config.margins;
+            const margins = BarChart.Config.margins;
             height -= margins.bottom;
         }
 
@@ -372,16 +373,16 @@ export class BarChart implements IVisual {
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
             .style("fill", settings.enableAxis.fill);
 
-        let yScale = scaleLinear()
+        const yScale = scaleLinear()
             .domain([0, viewModel.dataMax])
             .range([height, 0]);
 
-        let xScale = scaleBand()
+        const xScale = scaleBand()
             .domain(viewModel.dataPoints.map(d => d.category))
             .rangeRound([0, width])
             .padding(0.2);
 
-        let xAxis = axisBottom(xScale);
+        const xAxis = axisBottom(xScale);
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
             .call(xAxis)
@@ -428,16 +429,17 @@ export class BarChart implements IVisual {
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
-        barSelectionMerged.on('click', (d) => {
+        barSelectionMerged.on('click', (event: Event, datum: BarChartDataPoint) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.hostCapabilities.allowInteractions) {
-                const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
+                const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
+
                 this.selectionManager
-                    .select(d.selectionId, isCtrlPressed)
+                    .select(datum.selectionId, isCtrlPressed)
                     .then((ids: ISelectionId[]) => {
                         this.syncSelectionState(barSelectionMerged, ids);
                     });
-                (<Event>d3Event).stopPropagation();
+                (<Event>event).stopPropagation();
             }
         });
         this.barSelection
@@ -459,9 +461,9 @@ export class BarChart implements IVisual {
         });
     }
 
-    private handleClick(barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>) {
+    private handleClick(barSelection: Selection<any>) {
         // Clear selection when clicking outside a bar
-        this.svg.on('click', (d) => {
+        this.svg.on('click', () => {
             if (this.host.hostCapabilities.allowInteractions) {
                 this.selectionManager
                     .clear()
@@ -473,10 +475,10 @@ export class BarChart implements IVisual {
     }
 
     private handleContextMenu() {
-        this.svg.on('contextmenu', () => {​​
-            const mouseEvent: MouseEvent = getEvent();
+        this.svg.on('contextmenu', (event) => {
+            const mouseEvent: MouseEvent = event;
             const eventTarget: EventTarget = mouseEvent.target;
-            let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
+            const dataPoint: any = d3Select(<BaseType>eventTarget).datum();
             this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
                 x: mouseEvent.clientX,
                 y: mouseEvent.clientY
@@ -500,7 +502,7 @@ export class BarChart implements IVisual {
                 .style("stroke-opacity", opacity);
             return;
         }
-
+        // eslint-disable-next-line
         const self: this = this;
 
         selection.each(function (barDataPoint: BarChartDataPoint) {
@@ -533,8 +535,8 @@ export class BarChart implements IVisual {
      * @param {EnumerateVisualObjectInstancesOptions} options - Map of defined objects
      */
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-        let objectName = options.objectName;
-        let objectEnumeration: VisualObjectInstance[] = [];
+        const objectName = options.objectName;
+        const objectEnumeration: VisualObjectInstance[] = [];
 
         if (!this.barChartSettings ||
             !this.barChartSettings.enableAxis ||
@@ -554,7 +556,7 @@ export class BarChart implements IVisual {
                 });
                 break;
             case 'colorSelector':
-                for (let barDataPoint of this.barDataPoints) {
+                for (const barDataPoint of this.barDataPoints) {
                     objectEnumeration.push({
                         objectName: objectName,
                         displayName: barDataPoint.category,
@@ -603,7 +605,7 @@ export class BarChart implements IVisual {
                     selector: null
                 });
                 break;
-        };
+        }
 
         return objectEnumeration;
     }
@@ -619,17 +621,18 @@ export class BarChart implements IVisual {
     }
 
     private getTooltipData(value: any): VisualTooltipDataItem[] {
-        let language = getLocalizedString(this.locale, "LanguageKey");
+        const formattedValue = valueFormatter.format(value.value, value.format);
+        const language = getLocalizedString(this.locale, "LanguageKey");
         return [{
             displayName: value.category,
-            value: value.value.toString(),
+            value: formattedValue,
             color: value.color,
             header: language && "displayed language " + language
         }];
     }
 
     private createHelpLinkElement(): Element {
-        let linkElement = document.createElement("a");
+        const linkElement = document.createElement("a");
         linkElement.textContent = "?";
         linkElement.setAttribute("title", "Open documentation");
         linkElement.setAttribute("class", "helpLink");
@@ -637,7 +640,7 @@ export class BarChart implements IVisual {
             this.host.launchUrl("https://microsoft.github.io/PowerBI-visuals/tutorials/building-bar-chart/adding-url-launcher-element-to-the-bar-chart/");
         });
         return linkElement;
-    };
+    }
 
     private handleLandingPage(options: VisualUpdateOptions) {
         if (!options.dataViews || !options.dataViews.length) {
@@ -658,12 +661,12 @@ export class BarChart implements IVisual {
     }
 
     private createSampleLandingPage(): Element {
-        let div = document.createElement("div");
+        const div = document.createElement("div");
 
-        let header = document.createElement("h1");
+        const header = document.createElement("h1");
         header.textContent = "Sample Bar Chart Landing Page";
         header.setAttribute("class", "LandingPage");
-        let p1 = document.createElement("a");
+        const p1 = document.createElement("a");
         p1.setAttribute("class", "LandingPageHelpLink");
         p1.textContent = "Learn more about Landing page";
 
@@ -704,11 +707,11 @@ export class BarChart implements IVisual {
     }
 
     private handleAverageLineUpdate(height: number, width: number, yScale: ScaleLinear<number, number>) {
-        let average = this.calculateAverage();
-        let fontSize = Math.min(height, width) * BarChart.Config.xAxisFontMultiplier;
-        let chosenColor = this.getColorValue(this.barChartSettings.averageLine.fill);
+        const average = this.calculateAverage();
+        const fontSize = Math.min(height, width) * BarChart.Config.xAxisFontMultiplier;
+        const chosenColor = this.getColorValue(this.barChartSettings.averageLine.fill);
         // If there's no room to place lable above line, place it below
-        let labelYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
+        const labelYOffset = fontSize * ((yScale(average) > fontSize * 1.5) ? -0.5 : 1.5);
 
         this.averageLine
             .style("font-size", fontSize)

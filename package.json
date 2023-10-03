@@ -1,26 +1,31 @@
 {
     "name": "visual",
-    "version": "3.2.0",
+    "version": "4.0.0",
     "scripts": {
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
         "package": "pbiviz package",
-        "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
+        "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
+        "lint-fix": "npx eslint . --ext .js,.jsx,.ts,.tsx --fix",
         "test": "pbiviz package --resources --no-minify --no-pbiviz"
     },
-    "dependencies": {
-        "regenerator-runtime": "^0.13.9"
-    },
     "devDependencies": {
-        "@types/d3": "5.7.2",
-        "d3": "5.12.0",
-        "powerbi-visuals-api": "^3.8.3",
-        "powerbi-visuals-tools": "^3.3.2",
-        "powerbi-visuals-utils-dataviewutils": "^2.4.1",
-        "powerbi-visuals-utils-formattingutils": "^4.7.1",
-        "powerbi-visuals-utils-interactivityutils": "^5.7.1",
-        "powerbi-visuals-utils-tooltiputils": "^2.5.2",
-        "tslint": "^5.20.1",
-        "tslint-microsoft-contrib": "^6.2.0"
+        "@types/d3-axis": "^3.0.4",
+        "@types/d3-scale": "^4.0.5",
+        "@types/d3-selection": "^3.0.7",
+        "@typescript-eslint/eslint-plugin": "^6.7.3",
+        "@typescript-eslint/parser": "^6.7.3",
+        "d3-axis": "^3.0.0",
+        "d3-scale": "^4.0.2",
+        "d3-selection": "^3.0.0",
+        "eslint": "^8.50.0",
+        "eslint-plugin-powerbi-visuals": "^0.8.1",
+        "powerbi-visuals-api": "~5.4.0",
+        "powerbi-visuals-tools": "^5.1.1",
+        "powerbi-visuals-utils-dataviewutils": "^6.0.1",
+        "powerbi-visuals-utils-formattingutils": "^6.0.1",
+        "powerbi-visuals-utils-interactivityutils": "^6.0.2",
+        "powerbi-visuals-utils-tooltiputils": "^6.0.1",
+        "typescript": "^5.1.6"
     }
 }
