@@ -79,6 +79,67 @@
         }
       }
     },
+    "directEditTest": {
+      "properties": {
+        "show": {
+          "displayName": "Show",
+          "type": {
+            "bool": true
+          }
+        },
+        "textProperty": {
+          "displayName": "Text",
+          "type": {
+            "text": true
+          }
+        },
+        "fontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "fontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "bold": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "italic": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "underline": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "fill": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
+    },
     "colorSelector": {
       "displayName": "Data Colors",
       "properties": {
@@ -149,12 +210,18 @@
       "default": true,
       "canvas": true
     },
-    "roles": ["Tooltips"],
+    "roles": [
+      "Tooltips"
+    ],
     "supportEnhancedTooltips": true
   },
   "supportsLandingPage": false,
+  "supportsOnObjectFormatting": true,
+  "enablePointerEventsFormatMode": true,
   "drilldown": {
-    "roles": ["category"]
+    "roles": [
+      "category"
+    ]
   },
   "privileges": []
 }
