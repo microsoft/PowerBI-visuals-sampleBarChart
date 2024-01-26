@@ -15,7 +15,6 @@ import powerbiVisualsApi from "powerbi-visuals-api";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { textMeasurementService, valueFormatter } from "powerbi-visuals-utils-formattingutils";
-import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableTypeAttribute } from '../node_modules/powerbi-visuals-utils-onobjectformatting/src';
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
@@ -48,8 +47,8 @@ import VisualShortcutType = powerbi.visuals.VisualShortcutType;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
-import SliceFormattingModelReference = powerbi.visuals.SliceFormattingModelReference
 import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
+import FormattingId = powerbi.visuals.FormattingId;
 
 
 /**
@@ -75,47 +74,98 @@ export interface BarChartDataPoint {
     format?: string;
 }
 
-interface SliceReferences {
+interface References {
     cardUid?: string;
     groupUid?: string;
-    fillSliceUid?: string;
-    fontSliceUid?: string;
-    fontColorSliceUid?: string;
+    fill?: FormattingId;
+    font?: FormattingId;
+    fontColor?: FormattingId;
+    show?: FormattingId;
+    fontFamily?: FormattingId;
+    bold?: FormattingId;
+    italic?: FormattingId;
+    underline?: FormattingId;
+    fontSize?: FormattingId;
+    position?: FormattingId;
+    textProperty?: FormattingId;
 }
 
 const enum BarChartObjectNames {
     ArcElement = 'arcElement',
     ColorSelector = 'colorSelector',
     EnableAxis = 'enableAxis',
-    DirectEdit = 'directEditTest'
+    DirectEdit = 'directEdit'
 }
 
 const DirectEdit: SubSelectableDirectEdit = {
     reference: {
-        cardUid: 'Visual-directEditTest-card',
-        groupUid: 'directEditTest-group',
-        sliceUid: 'directEditTest-textProperty',
+        objectName: 'directEdit',
+        propertyName: 'textProperty'
     },
     style: SubSelectableDirectEditStyle.Outline,
 };
 
-const colorSelectorReferences: SliceReferences = {
+const colorSelectorReferences: References = {
     cardUid: 'Visual-colorSelector-card',
     groupUid: 'colorSelector-group',
-    fillSliceUid: 'colorSelector-fill'
+    fill: {
+        objectName: `${BarChartObjectNames.ColorSelector}`,
+        propertyName: 'fill'
+    }
 };
 
-const enableAxisReferences: SliceReferences = {
+const enableAxisReferences: References = {
     cardUid: 'Visual-enableAxis-card',
     groupUid: 'enableAxis-group',
-    fillSliceUid: 'enableAxis-fill'
+    fill: {
+        objectName: `${BarChartObjectNames.EnableAxis}`,
+        propertyName: 'fill'
+    },
+    show: {
+        objectName: `${BarChartObjectNames.EnableAxis}`,
+        propertyName: 'show'
+    }
 };
 
-const directEditReferences: SliceReferences = {
-    cardUid: 'Visual-directEditTest-card',
-    groupUid: 'directEditTest-group',
-    fontSliceUid: 'directEditTest-font',
-    fontColorSliceUid: 'directEditTest-fontColor'
+const directEditReferences: References = {
+    cardUid: 'Visual-directEdit-card',
+    groupUid: 'directEdit-group',
+    fontFamily: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'fontFamily'
+    },
+    bold: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'bold'
+    },
+    italic: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'italic'
+    },
+    underline: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'underline'
+    },
+    fontSize: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'fontSize'
+    },
+    fontColor: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'fontColor'
+    },
+    show: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'show'
+    },
+    position: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'position'
+    },
+    textProperty: {
+        objectName: BarChartObjectNames.DirectEdit,
+        propertyName: 'textProperty'
+    }
 };
 
 /**
@@ -250,7 +300,6 @@ export class BarChart implements IVisual {
     private svg: Selection<any>;
     private tooltipServiceWrapper: ITooltipServiceWrapper;
     private xAxis: Selection<SVGElement>;
-
     private barSelection: Selection<any>;
 
     private subSelectionHelper: HtmlSubSelectionHelper;
@@ -370,15 +419,18 @@ export class BarChart implements IVisual {
         this.directEditElement
             .classed('direct-edit', true)
             .classed('hidden', !this.formattingSettings.directEditSettings.show.value)
-            .attr(SubSelectableObjectNameAttribute, 'directEditTest')
+            .classed(HtmlSubSelectableClass, options.formatMode && this.formattingSettings.directEditSettings.show.value)
+            .attr(SubSelectableObjectNameAttribute, 'directEdit')
             .attr(SubSelectableDisplayNameAttribute, 'Direct Edit')
             .attr(SubSelectableDirectEditAttr, this.visualDirectEditSubSelection)
-            .classed(HtmlSubSelectableClass, options.formatMode && this.formattingSettings.directEditSettings.show.value)
             .style('font-family', this.formattingSettings.directEditSettings.font.fontFamily.value)
             .style('color', this.formattingSettings.directEditSettings.fontColor.value.value)
             .style('font-style', this.formattingSettings.directEditSettings.font.italic.value ? 'italic' : 'normal')
             .style('text-decoration', this.formattingSettings.directEditSettings.font.underline.value ? 'underline' : 'none')
             .style('font-weight', this.formattingSettings.directEditSettings.font.bold.value ? 'bold' : 'normal')
+            .style('right', this.formattingSettings.directEditSettings.position.value.value === 'Right' ? '12px' : '60px')
+            .style('background-color', this.formattingSettings.directEditSettings.background.value.value)
+            .style('font-size', `${this.formattingSettings.directEditSettings.font.fontSize.value}px`)
             .text(this.formattingSettings.directEditSettings.textProperty.value);
 
         this.xAxis
@@ -426,14 +478,14 @@ export class BarChart implements IVisual {
 
         const opacity: number = this.formattingSettings.generalView.opacity.value / 100;
         barSelectionMerged
+            .attr(SubSelectableObjectNameAttribute, 'colorSelector')
+            .attr(SubSelectableDisplayNameAttribute, (dataPoint: BarChartDataPoint) => this.formattingSettings.colorSelector.slices[dataPoint.index].displayName)
+            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
+            .classed(HtmlSubSelectableClass, options.formatMode)
             .attr("width", xScale.bandwidth())
             .attr("height", d => height - yScale(<number>d.value))
             .attr("y", d => yScale(<number>d.value))
             .attr("x", d => xScale(d.category))
-            .attr(SubSelectableObjectNameAttribute, 'colorSelector')
-            .attr(SubSelectableDisplayNameAttribute, d => `colorSelector-${d.index}`)
-            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
-            .classed(HtmlSubSelectableClass, options.formatMode)
             .style("fill-opacity", opacity)
             .style("stroke-opacity", opacity)
             .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
@@ -449,7 +501,7 @@ export class BarChart implements IVisual {
             barSelectionMerged,
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
-        if (this.formatMode) {
+        if (this.formatMode) {// disabling
             barSelectionMerged.on('click', null);
             this.svg.on('click', null);
             this.svg.on('contextmenu', null);
@@ -612,42 +664,28 @@ export class BarChart implements IVisual {
         return [
             {
                 type: VisualShortcutType.Reset,
-                relatedResetSourceUids: [{
-                    sourceUid: colorSelectorReferences.fillSliceUid,
+                relatedResetFormattingIds: [{
+                    ...colorSelectorReferences.fill,
                     selector
-                }]
+                }],
             },
             {
                 type: VisualShortcutType.Navigate,
-                destinationUids: [{ cardUid: colorSelectorReferences.cardUid }],
-                label: 'colorlabel'
+                destinationInfo: { cardUid: colorSelectorReferences.cardUid },
+                label: 'Color'
             }
         ];
     }
 
     private getColorSelectorStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles {
-        const cardUid = colorSelectorReferences.cardUid;
-        const groupUid = colorSelectorReferences.groupUid;
-        const sliceUid = colorSelectorReferences.fillSliceUid;
         const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
         return {
             type: SubSelectionStylesType.Shape,
             fill: {
-                label: 'Visual_Fill',
+                label: 'Fill',
                 reference: {
-                    cardUid,
-                    groupUid,
-                    sliceUid,
-                    selector,
-                },
-            },
-            color: {
-                label: 'Visual_Color',
-                reference: {
-                    cardUid,
-                    groupUid,
-                    sliceUid,
-                    selector,
+                    ...colorSelectorReferences.fill,
+                    selector
                 },
             },
         };
@@ -658,9 +696,7 @@ export class BarChart implements IVisual {
             type: SubSelectionStylesType.Shape,
             fill: {
                 reference: {
-                    cardUid: enableAxisReferences.cardUid,
-                    groupUid: enableAxisReferences.groupUid,
-                    sliceUid: enableAxisReferences.fillSliceUid
+                    ...enableAxisReferences.fill
                 },
                 label: 'Enable Axis'
             }
@@ -671,23 +707,25 @@ export class BarChart implements IVisual {
         return [
             {
                 type: VisualShortcutType.Reset,
-                relatedResetSourceUids: [{
-                    sourceUid: enableAxisReferences.fillSliceUid,
-
+                relatedResetFormattingIds: [{
+                    ...enableAxisReferences.fill,
+                }],
+                excludedResetFormattingIds: [{
+                    ...enableAxisReferences.show,
                 }]
             },
             {
                 type: VisualShortcutType.Toggle,
-                sourceUid: enableAxisReferences.cardUid,
+                relatedToggledFormattingIds: [{
+                    ...enableAxisReferences.show
+                }],
+                ...enableAxisReferences.show,
                 disabledLabel: 'Delete',
-                keyboardShortcuts: [{
-                    key: 'Delete',
-                    nextValue: false,
-                }]
+                enabledLabel: 'Delete'
             },
             {
                 type: VisualShortcutType.Navigate,
-                destinationUids: [{ cardUid: enableAxisReferences.cardUid }],
+                destinationInfo: { cardUid: enableAxisReferences.cardUid },
                 label: 'EnableAxis'
             }
         ];
@@ -697,49 +735,83 @@ export class BarChart implements IVisual {
         return [
             {
                 type: VisualShortcutType.Reset,
-                relatedResetSourceUids: [{
-                    sourceUid: directEditReferences.fontSliceUid,
-                }]
+                relatedResetFormattingIds: [
+                    directEditReferences.bold,
+                    directEditReferences.fontFamily,
+                    directEditReferences.fontSize,
+                    directEditReferences.italic,
+                    directEditReferences.underline,
+                    directEditReferences.fontColor,
+                    directEditReferences.textProperty
+                ]
             },
             {
                 type: VisualShortcutType.Toggle,
-                sourceUid: directEditReferences.cardUid,
+                relatedToggledFormattingIds: [{
+                    ...directEditReferences.show,
+                }],
+                ...directEditReferences.show,
                 disabledLabel: 'Delete',
-                keyboardShortcuts: [{
-                    key: 'Delete',
-                    nextValue: false,
-                }]
+
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...directEditReferences.position,
+                label: 'Position'
             },
             {
                 type: VisualShortcutType.Navigate,
-                destinationUids: [{ cardUid: directEditReferences.cardUid }],
+                destinationInfo: { cardUid: directEditReferences.cardUid },
                 label: 'Direct edit'
             }
         ];
     }
 
     private getDirectEditStyles(): SubSelectionStyles {
-        const fontReference: powerbi.visuals.SliceFormattingModelReference = {
-            cardUid: directEditReferences.cardUid,
-            groupUid: directEditReferences.groupUid,
-            sliceUid: directEditReferences.fontSliceUid,
-        };
-
-        const fontColorReference: powerbi.visuals.SliceFormattingModelReference = {
-            cardUid: directEditReferences.cardUid,
-            groupUid: directEditReferences.groupUid,
-            sliceUid: directEditReferences.fontColorSliceUid,
-        };
-
         return {
             type: powerbi.visuals.SubSelectionStylesType.Text,
-            font: {
-                reference: fontReference,
+            fontFamily: {
+                reference: {
+                    ...directEditReferences.fontFamily
+                },
+                label: 'font'
+            },
+            bold: {
+                reference: {
+                    ...directEditReferences.bold
+                },
+                label: 'font'
+            },
+            italic: {
+                reference: {
+                    ...directEditReferences.italic
+                },
+                label: 'font'
+            },
+            underline: {
+                reference: {
+                    ...directEditReferences.underline
+                },
+                label: 'font'
+            },
+            fontSize: {
+                reference: {
+                    ...directEditReferences.fontSize
+                },
                 label: 'font'
             },
             fontColor: {
-                reference: fontColorReference,
+                reference: {
+                    ...directEditReferences.fontColor
+                },
                 label: 'fontColor'
+            },
+            background: {
+                reference: {
+                    objectName: 'directEdit',
+                    propertyName: 'background'
+                },
+                label: 'background'
             }
         };
     }
