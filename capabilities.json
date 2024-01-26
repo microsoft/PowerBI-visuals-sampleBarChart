@@ -79,7 +79,7 @@
         }
       }
     },
-    "directEditTest": {
+    "directEdit": {
       "properties": {
         "show": {
           "displayName": "Show",
@@ -109,33 +109,45 @@
         },
         "bold": {
           "type": {
-            "formatting": {
-              "fontSize": true
-            }
+            "bool": true
           }
         },
         "italic": {
           "type": {
-            "formatting": {
-              "fontSize": true
-            }
+            "bool": true
           }
         },
         "underline": {
           "type": {
-            "formatting": {
-              "fontSize": true
-            }
+            "bool": true
           }
         },
-        "fill": {
-          "displayName": "Color",
+        "fontColor": {
+          "displayName": "Font Color",
           "type": {
             "fill": {
               "solid": {
                 "color": true
               }
             }
+          }
+        },
+        "background": {
+          "displayName": "Background",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "position": {
+          "displayName": "Position",
+          "type": {
+            "enumeration": [
+              { "displayName": "Left", "value": "Left" }, { "displayName": "Right", "value": "Right" }
+            ]
           }
         }
       }
@@ -205,6 +217,8 @@
       }
     }
   },
+  "supportsOnObjectFormatting": true,
+  "enablePointerEventsFormatMode": true,
   "tooltips": {
     "supportedTypes": {
       "default": true,
@@ -216,8 +230,6 @@
     "supportEnhancedTooltips": true
   },
   "supportsLandingPage": false,
-  "supportsOnObjectFormatting": true,
-  "enablePointerEventsFormatMode": true,
   "drilldown": {
     "roles": [
       "category"
