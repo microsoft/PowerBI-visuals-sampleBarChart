@@ -87,7 +87,7 @@ class AverageLineCardSettings extends Card {
 
 class DirectEditSettings extends Card {
     displayName = 'Direct Edit';
-    name = 'directEditTest';
+    name = 'directEdit';
     private minFontSize: number = 8;
     private defaultFontSize: number = 11;
     show = new formattingSettings.ToggleSwitch({
@@ -96,7 +96,7 @@ class DirectEditSettings extends Card {
         value: true,
     });
 
-    topLevelSlice = this.show
+    topLevelSlice = this.show;
     textProperty = new formattingSettings.TextInput({
         displayName: "Text Property",
         name: "textProperty",
@@ -104,18 +104,23 @@ class DirectEditSettings extends Card {
         placeholder: ""
     });
 
+    position = new formattingSettings.ItemDropdown({
+        name: 'position',
+        items: [{ displayName: 'Left', value: 'Left' }, { displayName: 'Right', value: 'Right' }],
+        value: { displayName: 'Right', value: 'Right' }
+    });
+
     font = new formattingSettings.FontControl({
         name: "font",
         displayName: 'Font',
-        //displayNameKey: "Visual_Font",
         fontFamily: new formattingSettings.FontPicker({
             name: "fontFamily",
-            displayName: "Visual_Font_Family",
+            displayName: "Font Family",
             value: "Segoe UI, wf_segoe-ui_normal, helvetica, arial, sans-serif"
         }),
         fontSize: new formattingSettings.NumUpDown({
             name: "fontSize",
-            displayName: "Visual_Font_Size",
+            displayName: "Font Size",
             value: this.defaultFontSize,
             options: {
                 minValue: {
@@ -126,27 +131,32 @@ class DirectEditSettings extends Card {
         }),
         bold: new formattingSettings.ToggleSwitch({
             name: 'bold',
-            displayName: "Visual_Font_Size",
+            displayName: "bold",
             value: true
         }),
         italic: new formattingSettings.ToggleSwitch({
             name: 'italic',
-            displayName: "Visual_Font_Size",
+            displayName: "italic",
             value: true
         }),
         underline: new formattingSettings.ToggleSwitch({
             name: 'underline',
-            displayName: "Visual_Font_Size",
+            displayName: "underline",
             value: true
         })
     });
 
     fontColor = new formattingSettings.ColorPicker({
-        name: "fill",
+        name: "fontColor",
         displayName: "Color",
         value: { value: "#000000" }
     });
-    slices = [this.show, this.textProperty, this.font, this.fontColor];
+    background = new formattingSettings.ColorPicker({
+        name: "background",
+        displayName: "Color",
+        value: { value: "#FFFFFF" }
+    });
+    slices = [this.show, this.textProperty, this.font, this.fontColor, this.background, this.position];
 }
 
 /**
@@ -178,4 +188,3 @@ export class BarChartSettingsModel extends Model {
         }
     }
 }
-//"4.7.1",
