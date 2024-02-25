@@ -15,7 +15,10 @@ import powerbiVisualsApi from "powerbi-visuals-api";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { textMeasurementService, valueFormatter } from "powerbi-visuals-utils-formattingutils";
-import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableTypeAttribute } from '../node_modules/powerbi-visuals-utils-onobjectformatting/src';
+import {
+    HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDirectEdit as SubSelectableDirectEditAttr,
+    SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableTypeAttribute
+} from 'powerbi-visuals-utils-onobjectutils';
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localization/localizationHelper"
