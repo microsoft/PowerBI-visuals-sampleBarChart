@@ -515,9 +515,9 @@ export class BarChart implements IVisual {
         }
 
         this.subSelectionHelper.setFormatMode(options.formatMode);
-        const shouldUpdateSubSelection = options.type & powerbi.VisualUpdateType.Data
-            || options.type & powerbi.VisualUpdateType.Resize
-            || options.type & powerbi.VisualUpdateType.FormattingSubSelectionChange;
+        const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
+            | powerbi.VisualUpdateType.Resize
+            | powerbi.VisualUpdateType.FormattingSubSelectionChange);
         if (this.formatMode && shouldUpdateSubSelection) {
             this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
         }
@@ -552,7 +552,7 @@ export class BarChart implements IVisual {
                     .then((ids: ISelectionId[]) => {
                         this.syncSelectionState(barSelectionMerged, ids);
                     });
-                (<Event>event).stopPropagation();
+                event.stopPropagation();
             }
         });
     }
