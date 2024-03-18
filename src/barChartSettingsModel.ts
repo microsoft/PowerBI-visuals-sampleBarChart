@@ -20,7 +20,7 @@ class EnableAxisCardSettings extends Card {
     topLevelSlice = this.show;
     name: string = "enableAxis";
     displayName: string = "Enable Axis";
-    slices = [this.show, this.fill];
+    slices = [this.fill];
 }
 
 
@@ -90,6 +90,7 @@ class DirectEditSettings extends Card {
     name = 'directEdit';
     private minFontSize: number = 8;
     private defaultFontSize: number = 11;
+    private positionOptions: powerbiVisualsApi.IEnumMember[] = [{ displayName: 'Right', value: 'Right' }, { displayName: 'Left', value: 'Left' }]
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -106,8 +107,9 @@ class DirectEditSettings extends Card {
 
     position = new formattingSettings.ItemDropdown({
         name: 'position',
-        items: [{ displayName: 'Left', value: 'Left' }, { displayName: 'Right', value: 'Right' }],
-        value: { displayName: 'Right', value: 'Right' }
+        displayName: 'Position',
+        items: this.positionOptions,
+        value: this.positionOptions[0]
     });
 
     font = new formattingSettings.FontControl({
@@ -153,10 +155,10 @@ class DirectEditSettings extends Card {
     });
     background = new formattingSettings.ColorPicker({
         name: "background",
-        displayName: "Color",
+        displayName: "Background Color",
         value: { value: "#FFFFFF" }
     });
-    slices = [this.show, this.textProperty, this.font, this.fontColor, this.background, this.position];
+    slices = [this.textProperty, this.font, this.fontColor, this.background, this.position];
 }
 
 /**
@@ -175,7 +177,7 @@ export class BarChartSettingsModel extends Model {
      * @param dataPoints 
      */
     populateColorSelector(dataPoints: BarChartDataPoint[]) {
-        let slices: formattingSettings.ColorPicker[] = this.colorSelector.slices;
+        const slices: formattingSettings.ColorPicker[] = this.colorSelector.slices;
         if (dataPoints) {
             dataPoints.forEach(dataPoint => {
                 slices.push(new formattingSettings.ColorPicker({

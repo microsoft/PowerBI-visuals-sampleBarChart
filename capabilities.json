@@ -59,16 +59,13 @@
       }
     },
     "enableAxis": {
-      "displayName": "Enable Axis",
       "properties": {
         "show": {
-          "displayName": "Enable Axis",
           "type": {
             "bool": true
           }
         },
         "fill": {
-          "displayName": "Color",
           "type": {
             "fill": {
               "solid": {
@@ -82,13 +79,11 @@
     "directEdit": {
       "properties": {
         "show": {
-          "displayName": "Show",
           "type": {
             "bool": true
           }
         },
         "textProperty": {
-          "displayName": "Text",
           "type": {
             "text": true
           }
@@ -123,7 +118,6 @@
           }
         },
         "fontColor": {
-          "displayName": "Font Color",
           "type": {
             "fill": {
               "solid": {
@@ -133,7 +127,6 @@
           }
         },
         "background": {
-          "displayName": "Background",
           "type": {
             "fill": {
               "solid": {
@@ -143,20 +136,22 @@
           }
         },
         "position": {
-          "displayName": "Position",
           "type": {
             "enumeration": [
-              { "displayName": "Left", "value": "Left" }, { "displayName": "Right", "value": "Right" }
+              {
+                "value": "Left"
+              },
+              {
+                "value": "Right"
+              }
             ]
           }
         }
       }
     },
     "colorSelector": {
-      "displayName": "Data Colors",
       "properties": {
         "fill": {
-          "displayName": "Color",
           "type": {
             "fill": {
               "solid": {
@@ -168,16 +163,13 @@
       }
     },
     "generalView": {
-      "displayName": "General View",
       "properties": {
         "opacity": {
-          "displayName": "Bars Opacity",
           "type": {
             "integer": true
           }
         },
         "showHelpLink": {
-          "displayName": "Show Help Button",
           "type": {
             "bool": true
           }
@@ -185,7 +177,6 @@
       }
     },
     "averageLine": {
-      "displayName": "Average Line",
       "objectCategory": 2,
       "properties": {
         "show": {
@@ -199,7 +190,6 @@
           }
         },
         "fill": {
-          "displayName": "Color",
           "type": {
             "fill": {
               "solid": {
@@ -209,7 +199,6 @@
           }
         },
         "showDataLabel": {
-          "displayName": "Data label",
           "type": {
             "bool": true
           }

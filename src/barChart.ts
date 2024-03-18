@@ -43,7 +43,6 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
 import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
-import SubSelectionShortcutsKey = powerbi.visuals.SubSelectionShortcutsKey;
 import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
@@ -380,7 +379,7 @@ export class BarChart implements IVisual {
 
         this.visualOnObjectFormatting = {
             getSubSelectionStyles: (subSelections) => this.getSubSelectionStyles(subSelections),
-            getSubSelectionShortcuts: (subSelections, filter) => this.getSubSelectionShortcuts(subSelections, filter),
+            getSubSelectionShortcuts: (subSelections) => this.getSubSelectionShortcuts(subSelections),
             getSubSelectables: (filter) => this.getSubSelectables(filter)
         };
 
@@ -419,23 +418,7 @@ export class BarChart implements IVisual {
             .style("border-color", this.formattingSettings.generalView.helpLinkColor)
             .style("color", this.formattingSettings.generalView.helpLinkColor);
 
-        this.directEditElement
-            .classed('direct-edit', true)
-            .classed('hidden', !this.formattingSettings.directEditSettings.show.value)
-            .classed(HtmlSubSelectableClass, options.formatMode && this.formattingSettings.directEditSettings.show.value)
-            .attr(SubSelectableObjectNameAttribute, 'directEdit')
-            .attr(SubSelectableDisplayNameAttribute, 'Direct Edit')
-            .attr(SubSelectableDirectEditAttr, this.visualDirectEditSubSelection)
-            .style('font-family', this.formattingSettings.directEditSettings.font.fontFamily.value)
-            .style('color', this.formattingSettings.directEditSettings.fontColor.value.value)
-            .style('font-style', this.formattingSettings.directEditSettings.font.italic.value ? 'italic' : 'normal')
-            .style('text-decoration', this.formattingSettings.directEditSettings.font.underline.value ? 'underline' : 'none')
-            .style('font-weight', this.formattingSettings.directEditSettings.font.bold.value ? 'bold' : 'normal')
-            .style('right', this.formattingSettings.directEditSettings.position.value.value === 'Right' ? '12px' : '60px')
-            .style('background-color', this.formattingSettings.directEditSettings.background.value.value)
-            .style('font-size', `${this.formattingSettings.directEditSettings.font.fontSize.value}px`)
-            .text(this.formattingSettings.directEditSettings.textProperty.value);
-
+        this.updateDirectEditElementFormat();
         this.xAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value);
@@ -504,14 +487,10 @@ export class BarChart implements IVisual {
             barSelectionMerged,
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
-        if (this.formatMode) {// disabling
-            barSelectionMerged.on('click', null);
-            this.svg.on('click', null);
-            this.svg.on('contextmenu', null);
+        if (this.formatMode) {
+            this.removeEventHandlers(barSelectionMerged);
         } else {
-            this.handleBarClick(barSelectionMerged);
-            this.handleClick(barSelectionMerged);
-            this.handleContextMenu();
+            this.addEventHandlers(barSelectionMerged);
         }
 
         this.subSelectionHelper.setFormatMode(options.formatMode);
@@ -528,6 +507,36 @@ export class BarChart implements IVisual {
         this.handleClick(barSelectionMerged);
     }
 
+    private removeEventHandlers(barSelectionMerged: d3Selection<SVGRectElement, any, any, any>) {
+        barSelectionMerged.on('click', null);
+        this.svg.on('click', null);
+        this.svg.on('contextmenu', null);
+    }
+
+    private addEventHandlers(barSelectionMerged: d3Selection<SVGRectElement, any, any, any>) {
+        this.handleBarClick(barSelectionMerged);
+        this.handleClick(barSelectionMerged);
+        this.handleContextMenu();
+    }
+
+    private updateDirectEditElementFormat() {
+        this.directEditElement
+            .classed('direct-edit', true)
+            .classed('hidden', !this.formattingSettings.directEditSettings.show.value)
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.directEditSettings.show.value)
+            .attr(SubSelectableObjectNameAttribute, 'directEdit')
+            .attr(SubSelectableDisplayNameAttribute, 'Direct Edit')
+            .attr(SubSelectableDirectEditAttr, this.visualDirectEditSubSelection)
+            .style('font-family', this.formattingSettings.directEditSettings.font.fontFamily.value)
+            .style('color', this.formattingSettings.directEditSettings.fontColor.value.value)
+            .style('font-style', this.formattingSettings.directEditSettings.font.italic.value ? 'italic' : 'normal')
+            .style('text-decoration', this.formattingSettings.directEditSettings.font.underline.value ? 'underline' : 'none')
+            .style('font-weight', this.formattingSettings.directEditSettings.font.bold.value ? 'bold' : 'normal')
+            .style('right', this.formattingSettings.directEditSettings.position.value.value === 'Right' ? '12px' : '60px')
+            .style('background-color', this.formattingSettings.directEditSettings.background.value.value)
+            .style('font-size', `${this.formattingSettings.directEditSettings.font.fontSize.value}px`)
+            .text(this.formattingSettings.directEditSettings.textProperty.value);
+    }
     private static wordBreak(
         textNodes: Selection<any, SVGElement>,
         allowedWidth: number,
@@ -645,7 +654,7 @@ export class BarChart implements IVisual {
             }
         }
     }
-    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[], filter: SubSelectionShortcutsKey | undefined): VisualSubSelectionShortcuts | undefined {
+    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
         if (visualObject) {
             switch (visualObject.objectName) {
@@ -821,14 +830,15 @@ export class BarChart implements IVisual {
 
     public selectionIdCallback(e: Element): ISelectionId {
         const elementType: string = d3Select(e).attr(SubSelectableObjectNameAttribute);
+        let selectionId: ISelectionId = undefined;
 
         switch (elementType) {
             case BarChartObjectNames.ColorSelector:
-                const datum = d3Select<Element, BarChartDataPoint>(e).datum();
-                return datum.selectionId;
-            default:
-                return undefined;
+                selectionId = d3Select<Element, BarChartDataPoint>(e).datum().selectionId;
+                break;
         }
+
+        return selectionId;
     }
 
     private creatDirectEditElement(): Element {
