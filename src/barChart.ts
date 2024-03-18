@@ -111,7 +111,7 @@ const colorSelectorReferences: References = {
     cardUid: 'Visual-colorSelector-card',
     groupUid: 'colorSelector-group',
     fill: {
-        objectName: `${BarChartObjectNames.ColorSelector}`,
+        objectName: BarChartObjectNames.ColorSelector,
         propertyName: 'fill'
     }
 };
@@ -120,11 +120,11 @@ const enableAxisReferences: References = {
     cardUid: 'Visual-enableAxis-card',
     groupUid: 'enableAxis-group',
     fill: {
-        objectName: `${BarChartObjectNames.EnableAxis}`,
+        objectName: BarChartObjectNames.EnableAxis,
         propertyName: 'fill'
     },
     show: {
-        objectName: `${BarChartObjectNames.EnableAxis}`,
+        objectName: BarChartObjectNames.EnableAxis,
         propertyName: 'show'
     }
 };

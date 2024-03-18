@@ -26,10 +26,11 @@ interface BarChartDataPoint {
 `colorPalette` is a service that manages the colors used on your visual. An instance of it is available on `IVisualHost`.
 
 ## Assigning Color to Data Points
-We defined `createSelectorDataPoints` as a construct to convert options `dataView` Bar Chart data points that will be used in visual view.
+We defined `createSelectorDataPoints` as a construct to convert  options `dataView` to Bar Chart data points that will be used in visual view.
 Since we iterate through the data points in `createSelectorDataPoints` it is also the ideal place to assign colors.
 
 ```typescript
+
 function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
     let barChartDataPoints: BarChartDataPoint[] = []
     const dataViews = options.dataViews;
