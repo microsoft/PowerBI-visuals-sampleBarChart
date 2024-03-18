@@ -114,6 +114,7 @@ const directEditReferences: References = {
 ```
 
 implement the `VisualOnObjectFormatting` methods
+Note: When providing a selector, make sure that it is the same selector as provided for the formatting model.
 ```typescript
     private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): powerbi.visuals.SubSelectionStyles | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
