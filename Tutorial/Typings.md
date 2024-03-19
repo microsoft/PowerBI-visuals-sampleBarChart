@@ -1,8 +1,7 @@
 # Installing Typings for d3
 Installing typings will give you access to d3 types so you can utilize typescript types.
-See [commit](https://github.com/Microsoft/PowerBI-visuals-sampleBarChart/commit/2bb0f64718864a27e7d4b9c5b1d35d267bba6202) for what was added at this step.
 
-For a more indepth details about typings, visit their repo. [Typings Documentation](https://github.com/typings/typings)
+For a more in depth details about typings, visit their repo. [Typings Documentation](https://github.com/typings/typings)
 
 ## Install Typings CLI
 In order to use typings in your project, you must first install typings to your computer. This is a one time installation.

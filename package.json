@@ -1,6 +1,6 @@
 {
     "name": "visual",
-    "version": "4.0.0",
+    "version": "4.1.0.0",
     "scripts": {
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
@@ -20,12 +20,16 @@
         "d3-selection": "^3.0.0",
         "eslint": "^8.50.0",
         "eslint-plugin-powerbi-visuals": "^0.8.1",
-        "powerbi-visuals-api": "~5.4.0",
-        "powerbi-visuals-tools": "^5.1.1",
+        "powerbi-visuals-api": "~5.8.0",
+        "powerbi-visuals-tools": "^5.3.0",
         "powerbi-visuals-utils-dataviewutils": "^6.0.1",
+        "powerbi-visuals-utils-formattingmodel": "6.0.0",
         "powerbi-visuals-utils-formattingutils": "^6.0.1",
         "powerbi-visuals-utils-interactivityutils": "^6.0.2",
         "powerbi-visuals-utils-tooltiputils": "^6.0.1",
         "typescript": "^5.1.6"
+    },
+    "dependencies": {
+        "powerbi-visuals-utils-onobjectutils": "^6.0.1"
     }
 }

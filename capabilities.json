@@ -59,16 +59,13 @@
       }
     },
     "enableAxis": {
-      "displayName": "Enable Axis",
       "properties": {
         "show": {
-          "displayName": "Enable Axis",
           "type": {
             "bool": true
           }
         },
         "fill": {
-          "displayName": "Color",
           "type": {
             "fill": {
               "solid": {
@@ -79,11 +76,82 @@
         }
       }
     },
+    "directEdit": {
+      "properties": {
+        "show": {
+          "type": {
+            "bool": true
+          }
+        },
+        "textProperty": {
+          "type": {
+            "text": true
+          }
+        },
+        "fontFamily": {
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "fontSize": {
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "bold": {
+          "type": {
+            "bool": true
+          }
+        },
+        "italic": {
+          "type": {
+            "bool": true
+          }
+        },
+        "underline": {
+          "type": {
+            "bool": true
+          }
+        },
+        "fontColor": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "background": {
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "position": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "Left"
+              },
+              {
+                "value": "Right"
+              }
+            ]
+          }
+        }
+      }
+    },
     "colorSelector": {
-      "displayName": "Data Colors",
       "properties": {
         "fill": {
-          "displayName": "Color",
           "type": {
             "fill": {
               "solid": {
@@ -95,16 +163,13 @@
       }
     },
     "generalView": {
-      "displayName": "General View",
       "properties": {
         "opacity": {
-          "displayName": "Bars Opacity",
           "type": {
             "integer": true
           }
         },
         "showHelpLink": {
-          "displayName": "Show Help Button",
           "type": {
             "bool": true
           }
@@ -112,7 +177,6 @@
       }
     },
     "averageLine": {
-      "displayName": "Average Line",
       "objectCategory": 2,
       "properties": {
         "show": {
@@ -126,7 +190,6 @@
           }
         },
         "fill": {
-          "displayName": "Color",
           "type": {
             "fill": {
               "solid": {
@@ -136,7 +199,6 @@
           }
         },
         "showDataLabel": {
-          "displayName": "Data label",
           "type": {
             "bool": true
           }
@@ -144,17 +206,23 @@
       }
     }
   },
+  "supportsOnObjectFormatting": true,
+  "enablePointerEventsFormatMode": true,
   "tooltips": {
     "supportedTypes": {
       "default": true,
       "canvas": true
     },
-    "roles": ["Tooltips"],
+    "roles": [
+      "Tooltips"
+    ],
     "supportEnhancedTooltips": true
   },
   "supportsLandingPage": false,
   "drilldown": {
-    "roles": ["category"]
+    "roles": [
+      "category"
+    ]
   },
   "privileges": []
 }

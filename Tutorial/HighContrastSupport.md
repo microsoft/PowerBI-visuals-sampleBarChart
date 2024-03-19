@@ -65,7 +65,7 @@ In Sample Bar Chart, for example, all bars are drawn with 2 pixels thick foregro
 ![Sample Bar Chart using *Dark #2* color theme](images/HC_sampleBarChart_dark2.png)
 ![Sample Bar Chart using *White* color theme](images/HC_sampleBarChart_white.png)
 
-Here is one place in the `visualTransform` function that was changed to support high-contrast, it is called as part of rendering during `update`:
+Here is one place in the `createSelectorDataPoints` function that was changed to support high-contrast, it is called as part of rendering during `update`:
 
 **before**
 ```typescript
@@ -89,6 +89,11 @@ Here is one place in the `visualTransform` function that was changed to support 
 
 **after**
 ```typescript
+   
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
+    const strokeColor: string = getColumnStrokeColor(colorPalette);
+    const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
+
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
         const color: string = getColumnColorByIndex(category, i, colorPalette);
 
@@ -126,8 +131,3 @@ Here is one place in the `visualTransform` function that was changed to support 
         return getCategoricalObjectValue<Fill>(category, index, 'colorSelector', 'fill', defaultColor).solid.color;
     }
 ```
-
-
-
-
-
