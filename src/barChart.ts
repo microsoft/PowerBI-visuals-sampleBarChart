@@ -38,9 +38,11 @@ import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility"
  * Interface for BarChart data points.
  *
  * @interface
- * @property {number} value             - Data value for point.
+ * @property {PrimitiveValue} value     - Data value for point.
  * @property {string} category          - Corresponding category of data value.
  * @property {string} color             - Color corresponding to data point.
+ * @property {string} strokeColor       - Stroke color for data point column.
+ * @property {number} strokeWidth       - Stroke width for data point column.
  * @property {ISelectionId} selectionId - Id assigned to data point for cross filtering
  *                                        and visual interaction.
  */
