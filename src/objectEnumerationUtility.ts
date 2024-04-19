@@ -16,9 +16,9 @@ import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
  */
 export function getValue<T>(objects: DataViewObjects, objectName: string, propertyName: string, defaultValue: T): T {
     if (objects) {
-        let object = objects[objectName];
+        const object = objects[objectName];
         if (object) {
-            let property: T = <T>object[propertyName];
+            const property: T = <T>object[propertyName];
             if (property !== undefined) {
                 return property;
             }
@@ -38,14 +38,14 @@ export function getValue<T>(objects: DataViewObjects, objectName: string, proper
  * @param {T} defaultValue                  - Default value of desired property.
  */
 export function getCategoricalObjectValue<T>(category: DataViewCategoryColumn, index: number, objectName: string, propertyName: string, defaultValue: T): T {
-    let categoryObjects = category.objects;
+    const categoryObjects = category.objects;
 
     if (categoryObjects) {
-        let categoryObject: DataViewObject = categoryObjects[index];
+        const categoryObject: DataViewObject = categoryObjects[index];
         if (categoryObject) {
-            let object = categoryObject[objectName];
+            const object = categoryObject[objectName];
             if (object) {
-                let property: T = <T>object[propertyName];
+                const property: T = <T>object[propertyName];
                 if (property !== undefined) {
                     return property;
                 }

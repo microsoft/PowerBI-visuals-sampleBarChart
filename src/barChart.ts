@@ -66,7 +66,7 @@ export interface BarChartDataPoint {
  */
 function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
     const barChartDataPoints: BarChartDataPoint[] = []
-    let dataViews = options.dataViews;
+    const dataViews = options.dataViews;
 
     if (!dataViews
         || !dataViews[0]
@@ -78,11 +78,11 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
         return barChartDataPoints;
     }
 
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
+    const categorical = dataViews[0].categorical;
+    const category = categorical.categories[0];
+    const dataValue = categorical.values[0];
 
-    let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
 
     const strokeColor: string = getColumnStrokeColor(colorPalette);
 
@@ -229,7 +229,7 @@ export class BarChart implements IVisual {
         this.barDataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.barDataPoints);
 
-        let width = options.viewport.width;
+        const width = options.viewport.width;
         let height = options.viewport.height;
 
         this.svg
@@ -237,7 +237,7 @@ export class BarChart implements IVisual {
             .attr("height", height);
 
         if (this.formattingSettings.enableAxis.show.value) {
-            let margins = BarChart.Config.margins;
+            const margins = BarChart.Config.margins;
             height -= margins.bottom;
         }
 
@@ -245,16 +245,16 @@ export class BarChart implements IVisual {
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value);
 
-        let yScale = scaleLinear()
+        const yScale = scaleLinear()
             .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
             .range([height, 0]);
 
-        let xScale = scaleBand()
+        const xScale = scaleBand()
             .domain(this.barDataPoints.map(d => d.category))
             .rangeRound([0, width])
             .padding(0.2);
 
-        let xAxis = axisBottom(xScale);
+        const xAxis = axisBottom(xScale);
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
