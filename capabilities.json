@@ -74,20 +74,5 @@
             }
         }
     },
-    "tooltips": {
-        "supportedTypes": {
-            "default": true,
-            "canvas": true
-        },
-        "roles": [
-            "Tooltips"
-        ]
-    },
-    "supportsLandingPage": false,
-    "drilldown": {
-        "roles": [
-            "category"
-        ]
-    },
     "privileges": []
 }
