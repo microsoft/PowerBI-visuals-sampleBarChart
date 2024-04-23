@@ -137,14 +137,7 @@
         },
         "position": {
           "type": {
-            "enumeration": [
-              {
-                "value": "Left"
-              },
-              {
-                "value": "Right"
-              }
-            ]
+            "enumeration": []
           }
         }
       }
