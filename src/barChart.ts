@@ -13,9 +13,7 @@ import "./../style/visual.less";
 
 import { Axis, axisBottom } from "d3-axis";
 
-import powerbiVisualsApi from "powerbi-visuals-api";
-
-import powerbi = powerbiVisualsApi;
+import powerbi from "powerbi-visuals-api";
 
 type Selection<T extends BaseType> = d3Selection<T, any, any, any>;
 
@@ -29,13 +27,13 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
 
 import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { dataViewObjects} from "powerbi-visuals-utils-dataviewutils"; 
-import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
 
 /**
  * Interface for BarChart data points.
