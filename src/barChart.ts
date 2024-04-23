@@ -21,7 +21,6 @@ type Selection<T extends BaseType> = d3Selection<T, any, any, any>;
 
 // powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
-import DataViewObjects = powerbi.DataViewObjects;
 import Fill = powerbi.Fill;
 import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColorPalette;
 import ISelectionId = powerbi.visuals.ISelectionId;
@@ -35,7 +34,8 @@ import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
-import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
+import { dataViewObjects} from "powerbi-visuals-utils-dataviewutils"; 
+import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
 
 /**
  * Interface for BarChart data points.
@@ -126,13 +126,17 @@ function getColumnColorByIndex(
         }
     };
 
-    return getCategoricalObjectValue<Fill>(
-        category,
-        index,
-        'colorSelector',
-        'fill',
-        defaultColor
-    ).solid.color;
+    const prop: DataViewObjectPropertyIdentifier = {
+        objectName: "colorSelector",
+        propertyName: "fill"
+    };
+
+    let colorFromObjects: Fill;
+    if(category.objects?.[index]){
+        colorFromObjects = dataViewObjects.getValue(category?.objects[index], prop);
+    }
+
+    return colorFromObjects?.solid.color ?? defaultColor.solid.color;
 }
 
 function getColumnStrokeColor(colorPalette: ISandboxExtendedColorPalette): string {
@@ -145,27 +149,6 @@ function getColumnStrokeWidth(isHighContrast: boolean): number {
     return isHighContrast
         ? 2
         : 0;
-}
-
-function getAxisTextFillColor(
-    objects: DataViewObjects,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        "enableAxis",
-        "fill",
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
 }
 
 export class BarChart implements IVisual {
@@ -259,14 +242,9 @@ export class BarChart implements IVisual {
 
         const xAxis: Axis<string> = axisBottom(xScale);
 
-        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
             .call(xAxis)
-            .attr("color", getAxisTextFillColor(
-                colorObjects,
-                this.host.colorPalette,
-                this.formattingSettings.enableAxis.fill.value.value
-            ));
+            .attr("color", this.formattingSettings.enableAxis.fill.value.value);
 
         const textNodes: Selection<SVGElement> = this.xAxis.selectAll("text");
         BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
