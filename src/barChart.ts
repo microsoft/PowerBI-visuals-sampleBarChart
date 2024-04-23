@@ -1,21 +1,24 @@
 import {
-    scaleBand, scaleLinear
-} from "d3-scale";
-import {
-    select as d3Select
+    BaseType,
+    select as d3Select,
+    Selection as d3Selection
 } from "d3-selection";
+import {
+    ScaleBand,
+    ScaleLinear,
+    scaleBand,
+    scaleLinear
+} from "d3-scale";
 import "./../style/visual.less";
 
-import { axisBottom } from "d3-axis";
+import { Axis, axisBottom } from "d3-axis";
 
-import powerbiVisualsApi from "powerbi-visuals-api";
-import "regenerator-runtime/runtime";
-import powerbi = powerbiVisualsApi;
+import powerbi from "powerbi-visuals-api";
 
-type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
+type Selection<T extends BaseType> = d3Selection<T, any, any, any>;
 
+// powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
-import DataViewObjects = powerbi.DataViewObjects;
 import Fill = powerbi.Fill;
 import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColorPalette;
 import ISelectionId = powerbi.visuals.ISelectionId;
@@ -24,37 +27,27 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
 
 import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 
-
-import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
-import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
-
-/**
- * Interface for BarCharts viewmodel.
- *
- * @interface
- * @property {BarChartDataPoint[]} dataPoints - Set of data points the visual will render.
- * @property {number} dataMax                 - Maximum data value in the set of data points.
- */
-interface BarChartViewModel {
-    dataPoints: BarChartDataPoint[];
-    dataMax: number;
-    settings: BarChartSettings;
-}
+import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { dataViewObjects} from "powerbi-visuals-utils-dataviewutils"; 
 
 /**
  * Interface for BarChart data points.
  *
  * @interface
- * @property {number} value             - Data value for point.
+ * @property {PrimitiveValue} value     - Data value for point.
  * @property {string} category          - Corresponding category of data value.
  * @property {string} color             - Color corresponding to data point.
+ * @property {string} strokeColor       - Stroke color for data point column.
+ * @property {number} strokeWidth       - Stroke width for data point column.
  * @property {ISelectionId} selectionId - Id assigned to data point for cross filtering
  *                                        and visual interaction.
  */
-interface BarChartDataPoint {
+export interface BarChartDataPoint {
     value: PrimitiveValue;
     category: string;
     color: string;
@@ -62,26 +55,6 @@ interface BarChartDataPoint {
     strokeWidth: number;
     selectionId: ISelectionId;
 }
-
-/**
- * Interface for BarChart settings.
- *
- * @interface
- * @property {{show:boolean}} enableAxis - Object property that allows axis to be enabled.
-*/
-interface BarChartSettings {
-    enableAxis: {
-        show: boolean;
-        fill: string;
-    };
-}
-
-let defaultSettings: BarChartSettings = {
-    enableAxis: {
-        show: false,
-        fill: "#000000",
-    }
-};
 
 /**
  * Function that converts queried data into a view model that will be used by the visual.
@@ -92,13 +65,9 @@ let defaultSettings: BarChartSettings = {
  *                                        the visual had queried.
  * @param {IVisualHost} host            - Contains references to the host which contains services
  */
-function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarChartViewModel {
-    let dataViews = options.dataViews;
-    let viewModel: BarChartViewModel = {
-        dataPoints: [],
-        dataMax: 0,
-        settings: <BarChartSettings>{}
-    };
+function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
+    const barChartDataPoints: BarChartDataPoint[] = []
+    const dataViews = options.dataViews;
 
     if (!dataViews
         || !dataViews[0]
@@ -107,27 +76,16 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values
     ) {
-        return viewModel;
+        return barChartDataPoints;
     }
 
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
+    const categorical = dataViews[0].categorical;
+    const category = categorical.categories[0];
+    const dataValue = categorical.values[0];
 
-    let barChartDataPoints: BarChartDataPoint[] = [];
-    let dataMax: number;
-
-    let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
-    let objects = dataViews[0].metadata.objects;
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
 
     const strokeColor: string = getColumnStrokeColor(colorPalette);
-
-    let barChartSettings: BarChartSettings = {
-        enableAxis: {
-            show: getValue<boolean>(objects, 'enableAxis', 'show', defaultSettings.enableAxis.show),
-            fill: getAxisTextFillColor(objects, colorPalette, defaultSettings.enableAxis.fill),
-        }
-    };
 
     const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
 
@@ -148,13 +106,7 @@ function visualTransform(options: VisualUpdateOptions, host: IVisualHost): BarCh
         });
     }
 
-    dataMax = <number>dataValue.maxLocal;
-
-    return {
-        dataPoints: barChartDataPoints,
-        dataMax: dataMax,
-        settings: barChartSettings,
-    };
+    return barChartDataPoints;
 }
 
 function getColumnColorByIndex(
@@ -172,13 +124,17 @@ function getColumnColorByIndex(
         }
     };
 
-    return getCategoricalObjectValue<Fill>(
-        category,
-        index,
-        'colorSelector',
-        'fill',
-        defaultColor
-    ).solid.color;
+    const prop: DataViewObjectPropertyIdentifier = {
+        objectName: "colorSelector",
+        propertyName: "fill"
+    };
+
+    let colorFromObjects: Fill;
+    if(category.objects?.[index]){
+        colorFromObjects = dataViewObjects.getValue(category?.objects[index], prop);
+    }
+
+    return colorFromObjects?.solid.color ?? defaultColor.solid.color;
 }
 
 function getColumnStrokeColor(colorPalette: ISandboxExtendedColorPalette): string {
@@ -193,36 +149,16 @@ function getColumnStrokeWidth(isHighContrast: boolean): number {
         : 0;
 }
 
-function getAxisTextFillColor(
-    objects: DataViewObjects,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        "enableAxis",
-        "fill",
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
-}
-
 export class BarChart implements IVisual {
-    private svg: Selection<any>;
+    private svg: Selection<SVGSVGElement>;
     private host: IVisualHost;
     private barContainer: Selection<SVGElement>;
-    private xAxis: Selection<SVGElement>;
+    private xAxis: Selection<SVGGElement>;
     private barDataPoints: BarChartDataPoint[];
-    private barChartSettings: BarChartSettings;
+    private formattingSettings: BarChartSettingsModel;
+    private formattingSettingsService: FormattingSettingsService;
 
-    private barSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
+    private barSelection: Selection<BaseType>;
 
     static Config = {
         xScalePadding: 0.1,
@@ -247,6 +183,9 @@ export class BarChart implements IVisual {
      */
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
+        //Creating the formatting settings service.
+        const localizationManager = this.host.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(localizationManager);
 
         this.svg = d3Select(options.element)
             .append('svg')
@@ -270,47 +209,42 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        let viewModel: BarChartViewModel = visualTransform(options, this.host);
-        let settings = this.barChartSettings = viewModel.settings;
-        this.barDataPoints = viewModel.dataPoints;
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews?.[0]);
+        this.barDataPoints = createSelectorDataPoints(options, this.host);
+        this.formattingSettings.populateColorSelector(this.barDataPoints);
 
-        let width = options.viewport.width;
+        const width = options.viewport.width;
         let height = options.viewport.height;
 
         this.svg
             .attr("width", width)
             .attr("height", height);
 
-        if (settings.enableAxis.show) {
-            let margins = BarChart.Config.margins;
+        if (this.formattingSettings.enableAxis.show.value) {
+            const margins = BarChart.Config.margins;
             height -= margins.bottom;
         }
 
         this.xAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
-            .style("fill", settings.enableAxis.fill);
+            .style("fill", this.formattingSettings.enableAxis.fill.value.value);
 
-        let yScale = scaleLinear()
-            .domain([0, viewModel.dataMax])
+        const yScale: ScaleLinear<number, number> = scaleLinear()
+            .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
             .range([height, 0]);
 
-        let xScale = scaleBand()
-            .domain(viewModel.dataPoints.map(d => d.category))
+        const xScale: ScaleBand<string> = scaleBand()
+            .domain(this.barDataPoints.map(d => d.category))
             .rangeRound([0, width])
             .padding(0.2);
 
-        let xAxis = axisBottom(xScale);
+        const xAxis: Axis<string> = axisBottom(xScale);
 
-        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
             .call(xAxis)
-            .attr("color", getAxisTextFillColor(
-                colorObjects,
-                this.host.colorPalette,
-                defaultSettings.enableAxis.fill
-            ));
+            .attr("color", this.formattingSettings.enableAxis.fill.value.value);
 
-        const textNodes = this.xAxis.selectAll("text")
+        const textNodes: Selection<SVGElement> = this.xAxis.selectAll("text");
         BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
 
         this.barSelection = this.barContainer
@@ -326,9 +260,9 @@ export class BarChart implements IVisual {
 
         barSelectionMerged
             .attr("width", xScale.bandwidth())
-            .attr("height", d => height - yScale(<number>d.value))
-            .attr("y", d => yScale(<number>d.value))
-            .attr("x", d => xScale(d.category))
+            .attr("height", (dataPoint: BarChartDataPoint) => height - yScale(<number>dataPoint.value))
+            .attr("y", (dataPoint: BarChartDataPoint) => yScale(<number>dataPoint.value))
+            .attr("x", (dataPoint: BarChartDataPoint) => xScale(dataPoint.category))
             .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
             .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
             .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
@@ -336,11 +270,10 @@ export class BarChart implements IVisual {
         this.barSelection
             .exit()
             .remove();
-
     }
 
     private static wordBreak(
-        textNodes: Selection<any, SVGElement>,
+        textNodes: Selection<SVGElement>,
         allowedWidth: number,
         maxHeight: number
     ) {
@@ -353,97 +286,6 @@ export class BarChart implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
-
-        const enableAxisCard: powerbi.visuals.FormattingCard = {
-            displayName: "Enable Axis",
-            uid: "enableAxisCard_uid",
-            topLevelToggle: {
-                uid: "enableAxisCard_topLevelToggle_showToggleSwitch_uid",
-                suppressDisplayName: true,
-                control: {
-                    type: powerbi.visuals.FormattingComponent.ToggleSwitch,
-                    properties: {
-                        descriptor: {
-                            objectName: "enableAxis",
-                            propertyName: "show"
-                        },
-                        value: this.barChartSettings.enableAxis.show
-                    }
-                }
-            },
-            groups: [{
-                displayName: undefined,
-                uid: "enableAxisCard_group1_uid",
-                slices: [
-                    {
-                        uid: "enableAxisCard_group1_fill_uid",
-                        displayName: "Color",
-                        control: {
-                            type: powerbi.visuals.FormattingComponent.ColorPicker,
-                            properties: {
-                                descriptor: {
-                                    objectName: "enableAxis",
-                                    propertyName: "fill"
-                                },
-                                value: { value: this.barChartSettings.enableAxis.fill }
-                            }
-                        }
-                    }
-                ],
-            }],
-            revertToDefaultDescriptors: [
-                {
-                    objectName: "enableAxis",
-                    propertyName: "show"
-                },
-                {
-                    objectName: "enableAxis",
-                    propertyName: "fill"
-                }
-            ]
-        };
-
-        const colorSelectorCard: powerbi.visuals.FormattingCard = {
-            displayName: "Data Colors",
-            uid: "dataColorsCard_uid",
-            groups: [{
-                displayName: undefined,
-                uid: "dataColorsCard_group_uid",
-
-                slices: [],
-            }]
-        };
-
-        if (this.barDataPoints) {
-            let indx = 1;
-            this.barDataPoints.forEach(dataPoint => {
-                (colorSelectorCard.groups[0] as powerbi.visuals.FormattingGroup).slices.push(
-                    {
-                        uid: `dataColorsCard_group_colorSelector${indx}_uid`,
-                        displayName: dataPoint.category,
-                        control: {
-                            type: powerbi.visuals.FormattingComponent.ColorPicker,
-                            properties: {
-                                descriptor: {
-                                    objectName: "colorSelector",
-                                    propertyName: "fill",
-                                    selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
-                                    altConstantValueSelector: dataPoint.selectionId.getSelector(),
-                                    instanceKind: powerbi.VisualEnumerationInstanceKinds.ConstantOrRule
-                                },
-                                value: { value: dataPoint.color }
-                            }
-                        }
-                    });
-            });
-
-            colorSelectorCard.revertToDefaultDescriptors = [
-                {
-                    objectName: "colorSelector",
-                    propertyName: "fill"
-                }
-            ]
-        }
-        return { cards: [enableAxisCard, colorSelectorCard] };
+        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 }
