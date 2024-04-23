@@ -6,29 +6,28 @@ import {
 import {
     scaleBand,
     scaleLinear,
-    ScaleLinear
+    ScaleLinear,
+    ScaleBand
 } from "d3-scale";
 
-import { axisBottom } from "d3-axis";
+import { Axis, axisBottom } from "d3-axis";
 
-import powerbiVisualsApi from "powerbi-visuals-api";
+import powerbi from "powerbi-visuals-api";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { textMeasurementService, valueFormatter } from "powerbi-visuals-utils-formattingutils";
 import {
     HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDirectEdit as SubSelectableDirectEditAttr,
     SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableTypeAttribute
-} from 'powerbi-visuals-utils-onobjectutils';
+} from "powerbi-visuals-utils-onobjectutils";
+import { dataViewObjects} from "powerbi-visuals-utils-dataviewutils";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localization/localizationHelper"
-import { getValue, getCategoricalObjectValue } from "./objectEnumerationUtility";
 
 import "./../style/visual.less";
 
-import powerbi = powerbiVisualsApi;
-
-type Selection<T1, T2 = T1> = d3Selection<any, T1, any, T2>;
+type Selection<T1 extends BaseType, T2 = any> = d3Selection<T1, T2, any, any>;
 
 // powerbi.visuals
 import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
@@ -45,6 +44,7 @@ import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
 import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
 import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
@@ -93,80 +93,80 @@ interface References {
 }
 
 const enum BarChartObjectNames {
-    ArcElement = 'arcElement',
-    ColorSelector = 'colorSelector',
-    EnableAxis = 'enableAxis',
-    DirectEdit = 'directEdit'
+    ArcElement = "arcElement",
+    ColorSelector = "colorSelector",
+    EnableAxis = "enableAxis",
+    DirectEdit = "directEdit"
 }
 
 const DirectEdit: SubSelectableDirectEdit = {
     reference: {
-        objectName: 'directEdit',
-        propertyName: 'textProperty'
+        objectName: "directEdit",
+        propertyName: "textProperty"
     },
     style: SubSelectableDirectEditStyle.Outline,
 };
 
 const colorSelectorReferences: References = {
-    cardUid: 'Visual-colorSelector-card',
-    groupUid: 'colorSelector-group',
+    cardUid: "Visual-colorSelector-card",
+    groupUid: "colorSelector-group",
     fill: {
         objectName: BarChartObjectNames.ColorSelector,
-        propertyName: 'fill'
+        propertyName: "fill"
     }
 };
 
 const enableAxisReferences: References = {
-    cardUid: 'Visual-enableAxis-card',
-    groupUid: 'enableAxis-group',
+    cardUid: "Visual-enableAxis-card",
+    groupUid: "enableAxis-group",
     fill: {
         objectName: BarChartObjectNames.EnableAxis,
-        propertyName: 'fill'
+        propertyName: "fill"
     },
     show: {
         objectName: BarChartObjectNames.EnableAxis,
-        propertyName: 'show'
+        propertyName: "show"
     }
 };
 
 const directEditReferences: References = {
-    cardUid: 'Visual-directEdit-card',
-    groupUid: 'directEdit-group',
+    cardUid: "Visual-directEdit-card",
+    groupUid: "directEdit-group",
     fontFamily: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'fontFamily'
+        propertyName: "fontFamily"
     },
     bold: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'bold'
+        propertyName: "bold"
     },
     italic: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'italic'
+        propertyName: "italic"
     },
     underline: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'underline'
+        propertyName: "underline"
     },
     fontSize: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'fontSize'
+        propertyName: "fontSize"
     },
     fontColor: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'fontColor'
+        propertyName: "fontColor"
     },
     show: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'show'
+        propertyName: "show"
     },
     position: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'position'
+        propertyName: "position"
     },
     textProperty: {
         objectName: BarChartObjectNames.DirectEdit,
-        propertyName: 'textProperty'
+        propertyName: "textProperty"
     }
 };
 
@@ -243,13 +243,17 @@ function getColumnColorByIndex(
         }
     };
 
-    return getCategoricalObjectValue<Fill>(
-        category,
-        index,
-        'colorSelector',
-        'fill',
-        defaultColor
-    ).solid.color;
+    const prop: DataViewObjectPropertyIdentifier = {
+        objectName: "colorSelector",
+        propertyName: "fill"
+    };
+
+    let colorFromObjects: Fill;
+    if(category.objects?.[index]){
+        colorFromObjects = dataViewObjects.getValue(category?.objects[index], prop);
+    }
+
+    return colorFromObjects?.solid.color ?? defaultColor.solid.color;
 }
 
 function getColumnStrokeColor(colorPalette: ISandboxExtendedColorPalette): string {
@@ -262,27 +266,6 @@ function getColumnStrokeWidth(isHighContrast: boolean): number {
     return isHighContrast
         ? 2
         : 0;
-}
-
-function getAxisTextFillColor(
-    objects: DataViewObjects,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        "enableAxis",
-        "fill",
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
 }
 
 export class BarChart implements IVisual {
@@ -299,14 +282,14 @@ export class BarChart implements IVisual {
     private LandingPageRemoved: boolean;
     private locale: string;
     private selectionManager: ISelectionManager;
-    private svg: Selection<any>;
+    private svg: Selection<SVGSVGElement>;
     private tooltipServiceWrapper: ITooltipServiceWrapper;
-    private xAxis: Selection<SVGElement>;
-    private barSelection: Selection<any>;
+    private xAxis: Selection<SVGGElement>;
+    private barSelection: Selection<BaseType, BarChartDataPoint>;
 
     private subSelectionHelper: HtmlSubSelectionHelper;
     private formatMode: boolean = false;
-    private directEditElement: Selection<SVGElement>;
+    private directEditElement: Selection<Element>;
     private visualDirectEditSubSelection = JSON.stringify(DirectEdit);
     public visualOnObjectFormatting?: powerbi.extensibility.visual.VisualOnObjectFormatting;
 
@@ -354,16 +337,16 @@ export class BarChart implements IVisual {
         });
 
         this.svg = d3Select(options.element)
-            .append('svg')
-            .classed('barChart', true);
+            .append("svg")
+            .classed("barChart", true);
 
         this.barContainer = this.svg
-            .append('g')
-            .classed('barContainer', true);
+            .append("g")
+            .classed("barContainer", true);
 
         this.xAxis = this.svg
-            .append('g')
-            .classed('xAxis', true);
+            .append("g")
+            .classed("xAxis", true);
 
         this.initAverageLine();
 
@@ -423,55 +406,50 @@ export class BarChart implements IVisual {
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value);
 
-        const yScale = scaleLinear()
+        const yScale: ScaleLinear<number, number> = scaleLinear()
             .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
             .range([height, 0]);
 
-        const xScale = scaleBand()
+        const xScale: ScaleBand<string> = scaleBand()
             .domain(this.barDataPoints.map(d => d.category))
             .rangeRound([0, width])
             .padding(0.2);
 
-        const xAxis = axisBottom(xScale);
-        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
-        this.xAxis.attr('transform', 'translate(0, ' + height + ')')
+        const xAxis: Axis<string> = axisBottom(xScale);
+        this.xAxis.attr("transform", "translate(0, " + height + ")")
             .call(xAxis)
-            .attr("color", getAxisTextFillColor(
-                colorObjects,
-                this.host.colorPalette,
-                this.formattingSettings.enableAxis.fill.value.value
-            ));
+            .attr("color", this.formattingSettings.enableAxis.fill.value.value);
 
-        const textNodes = this.xAxis.selectAll("text");
+        const textNodes: Selection<SVGElement> = this.xAxis.selectAll("text");
         textNodes
-            .attr(SubSelectableObjectNameAttribute, 'enableAxis')
-            .attr(SubSelectableDisplayNameAttribute, 'x-Axis')
+            .attr(SubSelectableObjectNameAttribute, "enableAxis")
+            .attr(SubSelectableDisplayNameAttribute, "x-Axis")
             .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
             .classed(HtmlSubSelectableClass, options.formatMode && this.formattingSettings.enableAxis.show.value);
         BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
         this.handleAverageLineUpdate(height, width, yScale);
 
         this.barSelection = this.barContainer
-            .selectAll('.bar')
+            .selectAll(".bar")
             .data(this.barDataPoints);
 
         const barSelectionMerged = this.barSelection
             .enter()
-            .append('rect')
+            .append("rect")
             .merge(<any>this.barSelection);
 
-        barSelectionMerged.classed('bar', true);
+        barSelectionMerged.classed("bar", true);
 
         const opacity: number = this.formattingSettings.generalView.opacity.value / 100;
         barSelectionMerged
-            .attr(SubSelectableObjectNameAttribute, 'colorSelector')
+            .attr(SubSelectableObjectNameAttribute, "colorSelector")
             .attr(SubSelectableDisplayNameAttribute, (dataPoint: BarChartDataPoint) => this.formattingSettings.colorSelector.slices[dataPoint.index].displayName)
             .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
             .classed(HtmlSubSelectableClass, options.formatMode)
             .attr("width", xScale.bandwidth())
-            .attr("height", d => height - yScale(<number>d.value))
-            .attr("y", d => yScale(<number>d.value))
-            .attr("x", d => xScale(d.category))
+            .attr("height", (dataPoint: BarChartDataPoint) => height - yScale(<number>dataPoint.value))
+            .attr("y", (dataPoint: BarChartDataPoint) => yScale(<number>dataPoint.value))
+            .attr("x", (dataPoint: BarChartDataPoint) => xScale(dataPoint.category))
             .style("fill-opacity", opacity)
             .style("stroke-opacity", opacity)
             .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
@@ -508,9 +486,9 @@ export class BarChart implements IVisual {
     }
 
     private removeEventHandlers(barSelectionMerged: d3Selection<SVGRectElement, any, any, any>) {
-        barSelectionMerged.on('click', null);
-        this.svg.on('click', null);
-        this.svg.on('contextmenu', null);
+        barSelectionMerged.on("click", null);
+        this.svg.on("click", null);
+        this.svg.on("contextmenu", null);
     }
 
     private addEventHandlers(barSelectionMerged: d3Selection<SVGRectElement, any, any, any>) {
@@ -521,24 +499,24 @@ export class BarChart implements IVisual {
 
     private updateDirectEditElementFormat() {
         this.directEditElement
-            .classed('direct-edit', true)
-            .classed('hidden', !this.formattingSettings.directEditSettings.show.value)
+            .classed("direct-edit", true)
+            .classed("hidden", !this.formattingSettings.directEditSettings.show.value)
             .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.directEditSettings.show.value)
-            .attr(SubSelectableObjectNameAttribute, 'directEdit')
-            .attr(SubSelectableDisplayNameAttribute, 'Direct Edit')
+            .attr(SubSelectableObjectNameAttribute, "directEdit")
+            .attr(SubSelectableDisplayNameAttribute, "Direct Edit")
             .attr(SubSelectableDirectEditAttr, this.visualDirectEditSubSelection)
-            .style('font-family', this.formattingSettings.directEditSettings.font.fontFamily.value)
-            .style('color', this.formattingSettings.directEditSettings.fontColor.value.value)
-            .style('font-style', this.formattingSettings.directEditSettings.font.italic.value ? 'italic' : 'normal')
-            .style('text-decoration', this.formattingSettings.directEditSettings.font.underline.value ? 'underline' : 'none')
-            .style('font-weight', this.formattingSettings.directEditSettings.font.bold.value ? 'bold' : 'normal')
-            .style('right', this.formattingSettings.directEditSettings.position.value.value === 'Right' ? '12px' : '60px')
-            .style('background-color', this.formattingSettings.directEditSettings.background.value.value)
-            .style('font-size', `${this.formattingSettings.directEditSettings.font.fontSize.value}px`)
+            .style("font-family", this.formattingSettings.directEditSettings.font.fontFamily.value)
+            .style("color", this.formattingSettings.directEditSettings.fontColor.value.value)
+            .style("font-style", this.formattingSettings.directEditSettings.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", this.formattingSettings.directEditSettings.font.underline.value ? "underline" : "none")
+            .style("font-weight", this.formattingSettings.directEditSettings.font.bold.value ? "bold" : "normal")
+            .style("right", this.formattingSettings.directEditSettings.position.value.value === "Right" ? "12px" : "60px")
+            .style("background-color", this.formattingSettings.directEditSettings.background.value.value)
+            .style("font-size", `${this.formattingSettings.directEditSettings.font.fontSize.value}px`)
             .text(this.formattingSettings.directEditSettings.textProperty.value);
     }
     private static wordBreak(
-        textNodes: Selection<any, SVGElement>,
+        textNodes: Selection<SVGElement>,
         allowedWidth: number,
         maxHeight: number
     ) {
@@ -551,7 +529,7 @@ export class BarChart implements IVisual {
     }
 
     private handleBarClick(barSelectionMerged: Selection<any>) {
-        barSelectionMerged.on('click', (event: Event, datum: BarChartDataPoint) => {
+        barSelectionMerged.on("click", (event: Event, datum: BarChartDataPoint) => {
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.hostCapabilities.allowInteractions) {
                 const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
@@ -568,7 +546,7 @@ export class BarChart implements IVisual {
 
     private handleClick(barSelection: Selection<any>) {
         // Clear selection when clicking outside a bar
-        this.svg.on('click', () => {
+        this.svg.on("click", () => {
             if (this.host.hostCapabilities.allowInteractions) {
                 this.selectionManager
                     .clear()
@@ -580,7 +558,7 @@ export class BarChart implements IVisual {
     }
 
     private handleContextMenu() {
-        this.svg.on('contextmenu', (event) => {
+        this.svg.on("contextmenu", (event) => {
             const mouseEvent: MouseEvent = event;
             const eventTarget: EventTarget = mouseEvent.target;
             const dataPoint: any = d3Select(<BaseType>eventTarget).datum();
@@ -593,7 +571,7 @@ export class BarChart implements IVisual {
     }
 
     private syncSelectionState(
-        selection: Selection<BarChartDataPoint>,
+        selection: Selection<BaseType, BarChartDataPoint>,
         selectionIds: ISelectionId[]
     ): void {
         if (!selection || !selectionIds) {
@@ -637,7 +615,7 @@ export class BarChart implements IVisual {
      * Returns properties pane formatting model content hierarchies, properties and latest formatting values, Then populate properties pane.
      * This method is called once every time we open properties pane or when the user edit any format property. 
      */
-    public getFormattingModel(): powerbiVisualsApi.visuals.FormattingModel {
+    public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -684,7 +662,7 @@ export class BarChart implements IVisual {
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: colorSelectorReferences.cardUid },
-                label: 'Color'
+                label: "Color"
             }
         ];
     }
@@ -694,7 +672,7 @@ export class BarChart implements IVisual {
         return {
             type: SubSelectionStylesType.Shape,
             fill: {
-                label: 'Fill',
+                label: "Fill",
                 reference: {
                     ...colorSelectorReferences.fill,
                     selector
@@ -710,7 +688,7 @@ export class BarChart implements IVisual {
                 reference: {
                     ...enableAxisReferences.fill
                 },
-                label: 'Enable Axis'
+                label: "Enable Axis"
             }
         }
     }
@@ -732,13 +710,13 @@ export class BarChart implements IVisual {
                     ...enableAxisReferences.show
                 }],
                 ...enableAxisReferences.show,
-                disabledLabel: 'Delete',
-                enabledLabel: 'Delete'
+                disabledLabel: "Delete",
+                enabledLabel: "Delete"
             },
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: enableAxisReferences.cardUid },
-                label: 'EnableAxis'
+                label: "EnableAxis"
             }
         ];
     }
@@ -763,18 +741,18 @@ export class BarChart implements IVisual {
                     ...directEditReferences.show,
                 }],
                 ...directEditReferences.show,
-                disabledLabel: 'Delete',
+                disabledLabel: "Delete",
 
             },
             {
                 type: VisualShortcutType.Picker,
                 ...directEditReferences.position,
-                label: 'Position'
+                label: "Position"
             },
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: directEditReferences.cardUid },
-                label: 'Direct edit'
+                label: "Direct edit"
             }
         ];
     }
@@ -786,44 +764,44 @@ export class BarChart implements IVisual {
                 reference: {
                     ...directEditReferences.fontFamily
                 },
-                label: 'font'
+                label: "font"
             },
             bold: {
                 reference: {
                     ...directEditReferences.bold
                 },
-                label: 'font'
+                label: "font"
             },
             italic: {
                 reference: {
                     ...directEditReferences.italic
                 },
-                label: 'font'
+                label: "font"
             },
             underline: {
                 reference: {
                     ...directEditReferences.underline
                 },
-                label: 'font'
+                label: "font"
             },
             fontSize: {
                 reference: {
                     ...directEditReferences.fontSize
                 },
-                label: 'font'
+                label: "font"
             },
             fontColor: {
                 reference: {
                     ...directEditReferences.fontColor
                 },
-                label: 'fontColor'
+                label: "fontColor"
             },
             background: {
                 reference: {
-                    objectName: 'directEdit',
-                    propertyName: 'background'
+                    objectName: "directEdit",
+                    propertyName: "background"
                 },
-                label: 'background'
+                label: "background"
             }
         };
     }
@@ -842,8 +820,8 @@ export class BarChart implements IVisual {
     }
 
     private creatDirectEditElement(): Element {
-        const element = document.createElement('div');
-        element.setAttribute('class', 'direct-edit');
+        const element = document.createElement("div");
+        element.setAttribute("class", "direct-edit");
         return element;
     }
 
@@ -924,7 +902,7 @@ export class BarChart implements IVisual {
         }
 
         // If plain string, just return it
-        if (typeof (color) === 'string') {
+        if (typeof (color) === "string") {
             return color;
         }
         // Otherwise, extract string representation from Fill type object
@@ -933,14 +911,14 @@ export class BarChart implements IVisual {
 
     private initAverageLine() {
         this.averageLine = this.svg
-            .append('g')
-            .classed('averageLine', true);
+            .append("g")
+            .classed("averageLine", true);
 
-        this.averageLine.append('line')
-            .attr('id', 'averageLine');
+        this.averageLine.append("line")
+            .attr("id", "averageLine");
 
-        this.averageLine.append('text')
-            .attr('id', 'averageLineLabel');
+        this.averageLine.append("text")
+            .attr("id", "averageLineLabel");
     }
 
     private handleAverageLineUpdate(height: number, width: number, yScale: ScaleLinear<number, number>) {
