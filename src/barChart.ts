@@ -1,20 +1,23 @@
 import {
+    BaseType,
     select as d3Select,
     Selection as d3Selection
 } from "d3-selection";
 import {
+    ScaleBand,
+    ScaleLinear,
     scaleBand,
     scaleLinear
 } from "d3-scale";
 import "./../style/visual.less";
 
-import { axisBottom } from "d3-axis";
+import { Axis, axisBottom } from "d3-axis";
 
 import powerbiVisualsApi from "powerbi-visuals-api";
 
 import powerbi = powerbiVisualsApi;
 
-type Selection<T1, T2 = T1> = d3Selection<any, T1, any, T2>;
+type Selection<T extends BaseType> = d3Selection<T, any, any, any>;
 
 // powerbi.visuals
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
@@ -166,15 +169,15 @@ function getAxisTextFillColor(
 }
 
 export class BarChart implements IVisual {
-    private svg: Selection<any>;
+    private svg: Selection<SVGSVGElement>;
     private host: IVisualHost;
     private barContainer: Selection<SVGElement>;
-    private xAxis: Selection<SVGElement>;
+    private xAxis: Selection<SVGGElement>;
     private barDataPoints: BarChartDataPoint[];
     private formattingSettings: BarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
-    private barSelection: Selection<any>;
+    private barSelection: Selection<BaseType>;
 
     static Config = {
         xScalePadding: 0.1,
@@ -245,16 +248,16 @@ export class BarChart implements IVisual {
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value);
 
-        const yScale = scaleLinear()
+        const yScale: ScaleLinear<number, number> = scaleLinear()
             .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
             .range([height, 0]);
 
-        const xScale = scaleBand()
+        const xScale: ScaleBand<string> = scaleBand()
             .domain(this.barDataPoints.map(d => d.category))
             .rangeRound([0, width])
             .padding(0.2);
 
-        const xAxis = axisBottom(xScale);
+        const xAxis: Axis<string> = axisBottom(xScale);
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         this.xAxis.attr('transform', 'translate(0, ' + height + ')')
@@ -265,7 +268,7 @@ export class BarChart implements IVisual {
                 this.formattingSettings.enableAxis.fill.value.value
             ));
 
-        const textNodes = this.xAxis.selectAll("text");
+        const textNodes: Selection<SVGElement> = this.xAxis.selectAll("text");
         BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
 
         this.barSelection = this.barContainer
@@ -281,9 +284,9 @@ export class BarChart implements IVisual {
 
         barSelectionMerged
             .attr("width", xScale.bandwidth())
-            .attr("height", d => height - yScale(<number>d.value))
-            .attr("y", d => yScale(<number>d.value))
-            .attr("x", d => xScale(d.category))
+            .attr("height", (dataPoint: BarChartDataPoint) => height - yScale(<number>dataPoint.value))
+            .attr("y", (dataPoint: BarChartDataPoint) => yScale(<number>dataPoint.value))
+            .attr("x", (dataPoint: BarChartDataPoint) => xScale(dataPoint.category))
             .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
             .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
             .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
@@ -294,7 +297,7 @@ export class BarChart implements IVisual {
     }
 
     private static wordBreak(
-        textNodes: Selection<any, SVGElement>,
+        textNodes: Selection<SVGElement>,
         allowedWidth: number,
         maxHeight: number
     ) {
