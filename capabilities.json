@@ -137,7 +137,16 @@
         },
         "position": {
           "type": {
-            "enumeration": []
+            "enumeration": [
+              {
+                "value": "Left",
+                "displayName": "Left"
+              },
+              {
+                "value": "Right",
+                "displayName": "Right"
+              }
+            ]
           }
         }
       }

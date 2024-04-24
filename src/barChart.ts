@@ -510,7 +510,7 @@ export class BarChart implements IVisual {
             .style("font-style", this.formattingSettings.directEditSettings.font.italic.value ? "italic" : "normal")
             .style("text-decoration", this.formattingSettings.directEditSettings.font.underline.value ? "underline" : "none")
             .style("font-weight", this.formattingSettings.directEditSettings.font.bold.value ? "bold" : "normal")
-            .style("right", this.formattingSettings.directEditSettings.position.value.value === "Right" ? "12px" : "60px")
+            .style("right", this.formattingSettings.directEditSettings.position.value === "Right" ? "12px" : "60px")
             .style("background-color", this.formattingSettings.directEditSettings.background.value.value)
             .style("font-size", `${this.formattingSettings.directEditSettings.font.fontSize.value}px`)
             .text(this.formattingSettings.directEditSettings.textProperty.value);

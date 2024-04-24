@@ -9,7 +9,7 @@ import ColorPicker = formattingSettings.ColorPicker;
 import ToggleSwitch = formattingSettings.ToggleSwitch;
 import NumUpDown = formattingSettings.NumUpDown;
 import TextInput = formattingSettings.TextInput;
-import ItemDropdown = formattingSettings.ItemDropdown;
+import AutoDropdown = formattingSettings.AutoDropdown;
 import FontControl = formattingSettings.FontControl;
 import FontPicker = formattingSettings.FontPicker;
 
@@ -98,7 +98,6 @@ class DirectEditSettings extends Card {
     name: string = "directEdit";
     private minFontSize: number = 8;
     private defaultFontSize: number = 11;
-    private positionOptions: powerbiVisualsApi.IEnumMember[] = [{ displayName: "Right", value: "Right" }, { displayName: "Left", value: "Left" }]
     show = new ToggleSwitch({
         name: "show",
         displayName: undefined,
@@ -113,11 +112,10 @@ class DirectEditSettings extends Card {
         placeholder: ""
     });
 
-    position = new ItemDropdown({
+    position = new AutoDropdown({
         name: "position",
         displayName: "Position",
-        items: this.positionOptions,
-        value: this.positionOptions[0]
+        value: "Right"
     });
 
     font = new FontControl({
