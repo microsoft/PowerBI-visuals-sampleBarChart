@@ -139,10 +139,12 @@
           "type": {
             "enumeration": [
               {
-                "value": "Left"
+                "value": "Left",
+                "displayName": "Left"
               },
               {
-                "value": "Right"
+                "value": "Right",
+                "displayName": "Right"
               }
             ]
           }

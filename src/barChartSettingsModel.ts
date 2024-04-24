@@ -4,34 +4,42 @@ import { BarChartDataPoint } from "./barChart";
 
 import Card = formattingSettings.SimpleCard;
 import Model = formattingSettings.Model;
+import Slice = formattingSettings.Slice;
+import ColorPicker = formattingSettings.ColorPicker;
+import ToggleSwitch = formattingSettings.ToggleSwitch;
+import NumUpDown = formattingSettings.NumUpDown;
+import TextInput = formattingSettings.TextInput;
+import AutoDropdown = formattingSettings.AutoDropdown;
+import FontControl = formattingSettings.FontControl;
+import FontPicker = formattingSettings.FontPicker;
 
 class EnableAxisCardSettings extends Card {
-    show = new formattingSettings.ToggleSwitch({
+    show = new ToggleSwitch({
         name: "show",
         displayName: undefined,
         value: false,
     });
 
-    fill = new formattingSettings.ColorPicker({
+    fill = new ColorPicker({
         name: "fill",
         displayName: "Color",
         value: { value: "#000000" }
     });
-    topLevelSlice = this.show;
+    topLevelSlice: ToggleSwitch = this.show;
     name: string = "enableAxis";
     displayName: string = "Enable Axis";
-    slices = [this.fill];
+    slices: Slice[] = [this.fill];
 }
 
 
 class ColorSelectorCardSettings extends Card {
     name: string = "colorSelector";
     displayName: string = "Data Colors";
-    slices = [];
+    slices: Slice[] = [];
 }
 
 class GeneralViewCardSettings extends Card {
-    opacity = new formattingSettings.NumUpDown({
+    opacity = new NumUpDown({
         name: "opacity",
         displayName: "Bars Opacity",
         value: 100,
@@ -47,7 +55,7 @@ class GeneralViewCardSettings extends Card {
         }
     });
 
-    showHelpLink = new formattingSettings.ToggleSwitch({
+    showHelpLink = new ToggleSwitch({
         name: "showHelpLink",
         displayName: "Show Help Button",
         value: false
@@ -56,71 +64,69 @@ class GeneralViewCardSettings extends Card {
     name: string = "generalView";
     displayName: string = "General View";
     helpLinkColor: string = "#80B0E0"
-    slices = [this.opacity, this.showHelpLink];
+    slices: Slice[] = [this.opacity, this.showHelpLink];
 }
 
 class AverageLineCardSettings extends Card {
-    show = new formattingSettings.ToggleSwitch({
+    show = new ToggleSwitch({
         name: "show",
         displayName: undefined,
         value: false,
     });
 
-    fill = new formattingSettings.ColorPicker({
+    fill = new ColorPicker({
         name: "fill",
         displayName: "Color",
         value: { value: "#888888" },
     });
 
-    showDataLabel = new formattingSettings.ToggleSwitch({
+    showDataLabel = new ToggleSwitch({
         name: "showDataLabel",
         displayName: "Data Label",
         value: false
     });
 
-    topLevelSlice = this.show;
+    topLevelSlice: ToggleSwitch = this.show;
     name: string = "averageLine";
     displayName: string = "Average Line";
     analyticsPane: boolean = true;
-    slices = [this.show, this.fill, this.showDataLabel];
+    slices: Slice[] = [this.show, this.fill, this.showDataLabel];
 }
 
 class DirectEditSettings extends Card {
-    displayName = 'Direct Edit';
-    name = 'directEdit';
+    displayName: string = "Direct Edit";
+    name: string = "directEdit";
     private minFontSize: number = 8;
     private defaultFontSize: number = 11;
-    private positionOptions: powerbiVisualsApi.IEnumMember[] = [{ displayName: 'Right', value: 'Right' }, { displayName: 'Left', value: 'Left' }]
-    show = new formattingSettings.ToggleSwitch({
+    show = new ToggleSwitch({
         name: "show",
         displayName: undefined,
         value: true,
     });
 
-    topLevelSlice = this.show;
-    textProperty = new formattingSettings.TextInput({
+    topLevelSlice: ToggleSwitch = this.show;
+    textProperty = new TextInput({
         displayName: "Text Property",
         name: "textProperty",
         value: "What is your quest?",
         placeholder: ""
     });
 
-    position = new formattingSettings.ItemDropdown({
-        name: 'position',
-        displayName: 'Position',
-        items: this.positionOptions,
-        value: this.positionOptions[0]
+    position = new AutoDropdown({
+        name: "position",
+        displayName: "Position",
+        value: "Right"
     });
 
-    font = new formattingSettings.FontControl({
+    font = new FontControl({
         name: "font",
-        displayName: 'Font',
-        fontFamily: new formattingSettings.FontPicker({
+        displayName: "Font",
+        fontFamily: new FontPicker({
             name: "fontFamily",
             displayName: "Font Family",
             value: "Segoe UI, wf_segoe-ui_normal, helvetica, arial, sans-serif"
         }),
-        fontSize: new formattingSettings.NumUpDown({
+        fontSize: new NumUpDown({
             name: "fontSize",
             displayName: "Font Size",
             value: this.defaultFontSize,
@@ -131,34 +137,34 @@ class DirectEditSettings extends Card {
                 }
             }
         }),
-        bold: new formattingSettings.ToggleSwitch({
-            name: 'bold',
+        bold: new ToggleSwitch({
+            name: "bold",
             displayName: "bold",
             value: true
         }),
-        italic: new formattingSettings.ToggleSwitch({
-            name: 'italic',
+        italic: new ToggleSwitch({
+            name: "italic",
             displayName: "italic",
             value: true
         }),
-        underline: new formattingSettings.ToggleSwitch({
-            name: 'underline',
+        underline: new ToggleSwitch({
+            name: "underline",
             displayName: "underline",
             value: true
         })
     });
 
-    fontColor = new formattingSettings.ColorPicker({
+    fontColor = new ColorPicker({
         name: "fontColor",
         displayName: "Color",
         value: { value: "#000000" }
     });
-    background = new formattingSettings.ColorPicker({
+    background = new ColorPicker({
         name: "background",
         displayName: "Background Color",
         value: { value: "#FFFFFF" }
     });
-    slices = [this.textProperty, this.font, this.fontColor, this.background, this.position];
+    slices: Slice[] = [this.textProperty, this.font, this.fontColor, this.background, this.position];
 }
 
 /**
@@ -170,17 +176,17 @@ export class BarChartSettingsModel extends Model {
     generalView = new GeneralViewCardSettings();
     averageLine = new AverageLineCardSettings();
     directEditSettings = new DirectEditSettings();
-    cards = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine, this.directEditSettings];
+    cards: Card[] = [this.enableAxis, this.colorSelector, this.generalView, this.averageLine, this.directEditSettings];
 
     /**
      * populate colorSelector object categories formatting properties
      * @param dataPoints 
      */
     populateColorSelector(dataPoints: BarChartDataPoint[]) {
-        const slices: formattingSettings.ColorPicker[] = this.colorSelector.slices;
+        const slices: Slice[] = this.colorSelector.slices;
         if (dataPoints) {
             dataPoints.forEach(dataPoint => {
-                slices.push(new formattingSettings.ColorPicker({
+                slices.push(new ColorPicker({
                     name: "fill",
                     displayName: dataPoint.category,
                     value: { value: dataPoint.color },

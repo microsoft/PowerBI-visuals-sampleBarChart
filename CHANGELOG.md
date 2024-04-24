@@ -2,6 +2,16 @@
 
 This page contains information about changes to the 'Sample bar chart' Power BI visual.
 
+## 4.1.1.0
+
+* Added localizationManager
+* Replaced objectEnumerationUtility with dataviewUtils
+
+## 4.1.0.0
+
+* Added onObject support
+* Added formatting model
+
 ## 4.0.0
 
 * Added *dynamic format* feature support
