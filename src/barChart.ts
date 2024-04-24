@@ -31,7 +31,6 @@ type Selection<T1 extends BaseType, T2 = any> = d3Selection<T1, T2, any, any>;
 // powerbi.visuals
 import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
-import DataViewObjects = powerbi.DataViewObjects;
 import Fill = powerbi.Fill;
 import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColorPalette;
 import ISelectionId = powerbi.visuals.ISelectionId;
