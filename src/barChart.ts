@@ -23,7 +23,6 @@ import {
 import { dataViewObjects} from "powerbi-visuals-utils-dataviewutils";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
-import { getLocalizedString } from "./localization/localizationHelper"
 
 import "./../style/visual.less";
 
@@ -51,6 +50,7 @@ import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
 import FormattingId = powerbi.visuals.FormattingId;
+import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 
 
 /**
@@ -286,6 +286,7 @@ export class BarChart implements IVisual {
     private tooltipServiceWrapper: ITooltipServiceWrapper;
     private xAxis: Selection<SVGGElement>;
     private barSelection: Selection<BaseType, BarChartDataPoint>;
+    private localizationManager: ILocalizationManager;
 
     private subSelectionHelper: HtmlSubSelectionHelper;
     private formatMode: boolean = false;
@@ -327,8 +328,8 @@ export class BarChart implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
 
         //Creating the formatting settings service.
-        const localizationManager = this.host.createLocalizationManager();
-        this.formattingSettingsService = new FormattingSettingsService(localizationManager);
+        this.localizationManager = this.host.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
 
         this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
             hostElement: options.element,
@@ -837,7 +838,7 @@ export class BarChart implements IVisual {
 
     private getTooltipData(value: any): VisualTooltipDataItem[] {
         const formattedValue = valueFormatter.format(value.value, value.format);
-        const language = getLocalizedString(this.locale, "LanguageKey");
+        const language = this.localizationManager.getDisplayName("LanguageKey");
         return [{
             displayName: value.category,
             value: formattedValue,
