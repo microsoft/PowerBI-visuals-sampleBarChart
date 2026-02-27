@@ -20,9 +20,10 @@ import {
     HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDirectEdit as SubSelectableDirectEditAttr,
     SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableTypeAttribute
 } from "powerbi-visuals-utils-onobjectutils";
-import { dataViewObjects} from "powerbi-visuals-utils-dataviewutils";
+import { dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
+import IVisualEventService = powerbi.extensibility.IVisualEventService;
 
 import "./../style/visual.less";
 
@@ -248,7 +249,7 @@ function getColumnColorByIndex(
     };
 
     let colorFromObjects: Fill;
-    if(category.objects?.[index]){
+    if (category.objects?.[index]) {
         colorFromObjects = dataViewObjects.getValue(category?.objects[index], prop);
     }
 
@@ -286,6 +287,7 @@ export class BarChart implements IVisual {
     private xAxis: Selection<SVGGElement>;
     private barSelection: Selection<BaseType, BarChartDataPoint>;
     private localizationManager: ILocalizationManager;
+    private events: IVisualEventService;
 
     private subSelectionHelper: HtmlSubSelectionHelper;
     private formatMode: boolean = false;
@@ -319,6 +321,7 @@ export class BarChart implements IVisual {
         this.element = options.element;
         this.selectionManager = options.host.createSelectionManager();
         this.locale = options.host.locale;
+        this.events = options.host.eventService;
 
         this.selectionManager.registerOnSelectCallback(() => {
             this.syncSelectionState(this.barSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
@@ -378,111 +381,120 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        // Turn on landing page in capabilities and remove comment to turn on landing page!
-        // this.HandleLandingPage(options);
-        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews?.[0]);
-        this.barDataPoints = createSelectorDataPoints(options, this.host);
-        this.formattingSettings.populateColorSelector(this.barDataPoints);
-        this.formatMode = options.formatMode;
-        const width = options.viewport.width;
-        let height = options.viewport.height;
+        this.events.renderingStarted(options);
 
-        this.svg
-            .attr("width", width)
-            .attr("height", height);
+        try {
+            // Turn on landing page in capabilities and remove comment to turn on landing page!
+            // this.HandleLandingPage(options);
+            this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews?.[0]);
+            this.barDataPoints = createSelectorDataPoints(options, this.host);
+            this.formattingSettings.populateColorSelector(this.barDataPoints);
+            this.formatMode = options.formatMode;
+            const width = options.viewport.width;
+            let height = options.viewport.height;
 
-        if (this.formattingSettings.enableAxis.show.value) {
-            const margins = BarChart.Config.margins;
-            height -= margins.bottom;
+            this.svg
+                .attr("width", width)
+                .attr("height", height);
+
+            if (this.formattingSettings.enableAxis.show.value) {
+                const margins = BarChart.Config.margins;
+                height -= margins.bottom;
+            }
+
+            this.helpLinkElement
+                .classed("hidden", !this.formattingSettings.generalView.showHelpLink.value)
+                .style("border-color", this.formattingSettings.generalView.helpLinkColor)
+                .style("color", this.formattingSettings.generalView.helpLinkColor);
+
+            this.updateDirectEditElementFormat();
+            this.xAxis
+                .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
+                .style("fill", this.formattingSettings.enableAxis.fill.value.value);
+
+            const yScale: ScaleLinear<number, number> = scaleLinear()
+                .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
+                .range([height, 0]);
+
+            const xScale: ScaleBand<string> = scaleBand()
+                .domain(this.barDataPoints.map(d => d.category))
+                .rangeRound([0, width])
+                .padding(0.2);
+
+            const xAxis: Axis<string> = axisBottom(xScale);
+            this.xAxis.attr("transform", "translate(0, " + height + ")")
+                .call(xAxis)
+                .attr("color", this.formattingSettings.enableAxis.fill.value.value);
+
+            const textNodes: Selection<SVGElement> = this.xAxis.selectAll("text");
+            textNodes
+                .attr(SubSelectableObjectNameAttribute, "enableAxis")
+                .attr(SubSelectableDisplayNameAttribute, "x-Axis")
+                .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
+                .classed(HtmlSubSelectableClass, options.formatMode && this.formattingSettings.enableAxis.show.value);
+            BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
+            this.handleAverageLineUpdate(height, width, yScale);
+
+            this.barSelection = this.barContainer
+                .selectAll(".bar")
+                .data(this.barDataPoints);
+
+            const barSelectionMerged = this.barSelection
+                .enter()
+                .append("rect")
+                .merge(<any>this.barSelection);
+
+            barSelectionMerged.classed("bar", true);
+
+            const opacity: number = this.formattingSettings.generalView.opacity.value / 100;
+            barSelectionMerged
+                .attr(SubSelectableObjectNameAttribute, "colorSelector")
+                .attr(SubSelectableDisplayNameAttribute, (dataPoint: BarChartDataPoint) => this.formattingSettings.colorSelector.slices[dataPoint.index].displayName)
+                .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
+                .classed(HtmlSubSelectableClass, options.formatMode)
+                .attr("width", xScale.bandwidth())
+                .attr("height", (dataPoint: BarChartDataPoint) => height - yScale(<number>dataPoint.value))
+                .attr("y", (dataPoint: BarChartDataPoint) => yScale(<number>dataPoint.value))
+                .attr("x", (dataPoint: BarChartDataPoint) => xScale(dataPoint.category))
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity)
+                .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
+                .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
+                .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
+
+            this.tooltipServiceWrapper.addTooltip(barSelectionMerged,
+                (dataPoint: BarChartDataPoint) => this.getTooltipData(dataPoint),
+                (dataPoint: BarChartDataPoint) => dataPoint.selectionId
+            );
+
+            this.syncSelectionState(
+                barSelectionMerged,
+                <ISelectionId[]>this.selectionManager.getSelectionIds()
+            );
+            if (this.formatMode) {
+                this.removeEventHandlers(barSelectionMerged);
+            } else {
+                this.addEventHandlers(barSelectionMerged);
+            }
+
+            this.subSelectionHelper.setFormatMode(options.formatMode);
+            const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
+                | powerbi.VisualUpdateType.Resize
+                | powerbi.VisualUpdateType.FormattingSubSelectionChange);
+            if (this.formatMode && shouldUpdateSubSelection) {
+                this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
+            }
+
+            this.barSelection
+                .exit()
+                .remove();
+            this.handleClick(barSelectionMerged);
+            this.events.renderingFinished(options);
         }
-
-        this.helpLinkElement
-            .classed("hidden", !this.formattingSettings.generalView.showHelpLink.value)
-            .style("border-color", this.formattingSettings.generalView.helpLinkColor)
-            .style("color", this.formattingSettings.generalView.helpLinkColor);
-
-        this.updateDirectEditElementFormat();
-        this.xAxis
-            .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
-            .style("fill", this.formattingSettings.enableAxis.fill.value.value);
-
-        const yScale: ScaleLinear<number, number> = scaleLinear()
-            .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
-            .range([height, 0]);
-
-        const xScale: ScaleBand<string> = scaleBand()
-            .domain(this.barDataPoints.map(d => d.category))
-            .rangeRound([0, width])
-            .padding(0.2);
-
-        const xAxis: Axis<string> = axisBottom(xScale);
-        this.xAxis.attr("transform", "translate(0, " + height + ")")
-            .call(xAxis)
-            .attr("color", this.formattingSettings.enableAxis.fill.value.value);
-
-        const textNodes: Selection<SVGElement> = this.xAxis.selectAll("text");
-        textNodes
-            .attr(SubSelectableObjectNameAttribute, "enableAxis")
-            .attr(SubSelectableDisplayNameAttribute, "x-Axis")
-            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
-            .classed(HtmlSubSelectableClass, options.formatMode && this.formattingSettings.enableAxis.show.value);
-        BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
-        this.handleAverageLineUpdate(height, width, yScale);
-
-        this.barSelection = this.barContainer
-            .selectAll(".bar")
-            .data(this.barDataPoints);
-
-        const barSelectionMerged = this.barSelection
-            .enter()
-            .append("rect")
-            .merge(<any>this.barSelection);
-
-        barSelectionMerged.classed("bar", true);
-
-        const opacity: number = this.formattingSettings.generalView.opacity.value / 100;
-        barSelectionMerged
-            .attr(SubSelectableObjectNameAttribute, "colorSelector")
-            .attr(SubSelectableDisplayNameAttribute, (dataPoint: BarChartDataPoint) => this.formattingSettings.colorSelector.slices[dataPoint.index].displayName)
-            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
-            .classed(HtmlSubSelectableClass, options.formatMode)
-            .attr("width", xScale.bandwidth())
-            .attr("height", (dataPoint: BarChartDataPoint) => height - yScale(<number>dataPoint.value))
-            .attr("y", (dataPoint: BarChartDataPoint) => yScale(<number>dataPoint.value))
-            .attr("x", (dataPoint: BarChartDataPoint) => xScale(dataPoint.category))
-            .style("fill-opacity", opacity)
-            .style("stroke-opacity", opacity)
-            .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
-            .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
-            .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
-
-        this.tooltipServiceWrapper.addTooltip(barSelectionMerged,
-            (dataPoint: BarChartDataPoint) => this.getTooltipData(dataPoint),
-            (dataPoint: BarChartDataPoint) => dataPoint.selectionId
-        );
-
-        this.syncSelectionState(
-            barSelectionMerged,
-            <ISelectionId[]>this.selectionManager.getSelectionIds()
-        );
-        if (this.formatMode) {
-            this.removeEventHandlers(barSelectionMerged);
-        } else {
-            this.addEventHandlers(barSelectionMerged);
+        catch (error) {
+            this.host.eventService.renderingFailed(options, String(error));
+            throw error;
         }
-
-        this.subSelectionHelper.setFormatMode(options.formatMode);
-        const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
-            | powerbi.VisualUpdateType.Resize
-            | powerbi.VisualUpdateType.FormattingSubSelectionChange);
-        if (this.formatMode && shouldUpdateSubSelection) {
-            this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
-        }
-
-        this.barSelection
-            .exit()
-            .remove();
-        this.handleClick(barSelectionMerged);
     }
 
     private removeEventHandlers(barSelectionMerged: d3Selection<SVGRectElement, any, any, any>) {
