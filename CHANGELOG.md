@@ -2,6 +2,10 @@
 
 This page contains information about changes to the 'Sample bar chart' Power BI visual.
 
+## 4.1.2.0
+
+* Added rendering events API
+
 ## 4.1.1.0
 
 * Added localizationManager
